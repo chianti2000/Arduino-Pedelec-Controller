@@ -28,7 +28,7 @@ Features:
 - optional Bluetooth module to communicate with Android app
 */
 
-#include "config.h"          //place all your personal configurations there and keep that file when updating!   
+#include "config.h"          //place all your personal configurations there and keep that file when updating!
 #include "globals.h"
 #include "display.h"         //display output functions
 #include "display_backlight.h"  // LCD display backlight support
@@ -37,6 +37,22 @@ Features:
 #include "switches.h"        //contains switch handling functions
 #include "menu.h"            //on the go menu
 #include "serial_command.h"       //serial (bluetooth) communication stuff
+
+
+#ifdef USE_VESC_UART_READ
+#include "VescUart.h"
+struct bldcMeasure VescMeasuredValues;
+remotePackage remPack;
+
+#ifdef VESC_DEBUG_SERIAL
+#include "SoftwareSerial.h"
+SoftwareSerial softSerial(10,11);
+#define VESC_SERIAL softSerial
+#define VESC_DEBUG_SERIAL Serial
+#else
+#define VESC_SERIAL Serial
+#endif
+#endif
 
 #ifdef SUPPORT_MOTOR_SERVO   //RC motor controller connected to motor output
 #include <Servo.h>
@@ -598,6 +614,8 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #endif
 //voltage, current, power
 
+#ifndef USE_VESC_UART_READ
+
 #ifndef USE_EXTERNAL_VOLTAGE_SENSOR
     voltage = analogRead_noISR(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
 #else
@@ -622,6 +640,17 @@ if (loadcell.is_ready())     //new conversion result from load cell available
   #endif
 #else //using external current sensor
     current = analogRead_noISR(external_current_in)*external_current_amplitude+external_current_offset;
+#endif
+#else
+    if (VescUartGetValue(VescMeasuredValues)) {
+        //	SerialPrint(VescMeasuredValues);
+        voltage = VescMeasuredValues.inpVoltage;
+        current = VescMeasuredValues.avgInputCurrent;
+    }
+    else
+    {
+        Serial.print("could not get Data from VESC");
+    }
 #endif
 
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
@@ -820,6 +849,13 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 //Broken speed sensor detection END
 #ifdef SUPPORT_MOTOR_SERVO
     motorservo.writeMicroseconds(throttle_write);
+#else
+#ifdef USE_VESC_UART_READ
+    remPack.valLowerButton = false;
+    remPack.valUpperButton = false;
+    remPack.valXJoy = map(throttle_write, 0, 255, -128, 128);
+    remPack.valYJoy = 128;
+    VescUartSetNunchukValues(remPack);
 #else
     analogWrite(throttle_out,throttle_write);
 #endif

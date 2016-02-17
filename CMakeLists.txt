@@ -17,7 +17,7 @@ if (config_h_lines)
     message("Building firmware for FC 2.0 or higher")
     set(FC_PROCESSOR mega2560)
 else(config_h_lines)
-    set(FC_PROCESSOR atmega328)
+    set(FC_PROCESSOR nano)
 endif(config_h_lines)
 
 # Documentation

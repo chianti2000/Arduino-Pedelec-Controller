@@ -9,7 +9,7 @@
 #endif
 #include "switches_action.h"
 
-#define HARDWARE_REV 21      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
+#define HARDWARE_REV 1      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 
 #define DISPLAY_TYPE_NONE           (1<<0)                  // No display at all
 #define DISPLAY_TYPE_NOKIA_5PIN     (1<<1)                  // Nokia 5110 5-pin mode
@@ -121,8 +121,8 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 // #define SUPPORT_BMP085   //uncomment if BMP085 available (barometric pressure + temperature sensor)
 // #define SUPPORT_DSPC01   //uncomment if DSPC01 available (barometric altitude + temperature sensor), connect to I2C-BUS
 // #define SUPPORT_RTC     //uncomment if DS1307 RTC module connected to I2C
-#define SUPPORT_POTI        //uncomment if Poti connected
-// #define SUPPORT_SOFT_POTI //uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
+// #define SUPPORT_POTI        //uncomment if Poti connected
+#define SUPPORT_SOFT_POTI //uncomment if Poti is emulated: The switch_disp button will store the current throttle value as poti value
 // #define SUPPORT_THROTTLE_AUTO_CRUISE //uncomment to automatically set poti value when throttle is held constant for a while
 
 
@@ -226,7 +226,10 @@ const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this valu
 const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
 // #define USE_EXTERNAL_CURRENT_SENSOR
 // #define USE_EXTERNAL_VOLTAGE_SENSOR
-const float external_voltage_offset = 0.0;  
+#define USE_VESC_UART_READ
+#define VESC_DEBUG_SERIAL
+
+const float external_voltage_offset = 0.0;
 const float external_voltage_amplitude = 0.00488758553; //default of 0.00488758553 gives Voltage = Voltage at Pin            
 const float external_current_offset = 0.0;    
 const float external_current_amplitude = 0.00488758553; //default of 0.00488758553 gives Current = Voltage at Pin 
