@@ -21,20 +21,27 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMWriteAnything
 */
 
-#define DISPLAY_TYPE 0      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
-#define HARDWARE_REV 5      //place your hardware revision (1-5) here: x means hardware-revision 1.x
+#define DISPLAY_TYPE 1      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
+#define HARDWARE_REV 0      //place your hardware revision (1-5) here: x means hardware-revision 1.x
 
 
 #include "EEPROM.h"          //
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #if DISPLAY_TYPE <= 1
 #include "PCD8544_nano.h"                    //for Nokia Display
+//#include "datatypes.h"
+#include "VescUart.h"
+
 static PCD8544 lcd;                          //for Nokia Display
 #endif
 #if DISPLAY_TYPE == 2
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
+
+struct bldcMeasure VescMeasuredValues;
+//remotePackage remPack;
+
 
 struct savings   //add variables if you want to store additional values to the eeprom
 {
@@ -63,17 +70,22 @@ const int fet_out = A1;              //FET: Pull high to switch off
 const int current_in = A2;           //Current read-Pin
 const int option_pin = A3;            //Analog option
 #endif
-const int poti_in = A6;              //PAS Speed-Poti-Pin
+// const int poti_in = A6;              //PAS Speed-Poti-Pin
+
 const int throttle_in = A7;          //Throttle read-Pin
-const int pas_in = 2;                //PAS Sensor read-Pin
-const int wheel_in = 3;              //Speed read-Pin
-const int brake_in = 4;              //Brake-In-Pin
-const int switch_thr = 5;            //Throttle-Switch read-Pin
-const int throttle_out = 6;          //Throttle out-Pin
-const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
-const int switch_disp = 8;           //Display switch
+const int pas_in = 3;                //PAS Sensor read-Pin
+const int wheel_in = 2;              //Speed read-Pin
+
+const int brake_in = 7;              //Brake-In-Pin
+//const int switch_thr = 5;            //Throttle-Switch read-Pin
+
+//const int throttle_out = 6;          //Throttle out-Pin
+
+//const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
+//const int switch_disp = 8;           //Display switch
+
 #if DISPLAY_TYPE == 1
-const int switch_disp_2 = 13;        //second Display switch with Nokia-Display in 4-pin-mode
+//const int switch_disp_2 = 13;        //second Display switch with Nokia-Display in 4-pin-mode
 #endif
 
 //Config Options-----------------------------------------------------------------------------------------------------
@@ -92,7 +104,7 @@ volatile int pas_on_time = 0;  //High-Time of PAS-Sensor-Signal (needed to deter
 volatile int pas_off_time = 0; //Low-Time of PAS-Sensor-Signal  (needed to determine pedaling direction)
 volatile int pas_failtime = 0; //how many subsequent "wrong" PAS values?
 volatile int cad=0;            //Cadence
-int looptime=0;                //Loop Time in milliseconds (for testing)
+unsigned long long looptime=0;                //Loop Time in milliseconds (for testing)
 float current = 0.0;           //measured battery current
 float voltage = 0.0;           //measured battery voltage
 double power=0.0;              //calculated power
@@ -129,14 +141,14 @@ void setup()
     Serial.begin(115200);     //bluetooth-module requires 115200
     pinMode(pas_in, INPUT);
     pinMode(wheel_in, INPUT);
-    pinMode(switch_thr, INPUT);
-    pinMode(switch_disp, INPUT);
+ //   pinMode(switch_thr, INPUT);
+ //   pinMode(switch_disp, INPUT);
 #if DISPLAY_TYPE == 1
-    pinMode(switch_disp_2, INPUT);
-    digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
+ //   pinMode(switch_disp_2, INPUT);
+ //   digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
     pinMode(brake_in, INPUT);
-    pinMode(option_pin,OUTPUT);
+  //  pinMode(option_pin,OUTPUT);
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
     pinMode(bluetooth_pin,OUTPUT);
@@ -144,12 +156,12 @@ void setup()
     digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
 #endif
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
-    digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
-    digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
+    //digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
+    //digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
-    attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
-    attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
+    attachInterrupt(pas_in-2, pas_change, CHANGE); //attach interrupt for PAS-Sensor
+    attachInterrupt(wheel_in-2, speed_change, RISING); //attach interrupt for Wheel-Sensor
     EEPROM_readAnything(0,variable);      //read stored variables
 }
 
@@ -157,19 +169,34 @@ void loop()
 {
     looptime=millis();
 //Readings-----------------------------------------------------------------------------------------------------------------
-    poti_stat=analogRead(poti_in);                       // 0...1023
+    //poti_stat=analogRead(poti_in);                       // 0...1023
     throttle_stat = analogRead(throttle_in);              // 0...1023
+    throttle_stat = constrain(map(throttle_stat,196,850,0,1023),0,1023);   // 0...1023
+
     brake_stat = digitalRead(brake_in);
 //voltage, current, power
-    voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
-#if HARDWARE_REV <= 2
-    current = analogRead(current_in)*0.0296217305; //check with multimeter and change if needed!
-    current = constrain(current,0,30);
+    //voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
+
+
+#if HARDWARE_REV >0 && HARDWARE_REV<= 2
+    //current = analogRead(current_in)*0.0296217305; //check with multimeter and change if needed!
+    //current = constrain(current,0,30);
 #endif
 #if HARDWARE_REV >= 3
     current = (analogRead(current_in)-512)*0.0740543263;        //check with multimeter and change if needed!
     current = constrain(current,-30,30);
 #endif
+    if (VescUartGetValue(VescMeasuredValues)) {
+        //	SerialPrint(VescMeasuredValues);
+        voltage = VescMeasuredValues.inpVoltage;
+        current = VescMeasuredValues.avgInputCurrent;
+    }
+    else
+    {
+        Serial.println("could not get Data from VESC");
+    }
+
+
     power=current*voltage;
 
 //This initializes the EEPROM-Values to 0.0-----------------------------------------------------------------------
@@ -187,7 +214,14 @@ void loop()
 //Throttle output-------------------------------------------------------------------------------------------------------
 
     throttle_write=map(throttle_stat,0,1023,0,255); //be careful if motor connected!
-    analogWrite(throttle_out,throttle_write);
+
+    VescUartSetCurrent(float(throttle_stat)/100.);
+//    remPack.valLowerButton = 0;
+//    remPack.valUpperButton = 0;
+//    remPack.valXJoy = 128;
+//    remPack.valYJoy = map(throttle_write, 0, 255, -128, 128);;
+//    VescUartSetNunchukValues(remPack);
+    /*analogWrite(throttle_out,throttle_write);
 
     if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
     {
@@ -212,34 +246,50 @@ void loop()
             digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1!
 #endif
         }
-    }
+    } */
+
 
 //Show something on the LCD and Serial Port
     if (millis()-last_writetime > 500)
     {
-        digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
-        Serial.print("Voltage");
-        Serial.print(voltage,2);
-        Serial.print(" Current");
-        Serial.print(current,1);
-        Serial.print(" Power");
-        Serial.print(power,0);
-        Serial.print(" PAS_On");
-        Serial.print(pas_on_time);
-        Serial.print(" PAS_Off");
-        Serial.print(pas_off_time);
-        Serial.print(" PAS_factor");
-        Serial.print((float)pas_on_time/pas_off_time);
-        Serial.print(" Speed");
-        Serial.print(spd);
-        Serial.print(" Brake");
-        Serial.print(brake_stat);
-        Serial.print(" Poti");
-        Serial.print(poti_stat);
-        Serial.print(" Throttle");
-        Serial.println(throttle_stat);
         lcd.setCursor(0,0);
-        lcd.print("Hello World");
+
+        //digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
+        lcd.print(voltage,2);
+        lcd.print("V ");
+        lcd.print(current,1);
+        lcd.print("A");
+        //lcd.print(" W");
+        //lcd.print(power,0);
+        lcd.setCursor(0,1);
+
+        lcd.print("POn");
+        lcd.print(pas_on_time);
+        lcd.print(" POff");
+        lcd.print(pas_off_time);
+                lcd.setCursor(0,2);
+
+        lcd.print("Pfac ");
+        lcd.print((float)pas_on_time/pas_off_time);
+
+        lcd.setCursor(0,3);
+
+        lcd.print(spd);
+        lcd.print("kmh ");
+
+        lcd.print(" Br ");
+        lcd.print(brake_stat);
+        lcd.setCursor(0,4);
+
+        //lcd.print(" P");
+        //lcd.print(poti_stat);
+        lcd.print("ThIn");
+        lcd.print(throttle_stat);
+        lcd.setCursor(0,5);
+
+        lcd.print("ThOut");
+        lcd.print(float(throttle_stat)/100.); //throttle_write);
+
         last_writetime=millis();
     }
 }
