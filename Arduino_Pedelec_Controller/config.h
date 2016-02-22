@@ -9,7 +9,7 @@
 #endif
 #include "switches_action.h"
 
-#define HARDWARE_REV 1      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
+#define HARDWARE_REV 0      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 
 #define DISPLAY_TYPE_NONE           (1<<0)                  // No display at all
 #define DISPLAY_TYPE_NOKIA_5PIN     (1<<1)                  // Nokia 5110 5-pin mode
@@ -26,6 +26,7 @@
 
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
+#define USE_VESC_UART_READ
 
 //Selection of available display views: comment out any view that you do not want. Can save much programming space!
 #define DV_GRAPHIC
@@ -53,7 +54,7 @@ const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always
 #define SERIAL_MODE_IOS             (1<<5)                  // Send IOS-compatible data over serial
 #define SERIAL_MODE_DISPLAYDEBUG    (1<<6)                  // Send display-debug data over serial
 
-#define SERIAL_MODE SERIAL_MODE_DEBUG                       //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+#define SERIAL_MODE SERIAL_MODE_NONE                       //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
 
 //Since hardware revision 2.0 the bluetooth port uses a separate serial interface, select data here:
 #define BLUETOOTH_MODE_NONE         (1<<0)                  // Don't send bluetooth data at all
@@ -132,7 +133,7 @@ const int poti_level_step_size_in_watts = 50;    //number of watts to increase /
 const int fixed_throttle_in_watts = 250;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
 
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
-#define SUPPORT_PAS         //uncomment if PAS-sensor connected
+// #define SUPPORT_PAS         //uncomment if PAS-sensor connected
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
@@ -157,20 +158,20 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 //#define SUPPORT_MOTOR_SERVO      //RC Motor controller with PWM input is used. Do not forget to remove capacitor from the low pass filter of the output to the motor controller.
 //#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour
 #define SUPPORT_BATTERY_CHARGE_DETECTION //support detection if the battery was charged -> reset wh / trip km / mah counters if detected.
-const byte battery_charged_min_voltage = 20;  //minimum battery voltage to consider it charged. Useful to prevent "false positives".
+const byte battery_charged_min_voltage = 46;  //minimum battery voltage to consider it charged. Useful to prevent "false positives".
 //#define SUPPORT_BATTERY_CHARGE_COUNTER //support charge counter for battery cycles. is increased every time a regarge is detected.
 
 //#define SUPPORT_GEAR_SHIFT                 //support shifting gears on the "double speed" motor
-const byte gear_shift_pin_low_gear = 5;      //pin that connect to the low gear signal ("red" cable)
-const byte gear_shift_pin_high_gear = 7;     //pin that connects to the high gear signal ("green" cable)
+//const byte gear_shift_pin_low_gear = 5;      //pin that connect to the low gear signal ("red" cable)
+//const byte gear_shift_pin_high_gear = 7;     //pin that connects to the high gear signal ("green" cable)
 
 //#define SUPPORT_TEMP_SENSOR                //uncomment if you want to use a DS18x20 temperature sensor
-const byte temp_pin = A2;                     //pin connected to Data pin of the DS18x20 temperature Sensor
+//const byte temp_pin = A2;                     //pin connected to Data pin of the DS18x20 temperature Sensor
 
 //#define SUPPORT_HX711                        //uncomment this if you want to use a load cell with hx711 amplifier
-const byte hx711_data=20;                    //data pin of hx711 sensor
-const byte hx711_sck=21;                     //clock pin of hx711 sensor
-const double hx711_scale=78514.375;         //this is the scale to apply. 
+//const byte hx711_data=20;                    //data pin of hx711 sensor
+//const byte hx711_sck=21;                     //clock pin of hx711 sensor
+//const double hx711_scale=78514.375;         //this is the scale to apply.
 
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
@@ -183,16 +184,16 @@ const int motor_max=200;                 //Maximum input value for motor driver 
 const int spd_idle=55;                   //idle speed of motor in km/h - may be much higher than real idle speed (depending on controller)
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
-const float vmax=42.0;                   //Battery voltage when fully charged
-const float vcutoff=33.0;                //cutoff voltage in V;
-const float vemergency_shutdown = 28.0;  //emergency power off situation to save the battery from undervoltage
+const float vmax=50.0;                   //Battery voltage when fully charged
+const float vcutoff=42.0;                //cutoff voltage in V;
+const float vemergency_shutdown = 40.0;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
-const byte wheel_magnets=1;              //configure your number of wheel magnets here
-const int spd_max1=22;                   //speed cutoff start in Km/h
-const int spd_max2=25;                   //speed cutoff stop (0W) in Km/h
-const int power_max=500;                 //Maximum power in W (throttle mode)
+const byte wheel_magnets=6;              //configure your number of wheel magnets here
+const int spd_max1=40;                   //speed cutoff start in Km/h
+const int spd_max2=45;                   //speed cutoff stop (0W) in Km/h
+const int power_max=1000;                 //Maximum power in W (throttle mode)
 const int power_poti_max=500;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
-const int thermal_limit=150;             //Maximum continuous thermal load motor can withstand
+const int thermal_limit=350;             //Maximum continuous thermal load motor can withstand
 const int thermal_safe_speed=12;         //Speed above which motor is thermally safe at maximum current, see EPACSim
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
 const unsigned int idle_shutdown_secs = 30 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
@@ -200,7 +201,7 @@ const unsigned int menu_idle_timeout_secs = 60;            // Menu inactivity ti
 const double capacity = 166.0;           //battery capacity in watthours for range calculation
 const double pas_factor_min=1.2;         //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const double pas_factor_max=3;           //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
-const int pas_magnets=5;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
+const int pas_magnets=12;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
 const double cfg_pid_p=0.0;              //pid p-value, default: 0.0
 const double cfg_pid_i=2.0;              //pid i-value, default: 2.0
 const double cfg_pid_p_throttle=0.05;    //pid p-value for throttle mode
@@ -226,15 +227,17 @@ const float current_amplitude_R11 = 0.0296;   // for Rev 1.1 - 1.2 set this valu
 const float current_amplitude_R13 = 0.0741;   // for Rev 1.3 set this value according to your own current-calibration. Default: 0.0741
 // #define USE_EXTERNAL_CURRENT_SENSOR
 // #define USE_EXTERNAL_VOLTAGE_SENSOR
-#define USE_VESC_UART_READ
-#define VESC_DEBUG_SERIAL
 
+
+
+#ifndef USE_VESC_UART_READ
 const float external_voltage_offset = 0.0;
 const float external_voltage_amplitude = 0.00488758553; //default of 0.00488758553 gives Voltage = Voltage at Pin            
 const float external_current_offset = 0.0;    
 const float external_current_amplitude = 0.00488758553; //default of 0.00488758553 gives Current = Voltage at Pin 
 const int external_current_in = A6;            //For HW Rev. 2.1: use Pin  A6
 const int external_voltage_in = A7;            //For HW Rev. 2.1: use Pin  A7
+#endif
 
 const char msg_welcome[] PROGMEM = "Welcome";
 const char msg_shutdown[] PROGMEM = "Live long and prosper.";

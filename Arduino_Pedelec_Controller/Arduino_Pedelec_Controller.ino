@@ -41,10 +41,10 @@ Features:
 
 #ifdef USE_VESC_UART_READ
 #include "VescUart.h"
-struct bldcMeasure VescMeasuredValues;
-remotePackage remPack;
 
-#ifdef VESC_DEBUG_SERIAL
+bldcMeasure VescMeasuredValues;
+
+#ifdef VESC_DEBUG_WITH_SOFT_SERIAL
 #include "SoftwareSerial.h"
 SoftwareSerial softSerial(10,11);
 #define VESC_SERIAL softSerial
@@ -172,7 +172,7 @@ const int current_in = A2;           //Current read-Pin
 const int option_pin = A3;           //Analog option
 const int lights_pin = A3;           //Software controlled lights switch
 #endif
-#if HARDWARE_REV <= 5
+#if ((HARDWARE_REV >= 1)&&(HARDWARE_REV <= 5))
 const int poti_in = A6;              //PAS Speed-Poti-Pin
 const int throttle_in = A7;          //Throttle read-Pin
 const int pas_in = 2;                //PAS Sensor read-Pin
@@ -205,8 +205,15 @@ const int switch_disp = 37;           //Display switch
 // const int switch_disp_2 = 48;        //second Display switch with Nokia-Display in 4-pin-mode
 const int buzzer=11;
 #endif
-
-
+#if HARDWARE_REV == 0
+const int throttle_in = A7;          //Throttle read-Pin
+const int pas_in = 3;                //PAS Sensor read-Pin
+const int wheel_in = 2;              //Speed read-Pin
+const int brake_in = 7;              //Brake-In-Pin
+const int switch_thr = 4;            //Throttle-Switch read-Pin
+const int switch_disp = 5;           //Display switch
+const int switch_disp_2 = 6;           //Display switch
+#endif
 
 //Variable-Declarations-----------------------------------------------------------------------------------------------
 double pid_p=cfg_pid_p;
@@ -258,10 +265,12 @@ byte short_writetime_counter = 0; //Counter for fast-loop
 #endif
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
+
 #ifdef DETECT_BROKEN_SPEEDSENSOR
 unsigned long motor_started_time = millis(); //time the motor started, needed to measure how long motor is running but no speed signal is detected
 int last_throttle_write=0;                      //last throttle write value
 #endif
+
 volatile byte wheel_counter=0; //counter for events that should happen once per wheel revolution. only needed if wheel_magnets>1
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
@@ -339,8 +348,10 @@ int memFree()
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()
 {
+#if HARDWARE_REV > 0:
     pinMode(throttle_out,OUTPUT);
     digitalWrite(throttle_out,0); //turn motor off for security reasons during startup
+#endif
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
     digitalWrite(fet_out, FET_ON);           // turn on whole system on
@@ -462,9 +473,9 @@ void setup()
 //setup interrupt handling
 #if HARDWARE_REV < 20
 #ifdef SUPPORT_PAS
-    attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
+    attachInterrupt(pas_in-2, pas_change, CHANGE); //attach interrupt for PAS-Sensor
 #endif
-    attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
+    attachInterrupt(wheel_in-2, speed_change, RISING); //attach interrupt for Wheel-Sensor
 #else
     bitClear(DDRE,7);      //configure PE7 as input
     bitSet(PORTE,7);       //enable pull-up on wheel sensor
@@ -578,10 +589,13 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     display_update();
 #endif
 
+#ifndef USE_VESC_UART_READ
     if (Serial.available() > 0)
     {
         parse_serial(Serial.read(),0);
     }
+#endif
+
 #if HARDWARE_REV>=20    
     if (Serial1.available() > 0)
     {
@@ -849,13 +863,8 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 //Broken speed sensor detection END
 #ifdef SUPPORT_MOTOR_SERVO
     motorservo.writeMicroseconds(throttle_write);
-#else
-#ifdef USE_VESC_UART_READ
-    remPack.valLowerButton = false;
-    remPack.valUpperButton = false;
-    remPack.valXJoy = map(throttle_write, 0, 255, -128, 128);
-    remPack.valYJoy = 128;
-    VescUartSetNunchukValues(remPack);
+#elif defined(USE_VESC_UART_READ)
+    VescUartSetCurrent(throttle_write);
 #else
     analogWrite(throttle_out,throttle_write);
 #endif
@@ -1119,7 +1128,7 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 #endif
 
     //Speed and Km
-    if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
+    if (last_wheel_time>(millis()-10)) return;                         //debouncing reed-sensor
     wheel_counter++;
     wheel_time=(millis()-last_wheel_time)*wheel_magnets;
     spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
@@ -1472,7 +1481,11 @@ void read_eeprom()
 void save_shutdown()
 {
   Serial.println("stop");
+#ifndef USE_VESC_UART_READ
   digitalWrite(throttle_out,0); //turn motor off
+#else
+    VescUartSetCurrent(0.0);
+#endif
   //power saving stuff. This is critical if battery is disconnected.
   EIMSK=0; //disable interrupts
   cli(); //disable interrupts

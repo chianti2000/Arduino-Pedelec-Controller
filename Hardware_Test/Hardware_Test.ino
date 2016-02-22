@@ -29,7 +29,7 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #if DISPLAY_TYPE <= 1
 #include "PCD8544_nano.h"                    //for Nokia Display
-//#include "datatypes.h"
+#include "datatypes.h"
 #include "VescUart.h"
 
 static PCD8544 lcd;                          //for Nokia Display
@@ -40,7 +40,7 @@ LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
 
 struct bldcMeasure VescMeasuredValues;
-//remotePackage remPack;
+remotePackage remPack;
 
 
 struct savings   //add variables if you want to store additional values to the eeprom
@@ -215,7 +215,7 @@ void loop()
 
     throttle_write=map(throttle_stat,0,1023,0,255); //be careful if motor connected!
 
-    VescUartSetCurrent(float(throttle_stat)/100.);
+    VescUartSetCurrent(float(throttle_stat)/40.);
 //    remPack.valLowerButton = 0;
 //    remPack.valUpperButton = 0;
 //    remPack.valXJoy = 128;
@@ -288,7 +288,7 @@ void loop()
         lcd.setCursor(0,5);
 
         lcd.print("ThOut");
-        lcd.print(float(throttle_stat)/100.); //throttle_write);
+        lcd.print(float(throttle_stat)/40.); //throttle_write);
 
         last_writetime=millis();
     }
@@ -316,7 +316,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
 {
 //Speed and Km
-    if (last_wheel_time>(millis()-50)) return;                         //debouncing reed-sensor
+    if (last_wheel_time>(millis()-10)) return;                         //debouncing reed-sensor
     spd = (spd+3600*wheel_circumference/((millis()-last_wheel_time)))/2;  //a bit of averaging for smoother speed-cutoff
     last_wheel_time=millis();
 }
