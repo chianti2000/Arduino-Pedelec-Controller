@@ -133,7 +133,7 @@ const int poti_level_step_size_in_watts = 50;    //number of watts to increase /
 const int fixed_throttle_in_watts = 250;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
 
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
-// #define SUPPORT_PAS         //uncomment if PAS-sensor connected
+#define SUPPORT_PAS         //uncomment if PAS-sensor connected
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
