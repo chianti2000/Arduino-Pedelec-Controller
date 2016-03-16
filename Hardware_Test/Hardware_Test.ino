@@ -21,20 +21,31 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMWriteAnything
 */
 
-#define DISPLAY_TYPE 1      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
+#define DISPLAY_TYPE 0      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
 #define HARDWARE_REV 0      //place your hardware revision (1-5) here: x means hardware-revision 1.x
 
-#define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
+#define TEXTSIZE 8
+#define MAX_AMPS 25
 
+#define ZERO_MARGIN 30
+#define MIN_THROTTLE 315+ZERO_MARGIN
+#define MAX_THROTTLE 1000
 
 #include "EEPROM.h"          //
 #include "EEPROMAnything.h"  //to enable data storage when powered off
 #if DISPLAY_TYPE <= 1
-#include "PCD8544_nano.h"                    //for Nokia Display
+//#include "PCD8544_nano.h"                    //for Nokia Display
 #include "datatypes.h"
 #include "VescUart.h"
 
-static PCD8544 lcd;                          //for Nokia Display
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_PCD8544.h>
+
+Adafruit_PCD8544 lcd = Adafruit_PCD8544(9, 255, 10);
+
+
+//static PCD8544 lcd;                          //for Nokia Display
 #endif
 #if DISPLAY_TYPE == 2
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
@@ -74,23 +85,27 @@ const int option_pin = A3;            //Analog option
 //Config Options-----------------------------------------------------------------------------------------------------
 const float wheel_circumference = 2.252; //wheel circumference in m
 
-const byte wheel_magnets=6;
+const byte wheel_magnets=2;
 volatile float spd=0.0;        //speed
 volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor change 0->1
 volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
 
 //PAS
-const int pas_magnets=12;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
+const int pas_magnets=12; 
+//number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
+#define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
+
+
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
 volatile int cad=0;            //Cadence
 const int pas_timeout=500;               //time in ms after which pedaling is set to false
 
 //Pin inputs
-const int throttle_in = A7;          //Throttle read-Pin
+const int throttle_in = A9;          //Throttle read-Pin
 const int pas_in = 3;                //PAS Sensor read-Pin
 const int wheel_in = 2;              //Speed read-Pin
-const int brake_in = 7;              //Brake-In-Pin
+const int brake_in = 19;              //Brake-In-Pin
 //const int switch_thr = 5;            //Throttle-Switch read-Pin
 //const int throttle_out = 6;          //Throttle out-Pin
 //const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
@@ -105,7 +120,7 @@ double pid_i_throttle=2.5;     //pid i-value for throttle mode
 
 //
 int throttle_stat = 0;         //Throttle reading
-int throttle_write=0;          //Throttle write value
+float throttle_write=0;          //Throttle write value
 float poti_stat;               //PAS-Poti setting
 volatile int pas_on_time = 0;  //High-Time of PAS-Sensor-Signal (needed to determine pedaling direction)
 volatile int pas_off_time = 0; //Low-Time of PAS-Sensor-Signal  (needed to determine pedaling direction)
@@ -135,16 +150,25 @@ void speed_change();
 void setup()
 {
 #if DISPLAY_TYPE == 0
-    pinMode(13,OUTPUT);
-    digitalWrite(13,LOW);
+   lcd.begin();
+   lcd.setContrast(50);
+   //   lcd.display();
+   lcd.clearDisplay();
+   lcd.setTextSize(1);
+   lcd.setTextColor(BLACK);
+   //   lcd.clearDisplay();
+
+   //pinMode(13,OUTPUT);
+   //digitalWrite(13,LOW);
 #endif
 #if DISPLAY_TYPE <= 1
-    display_nokia_setup();    //for Nokia Display
+    //display_nokia_setup();    //for Nokia Display
 #endif
 #if DISPLAY_TYPE == 2
     lcd.begin(16, 2);        //for 4bit (e.g. EA-DOGM) Display
 #endif
-    Serial.begin(115200);     //bluetooth-module requires 115200
+    DEBUGSERIAL.begin(115200);     //bluetooth-module requires 115200
+    SERIALIO.begin(115200);
     pinMode(pas_in, INPUT);
     pinMode(wheel_in, INPUT);
  //   pinMode(switch_thr, INPUT);
@@ -166,8 +190,8 @@ void setup()
     //digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
-    attachInterrupt(pas_in-2, pas_change, CHANGE); //attach interrupt for PAS-Sensor
-    attachInterrupt(wheel_in-2, speed_change, RISING); //attach interrupt for Wheel-Sensor
+    attachInterrupt(pas_in, pas_change, CHANGE); //attach interrupt for PAS-Sensor
+    attachInterrupt(wheel_in, speed_change, RISING); //attach interrupt for Wheel-Sensor
     EEPROM_readAnything(0,variable);      //read stored variables
 }
 
@@ -177,7 +201,7 @@ void loop()
 //Readings-----------------------------------------------------------------------------------------------------------------
     //poti_stat=analogRead(poti_in);                       // 0...1023
     throttle_stat = analogRead(throttle_in);              // 0...1023
-    throttle_stat = constrain(map(throttle_stat,196,850,0,1023),0,1023);   // 0...1023
+    throttle_stat = constrain(map(throttle_stat,MIN_THROTTLE,MAX_THROTTLE,0,1023),0,1023);   // 0...1023
     if (throttle_stat<5) //avoid noisy throttle readout
     {
         throttle_stat=0;
@@ -224,7 +248,7 @@ void loop()
     }
     else
     {
-        Serial.println("could not get Data from VESC");
+       // DEBUGSERIAL.println("could not get Data from VESC");
     }
 
 
@@ -246,9 +270,9 @@ void loop()
 
 //Throttle output-------------------------------------------------------------------------------------------------------
 
-    throttle_write=map(throttle_stat,0,1023,0,255); //be careful if motor connected!
+    throttle_write=float(map(throttle_stat,0,1023,0, MAX_AMPS * 10)) / 10.; //be careful if motor connected!
 
-    VescUartSetCurrent(float(throttle_stat)/40.);
+    VescUartSetCurrent(throttle_write);
 //    remPack.valLowerButton = 0;
 //    remPack.valUpperButton = 0;
 //    remPack.valXJoy = 128;
@@ -285,6 +309,8 @@ void loop()
 //Show something on the LCD and Serial Port
     if (millis()-last_writetime > 500)
     {
+      DEBUGSERIAL.println("voltage");
+      lcd.clearDisplay();
         lcd.setCursor(0,0);
 
         //digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
@@ -294,7 +320,7 @@ void loop()
         lcd.print("A");
         //lcd.print(" W");
         //lcd.print(power,0);
-        lcd.setCursor(0,1);
+        lcd.setCursor(0,1 * TEXTSIZE);
         
         lcd.print(motor_current,1);
         lcd.print("A M");
@@ -302,29 +328,28 @@ void loop()
         //lcd.print(" POff");
         //lcd.print(pas_off_time);
        
-        lcd.setCursor(0,2);
+        lcd.setCursor(0,2 * TEXTSIZE);
+       lcd.print("Pfac ");
+        lcd.print((float)pas_on_time/pas_off_time);
 
-      // lcd.print("Pfac ");
-      //  lcd.print((float)pas_on_time/pas_off_time);
-
-        lcd.setCursor(0,3);
+        lcd.setCursor(0,3 * TEXTSIZE);
 
         lcd.print(spd);
         lcd.print("kmh ");
 
         lcd.print(" Br ");
         lcd.print(brake_stat);
-        lcd.setCursor(0,4);
+        lcd.setCursor(0,4 * TEXTSIZE);
 
         //lcd.print(" P");
         //lcd.print(poti_stat);
         lcd.print("ThIn");
         lcd.print(throttle_stat);
-        lcd.setCursor(0,5);
+        lcd.setCursor(0,5* TEXTSIZE);
 
         lcd.print("ThOut");
-        lcd.print(float(throttle_stat)/40.); //throttle_write);
-
+        lcd.print(throttle_write, 1); //throttle_write);
+        lcd.display();
         last_writetime=millis();
     }
 }
