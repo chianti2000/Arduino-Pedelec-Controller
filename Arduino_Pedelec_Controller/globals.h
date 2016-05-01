@@ -88,12 +88,14 @@ extern DallasTemperature sensors;
 
 #define FROM_FLASH(str) (reinterpret_cast<const __FlashStringHelper *>(str))
 
-#if HARDWARE_REV <= 5
+
+#if HARDWARE_REV <= 5 && !defined(TEENSY_VERSION)
 #define FET_ON LOW
 #define FET_OFF HIGH
 #else
 #define FET_ON HIGH
 #define FET_OFF LOW
 #endif
+
 
 #endif

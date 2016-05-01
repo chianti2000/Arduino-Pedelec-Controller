@@ -23,10 +23,10 @@ if(UNIX)
     include(Platform/UnixPaths)
     if(APPLE)
         list(APPEND CMAKE_SYSTEM_PREFIX_PATH ~/Applications
-                                             /Applications
-                                             /Developer/Applications
-                                             /sw        # Fink
-                                             /opt/local) # MacPorts
+                /Applications
+                /Developer/Applications
+                /sw        # Fink
+                /opt/local) # MacPorts
     endif()
 elseif(WIN32)
     include(Platform/WindowsPaths)
@@ -53,20 +53,20 @@ if(NOT ARDUINO_SDK_PATH)
     endforeach()
 
     file(GLOB SDK_PATH_HINTS /usr/share/arduino*
-                             /opt/local/arduino*
-                             /opt/arduino*
-                             /usr/local/share/arduino*)
+            /opt/local/arduino*
+            /opt/arduino*
+            /usr/local/share/arduino*)
     list(SORT SDK_PATH_HINTS)
     list(REVERSE SDK_PATH_HINTS)
 endif()
 
 find_path(ARDUINO_SDK_PATH
-          NAMES lib/version.txt
-          PATH_SUFFIXES share/arduino
-                        Arduino.app/Contents/Resources/Java/
-                        ${ARDUINO_PATHS}
-          HINTS ${SDK_PATH_HINTS}
-          DOC "Arduino SDK path.")
+        NAMES lib/version.txt
+        PATH_SUFFIXES share/arduino
+        Arduino.app/Contents/Java/
+        ${ARDUINO_PATHS}
+        HINTS ${SDK_PATH_HINTS}
+        DOC "Arduino SDK path.")
 
 if(ARDUINO_SDK_PATH)
     list(APPEND CMAKE_SYSTEM_PREFIX_PATH ${ARDUINO_SDK_PATH}/hardware/tools/avr)

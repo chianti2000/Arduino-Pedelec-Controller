@@ -38,7 +38,7 @@ display_view_type display_view_last = display_view;
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 #include "PCD8544_nano.h"                    //for Nokia Display
-static PCD8544 lcd;                          //for Nokia Display
+static PCD8544 lcd(13, 12, 9, 10, 255);                          //for Nokia Display
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_16X2_LCD_4BIT)

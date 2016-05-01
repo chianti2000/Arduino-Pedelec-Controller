@@ -361,10 +361,10 @@ endfunction()
 function(GENERATE_ARDUINO_LIBRARY INPUT_NAME)
     message(STATUS "Generating ${INPUT_NAME}")
     parse_generator_arguments(${INPUT_NAME} INPUT
-                              "NO_AUTOLIBS;MANUAL"                  # Options
-                              "BOARD"                               # One Value Keywords
-                              "SRCS;HDRS;LIBS"                      # Multi Value Keywords
-                              ${ARGN})
+            "NO_AUTOLIBS;MANUAL"                  # Options
+            "BOARD"                               # One Value Keywords
+            "SRCS;HDRS;LIBS"                      # Multi Value Keywords
+            ${ARGN})
 
     if(NOT INPUT_BOARD)
         set(INPUT_BOARD ${ARDUINO_DEFAULT_BOARD})
@@ -373,12 +373,12 @@ function(GENERATE_ARDUINO_LIBRARY INPUT_NAME)
         set(INPUT_MANUAL FALSE)
     endif()
     required_variables(VARS INPUT_SRCS INPUT_BOARD MSG "must define for target ${INPUT_NAME}")
-    
+
     set(ALL_LIBS)
     set(ALL_SRCS ${INPUT_SRCS} ${INPUT_HDRS})
 
     if(NOT INPUT_MANUAL)
-      setup_arduino_core(CORE_LIB ${INPUT_BOARD})
+        setup_arduino_core(CORE_LIB ${INPUT_BOARD})
     endif()
 
     find_arduino_libraries(TARGET_LIBS "${ALL_SRCS}" "")
@@ -398,8 +398,8 @@ function(GENERATE_ARDUINO_LIBRARY INPUT_NAME)
     get_arduino_flags(ARDUINO_COMPILE_FLAGS ARDUINO_LINK_FLAGS  ${INPUT_BOARD} ${INPUT_MANUAL})
 
     set_target_properties(${INPUT_NAME} PROPERTIES
-                COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS} ${COMPILE_FLAGS} ${LIB_DEP_INCLUDES}"
-                LINK_FLAGS "${ARDUINO_LINK_FLAGS} ${LINK_FLAGS}")
+            COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS} ${COMPILE_FLAGS} ${LIB_DEP_INCLUDES}"
+            LINK_FLAGS "${ARDUINO_LINK_FLAGS} ${LINK_FLAGS}")
 
     target_link_libraries(${INPUT_NAME} ${ALL_LIBS} "-lc -lm")
 endfunction()
@@ -411,17 +411,17 @@ endfunction()
 function(GENERATE_AVR_LIBRARY INPUT_NAME)
     message(STATUS "Generating ${INPUT_NAME}")
     parse_generator_arguments(${INPUT_NAME} INPUT
-                              "NO_AUTOLIBS;MANUAL"                  # Options
-                              "BOARD"                               # One Value Keywords
-                              "SRCS;HDRS;LIBS"                      # Multi Value Keywords
-                              ${ARGN})
- 
+            "NO_AUTOLIBS;MANUAL"                  # Options
+            "BOARD"                               # One Value Keywords
+            "SRCS;HDRS;LIBS"                      # Multi Value Keywords
+            ${ARGN})
+
     if(NOT INPUT_BOARD)
         set(INPUT_BOARD ${ARDUINO_DEFAULT_BOARD})
-    endif() 
-    
+    endif()
+
     required_variables(VARS INPUT_SRCS INPUT_BOARD MSG "must define for target ${INPUT_NAME}")
-   
+
     if(INPUT_HDRS)
         set( INPUT_HDRS "SRCS ${INPUT_HDRS}" )
     endif()
@@ -429,14 +429,14 @@ function(GENERATE_AVR_LIBRARY INPUT_NAME)
         set( INPUT_LIBS "LIBS ${INPUT_LIBS}" )
     endif()
 
-    generate_arduino_library( ${INPUT_NAME} 
-        NO_AUTOLIBS
-        MANUAL
-        BOARD ${INPUT_BOARD}
-        SRCS ${INPUT_SRCS}
-        ${INPUT_HDRS}
-        ${INPUT_LIBS} )
-    
+    generate_arduino_library( ${INPUT_NAME}
+            NO_AUTOLIBS
+            MANUAL
+            BOARD ${INPUT_BOARD}
+            SRCS ${INPUT_SRCS}
+            ${INPUT_HDRS}
+            ${INPUT_LIBS} )
+
 endfunction()
 
 #=============================================================================#
@@ -446,10 +446,10 @@ endfunction()
 function(GENERATE_ARDUINO_FIRMWARE INPUT_NAME)
     message(STATUS "Generating ${INPUT_NAME}")
     parse_generator_arguments(${INPUT_NAME} INPUT
-                              "NO_AUTOLIBS;MANUAL"                  # Options
-                              "BOARD;PORT;SKETCH;PROGRAMMER"        # One Value Keywords
-                              "SERIAL;SRCS;HDRS;LIBS;ARDLIBS;AFLAGS"  # Multi Value Keywords
-                              ${ARGN})
+            "NO_AUTOLIBS;MANUAL"                  # Options
+            "BOARD;PORT;SKETCH;PROGRAMMER"        # One Value Keywords
+            "SERIAL;SRCS;HDRS;LIBS;ARDLIBS;AFLAGS"  # Multi Value Keywords
+            ${ARGN})
 
     if(NOT INPUT_BOARD)
         set(INPUT_BOARD ${ARDUINO_DEFAULT_BOARD})
@@ -473,9 +473,9 @@ function(GENERATE_ARDUINO_FIRMWARE INPUT_NAME)
     set(LIB_DEP_INCLUDES)
 
     if(NOT INPUT_MANUAL)
-      setup_arduino_core(CORE_LIB ${INPUT_BOARD})
+        setup_arduino_core(CORE_LIB ${INPUT_BOARD})
     endif()
-    
+
     if(NOT "${INPUT_SKETCH}" STREQUAL "")
         get_filename_component(INPUT_SKETCH "${INPUT_SKETCH}" ABSOLUTE)
         setup_arduino_sketch(${INPUT_NAME} ${INPUT_SKETCH} ALL_SRCS)
@@ -502,7 +502,7 @@ function(GENERATE_ARDUINO_FIRMWARE INPUT_NAME)
             set(LIB_DEP_INCLUDES "${LIB_DEP_INCLUDES} ${LIB_INCLUDES}")
         endforeach()
     endif()
-    
+
     list(APPEND ALL_LIBS ${CORE_LIB} ${INPUT_LIBS})
 
     setup_arduino_target(${INPUT_NAME} ${INPUT_BOARD} "${ALL_SRCS}" "${ALL_LIBS}" "${LIB_DEP_INCLUDES}" "" "${INPUT_MANUAL}")
@@ -510,7 +510,7 @@ function(GENERATE_ARDUINO_FIRMWARE INPUT_NAME)
     if(INPUT_PORT)
         setup_arduino_upload(${INPUT_BOARD} ${INPUT_NAME} ${INPUT_PORT} "${INPUT_PROGRAMMER}" "${INPUT_AFLAGS}")
     endif()
-    
+
     if(INPUT_SERIAL)
         setup_serial_target(${INPUT_NAME} "${INPUT_SERIAL}" "${INPUT_PORT}")
     endif()
@@ -525,11 +525,11 @@ function(GENERATE_AVR_FIRMWARE INPUT_NAME)
     # TODO: This is not optimal!!!!
     message(STATUS "Generating ${INPUT_NAME}")
     parse_generator_arguments(${INPUT_NAME} INPUT
-                              "NO_AUTOLIBS;MANUAL"            # Options
-                              "BOARD;PORT;PROGRAMMER"  # One Value Keywords
-                              "SERIAL;SRCS;HDRS;LIBS;AFLAGS"  # Multi Value Keywords
-                              ${ARGN})
- 
+            "NO_AUTOLIBS;MANUAL"            # Options
+            "BOARD;PORT;PROGRAMMER"  # One Value Keywords
+            "SERIAL;SRCS;HDRS;LIBS;AFLAGS"  # Multi Value Keywords
+            ${ARGN})
+
     if(NOT INPUT_BOARD)
         set(INPUT_BOARD ${ARDUINO_DEFAULT_BOARD})
     endif()
@@ -542,7 +542,7 @@ function(GENERATE_AVR_FIRMWARE INPUT_NAME)
     if(NOT INPUT_PROGRAMMER)
         set(INPUT_PROGRAMMER ${ARDUINO_DEFAULT_PROGRAMMER})
     endif()
-    
+
     required_variables(VARS INPUT_BOARD INPUT_SRCS MSG "must define for target ${INPUT_NAME}")
 
     if(INPUT_HDRS)
@@ -555,18 +555,18 @@ function(GENERATE_AVR_FIRMWARE INPUT_NAME)
         set( INPUT_AFLAGS "AFLAGS ${INPUT_AFLAGS}" )
     endif()
 
-    generate_arduino_firmware( ${INPUT_NAME} 
-        NO_AUTOLIBS
-        MANUAL
-        BOARD ${INPUT_BOARD}
-        PORT ${INPUT_PORT}
-        PROGRAMMER ${INPUT_PROGRAMMER}
-        SERIAL ${INPUT_SERIAL}
-        SRCS ${INPUT_SRCS}
-        ${INPUT_HDRS}
-        ${INPUT_LIBS}
-        ${INPUT_AFLAGS} )
-    
+    generate_arduino_firmware( ${INPUT_NAME}
+            NO_AUTOLIBS
+            MANUAL
+            BOARD ${INPUT_BOARD}
+            PORT ${INPUT_PORT}
+            PROGRAMMER ${INPUT_PROGRAMMER}
+            SERIAL ${INPUT_SERIAL}
+            SRCS ${INPUT_SRCS}
+            ${INPUT_HDRS}
+            ${INPUT_LIBS}
+            ${INPUT_AFLAGS} )
+
 endfunction()
 
 #=============================================================================#
@@ -575,10 +575,10 @@ endfunction()
 #=============================================================================#
 function(GENERATE_ARDUINO_EXAMPLE INPUT_NAME)
     parse_generator_arguments(${INPUT_NAME} INPUT
-                              ""                                       # Options
-                              "LIBRARY;EXAMPLE;BOARD;PORT;PROGRAMMER"  # One Value Keywords
-                              "SERIAL;AFLAGS"                          # Multi Value Keywords
-                              ${ARGN})
+            ""                                       # Options
+            "LIBRARY;EXAMPLE;BOARD;PORT;PROGRAMMER"  # One Value Keywords
+            "SERIAL;AFLAGS"                          # Multi Value Keywords
+            ${ARGN})
 
 
     if(NOT INPUT_BOARD)
@@ -594,7 +594,7 @@ function(GENERATE_ARDUINO_EXAMPLE INPUT_NAME)
         set(INPUT_PROGRAMMER ${ARDUINO_DEFAULT_PROGRAMMER})
     endif()
     required_variables(VARS INPUT_LIBRARY INPUT_EXAMPLE INPUT_BOARD
-                       MSG "must define for target ${INPUT_NAME}")
+            MSG "must define for target ${INPUT_NAME}")
 
     message(STATUS "Generating ${INPUT_NAME}")
 
@@ -618,13 +618,13 @@ function(GENERATE_ARDUINO_EXAMPLE INPUT_NAME)
     setup_arduino_libraries(ALL_LIBS ${INPUT_BOARD} "${ALL_SRCS}" "" "${LIB_DEP_INCLUDES}" "")
 
     list(APPEND ALL_LIBS ${CORE_LIB} ${INPUT_LIBS})
-    
+
     setup_arduino_target(${INPUT_NAME} ${INPUT_BOARD}  "${ALL_SRCS}" "${ALL_LIBS}" "${LIB_DEP_INCLUDES}" "" FALSE)
 
     if(INPUT_PORT)
         setup_arduino_upload(${INPUT_BOARD} ${INPUT_NAME} ${INPUT_PORT} "${INPUT_PROGRAMMER}" "${INPUT_AFLAGS}")
     endif()
-    
+
     if(INPUT_SERIAL)
         setup_serial_target(${INPUT_NAME} "${INPUT_SERIAL}" "${INPUT_PORT}")
     endif()
@@ -647,29 +647,29 @@ function(REGISTER_HARDWARE_PLATFORM PLATFORM_PATH)
             set(ARDUINO_PLATFORMS ${ARDUINO_PLATFORMS} ${PLATFORM} CACHE INTERNAL "A list of registered platforms")
 
             find_file(${PLATFORM}_CORES_PATH
-                  NAMES cores
-                  PATHS ${PLATFORM_PATH}
-                  DOC "Path to directory containing the Arduino core sources.")
+                    NAMES cores
+                    PATHS ${PLATFORM_PATH}
+                    DOC "Path to directory containing the Arduino core sources.")
 
             find_file(${PLATFORM}_VARIANTS_PATH
-                  NAMES variants
-                  PATHS ${PLATFORM_PATH}
-                  DOC "Path to directory containing the Arduino variant sources.")
+                    NAMES variants
+                    PATHS ${PLATFORM_PATH}
+                    DOC "Path to directory containing the Arduino variant sources.")
 
             find_file(${PLATFORM}_BOOTLOADERS_PATH
-                  NAMES bootloaders
-                  PATHS ${PLATFORM_PATH}
-                  DOC "Path to directory containing the Arduino bootloader images and sources.")
+                    NAMES bootloaders
+                    PATHS ${PLATFORM_PATH}
+                    DOC "Path to directory containing the Arduino bootloader images and sources.")
 
             find_file(${PLATFORM}_PROGRAMMERS_PATH
-                NAMES programmers.txt
-                PATHS ${PLATFORM_PATH}
-                DOC "Path to Arduino programmers definition file.")
+                    NAMES programmers.txt
+                    PATHS ${PLATFORM_PATH}
+                    DOC "Path to Arduino programmers definition file.")
 
             find_file(${PLATFORM}_BOARDS_PATH
-                NAMES boards.txt
-                PATHS ${PLATFORM_PATH}
-                DOC "Path to Arduino boards definition file.")
+                    NAMES boards.txt
+                    PATHS ${PLATFORM_PATH}
+                    DOC "Path to Arduino boards definition file.")
 
             if(${PLATFORM}_BOARDS_PATH)
                 load_arduino_style_settings(${PLATFORM}_BOARDS "${PLATFORM_PATH}/boards.txt")
@@ -775,7 +775,7 @@ endfunction()
 #
 #=============================================================================#
 function(get_arduino_flags COMPILE_FLAGS_VAR LINK_FLAGS_VAR BOARD_ID MANUAL)
-   
+
     set(BOARD_CORE ${${BOARD_ID}.build.core})
     if(BOARD_CORE)
         if(ARDUINO_SDK_VERSION MATCHES "([0-9]+)[.]([0-9]+)")
@@ -847,8 +847,8 @@ function(setup_arduino_core VAR_NAME BOARD_ID)
             add_library(${CORE_LIB_NAME} ${CORE_SRCS})
             get_arduino_flags(ARDUINO_COMPILE_FLAGS ARDUINO_LINK_FLAGS ${BOARD_ID} FALSE)
             set_target_properties(${CORE_LIB_NAME} PROPERTIES
-                COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS}"
-                LINK_FLAGS "${ARDUINO_LINK_FLAGS}")
+                    COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS}"
+                    LINK_FLAGS "${ARDUINO_LINK_FLAGS}")
         endif()
         set(${VAR_NAME} ${CORE_LIB_NAME} PARENT_SCOPE)
     endif()
@@ -910,8 +910,8 @@ function(find_arduino_libraries VAR_NAME SRCS ARDLIBS)
                 if("${SRC_LINE}" MATCHES "^ *#include *[<\"](.*)[>\"]")
                     get_filename_component(INCLUDE_NAME ${CMAKE_MATCH_1} NAME_WE)
                     get_property(LIBRARY_SEARCH_PATH
-                                 DIRECTORY     # Property Scope
-                                 PROPERTY LINK_DIRECTORIES)
+                            DIRECTORY     # Property Scope
+                            PROPERTY LINK_DIRECTORIES)
                     foreach(LIB_SEARCH_PATH ${LIBRARY_SEARCH_PATH} ${ARDUINO_LIBRARIES_PATH} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/libraries ${ARDUINO_EXTRA_LIBRARIES_PATH})
                         if(EXISTS ${LIB_SEARCH_PATH}/${INCLUDE_NAME}/${CMAKE_MATCH_1})
                             list(APPEND ARDUINO_LIBS ${LIB_SEARCH_PATH}/${INCLUDE_NAME})
@@ -989,8 +989,8 @@ function(setup_arduino_library VAR_NAME BOARD_ID LIB_PATH COMPILE_FLAGS LINK_FLA
             endif()
 
             set_target_properties(${TARGET_LIB_NAME} PROPERTIES
-                COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS} ${LIB_INCLUDES} -I\"${LIB_PATH}\" -I\"${LIB_PATH}/utility\" ${COMPILE_FLAGS}"
-                LINK_FLAGS "${ARDUINO_LINK_FLAGS} ${LINK_FLAGS}")
+                    COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS} ${LIB_INCLUDES} -I\"${LIB_PATH}\" -I\"${LIB_PATH}/utility\" ${COMPILE_FLAGS}"
+                    LINK_FLAGS "${ARDUINO_LINK_FLAGS} ${LINK_FLAGS}")
             list(APPEND LIB_INCLUDES "-I\"${LIB_PATH}\" -I\"${LIB_PATH}/utility\"")
 
             target_link_libraries(${TARGET_LIB_NAME} ${BOARD_ID}_CORE ${LIB_TARGETS})
@@ -1063,47 +1063,47 @@ function(setup_arduino_target TARGET_NAME BOARD_ID ALL_SRCS ALL_LIBS COMPILE_FLA
     get_arduino_flags(ARDUINO_COMPILE_FLAGS ARDUINO_LINK_FLAGS  ${BOARD_ID} ${MANUAL})
 
     set_target_properties(${TARGET_NAME} PROPERTIES
-                COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS} ${COMPILE_FLAGS}"
-                LINK_FLAGS "${ARDUINO_LINK_FLAGS} ${LINK_FLAGS}")
+            COMPILE_FLAGS "${ARDUINO_COMPILE_FLAGS} ${COMPILE_FLAGS}"
+            LINK_FLAGS "${ARDUINO_LINK_FLAGS} ${LINK_FLAGS}")
     target_link_libraries(${TARGET_NAME} ${ALL_LIBS} "-lc -lm")
 
     set(TARGET_PATH ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME})
     add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-                        COMMAND ${CMAKE_OBJCOPY}
-                        ARGS     ${ARDUINO_OBJCOPY_EEP_FLAGS}
-                                 ${TARGET_PATH}.elf
-                                 ${TARGET_PATH}.eep
-                        COMMENT "Generating EEP image"
-                        VERBATIM)
+            COMMAND ${CMAKE_OBJCOPY}
+            ARGS     ${ARDUINO_OBJCOPY_EEP_FLAGS}
+            ${TARGET_PATH}.elf
+            ${TARGET_PATH}.eep
+            COMMENT "Generating EEP image"
+            VERBATIM)
 
     # Convert firmware image to ASCII HEX format
     add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-                        COMMAND ${CMAKE_OBJCOPY}
-                        ARGS    ${ARDUINO_OBJCOPY_HEX_FLAGS}
-                                ${TARGET_PATH}.elf
-                                ${TARGET_PATH}.hex
-                        COMMENT "Generating HEX image"
-                        VERBATIM)
+            COMMAND ${CMAKE_OBJCOPY}
+            ARGS    ${ARDUINO_OBJCOPY_HEX_FLAGS}
+            ${TARGET_PATH}.elf
+            ${TARGET_PATH}.hex
+            COMMENT "Generating HEX image"
+            VERBATIM)
 
     # Display target size
     add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-                        COMMAND ${CMAKE_COMMAND}
-                        ARGS    -DFIRMWARE_IMAGE=${TARGET_PATH}.elf
-                                -DMCU=${${BOARD_ID}.build.mcu}
-                                -DEEPROM_IMAGE=${TARGET_PATH}.eep
-                                -P ${ARDUINO_SIZE_SCRIPT}
-                        COMMENT "Calculating image size"
-                        VERBATIM)
+            COMMAND ${CMAKE_COMMAND}
+            ARGS    -DFIRMWARE_IMAGE=${TARGET_PATH}.elf
+            -DMCU=${${BOARD_ID}.build.mcu}
+            -DEEPROM_IMAGE=${TARGET_PATH}.eep
+            -P ${ARDUINO_SIZE_SCRIPT}
+            COMMENT "Calculating image size"
+            VERBATIM)
 
     # Create ${TARGET_NAME}-size target
     add_custom_target(${TARGET_NAME}-size
-                        COMMAND ${CMAKE_COMMAND}
-                                -DFIRMWARE_IMAGE=${TARGET_PATH}.elf
-                                -DMCU=${${BOARD_ID}.build.mcu}
-                                -DEEPROM_IMAGE=${TARGET_PATH}.eep
-                                -P ${ARDUINO_SIZE_SCRIPT}
-                        DEPENDS ${TARGET_NAME}
-                        COMMENT "Calculating ${TARGET_NAME} image size")
+            COMMAND ${CMAKE_COMMAND}
+            -DFIRMWARE_IMAGE=${TARGET_PATH}.elf
+            -DMCU=${${BOARD_ID}.build.mcu}
+            -DEEPROM_IMAGE=${TARGET_PATH}.eep
+            -P ${ARDUINO_SIZE_SCRIPT}
+            DEPENDS ${TARGET_NAME}
+            COMMENT "Calculating ${TARGET_NAME} image size")
 
 endfunction()
 
@@ -1161,9 +1161,9 @@ function(setup_arduino_bootloader_upload TARGET_NAME BOARD_ID PORT AVRDUDE_FLAGS
     list(APPEND AVRDUDE_ARGS "-Uflash:w:${TARGET_NAME}.hex")
     list(APPEND AVRDUDE_ARGS "-Ueeprom:w:${TARGET_NAME}.eep:i")
     add_custom_target(${UPLOAD_TARGET}
-                     ${ARDUINO_AVRDUDE_PROGRAM} 
-                     ${AVRDUDE_ARGS}
-                     DEPENDS ${TARGET_NAME})
+            ${ARDUINO_AVRDUDE_PROGRAM}
+            ${AVRDUDE_ARGS}
+            DEPENDS ${TARGET_NAME})
 
     # Global upload target
     if(NOT TARGET upload)
@@ -1204,9 +1204,9 @@ function(setup_arduino_programmer_burn TARGET_NAME BOARD_ID PROGRAMMER PORT AVRD
     list(APPEND AVRDUDE_ARGS "-Uflash:w:${TARGET_NAME}.hex")
 
     add_custom_target(${PROGRAMMER_TARGET}
-                     ${ARDUINO_AVRDUDE_PROGRAM} 
-                     ${AVRDUDE_ARGS}
-                     DEPENDS ${TARGET_NAME})
+            ${ARDUINO_AVRDUDE_PROGRAM}
+            ${AVRDUDE_ARGS}
+            DEPENDS ${TARGET_NAME})
 endfunction()
 
 #=============================================================================#
@@ -1259,8 +1259,8 @@ function(setup_arduino_bootloader_burn TARGET_NAME BOARD_ID PROGRAMMER PORT AVRD
         list(APPEND AVRDUDE_ARGS "-Uefuse:w:${${BOARD_ID}.bootloader.extended_fuses}:m")
     endif()
     list(APPEND AVRDUDE_ARGS
-        "-Uhfuse:w:${${BOARD_ID}.bootloader.high_fuses}:m"
-        "-Ulfuse:w:${${BOARD_ID}.bootloader.low_fuses}:m")
+            "-Uhfuse:w:${${BOARD_ID}.bootloader.high_fuses}:m"
+            "-Ulfuse:w:${${BOARD_ID}.bootloader.low_fuses}:m")
 
     # Set bootloader image
     list(APPEND AVRDUDE_ARGS "-Uflash:w:${${BOARD_ID}.bootloader.file}:i")
@@ -1270,10 +1270,10 @@ function(setup_arduino_bootloader_burn TARGET_NAME BOARD_ID PROGRAMMER PORT AVRD
 
     # Create burn bootloader target
     add_custom_target(${BOOTLOADER_TARGET}
-                     ${ARDUINO_AVRDUDE_PROGRAM} 
-                        ${AVRDUDE_ARGS}
-                     WORKING_DIRECTORY ${ARDUINO_BOOTLOADERS_PATH}/${${BOARD_ID}.bootloader.path}
-                     DEPENDS ${TARGET_NAME})
+            ${ARDUINO_AVRDUDE_PROGRAM}
+            ${AVRDUDE_ARGS}
+            WORKING_DIRECTORY ${ARDUINO_BOOTLOADERS_PATH}/${${BOARD_ID}.bootloader.path}
+            DEPENDS ${TARGET_NAME})
 endfunction()
 
 #=============================================================================#
@@ -1351,9 +1351,9 @@ function(setup_arduino_bootloader_args BOARD_ID TARGET_NAME PORT AVRDUDE_FLAGS O
     endif()
 
     list(APPEND AVRDUDE_ARGS
-        "-C${ARDUINO_AVRDUDE_CONFIG_PATH}"  # avrdude config
-        "-p${${BOARD_ID}.build.mcu}"        # MCU Type
-        )
+            "-C${ARDUINO_AVRDUDE_CONFIG_PATH}"  # avrdude config
+            "-p${${BOARD_ID}.build.mcu}"        # MCU Type
+            )
 
     # Programmer
     if(NOT ${BOARD_ID}.upload.protocol OR ${BOARD_ID}.upload.protocol STREQUAL "stk500")
@@ -1368,10 +1368,10 @@ function(setup_arduino_bootloader_args BOARD_ID TARGET_NAME PORT AVRDUDE_FLAGS O
     endif()
 
     list(APPEND AVRDUDE_ARGS
-        "-b${UPLOAD_SPEED}"     # Baud rate
-        "-P${PORT}"                         # Serial port
-        "-D"                                # Dont erase
-        )  
+            "-b${UPLOAD_SPEED}"     # Baud rate
+            "-P${PORT}"                         # Serial port
+            "-D"                                # Dont erase
+            )
 
     list(APPEND AVRDUDE_ARGS ${AVRDUDE_FLAGS})
 
@@ -1392,13 +1392,13 @@ endfunction()
 #=============================================================================#
 function(find_sources VAR_NAME LIB_PATH RECURSE)
     set(FILE_SEARCH_LIST
-        ${LIB_PATH}/*.cpp
-        ${LIB_PATH}/*.c
-        ${LIB_PATH}/*.cc
-        ${LIB_PATH}/*.cxx
-        ${LIB_PATH}/*.h
-        ${LIB_PATH}/*.hh
-        ${LIB_PATH}/*.hxx)
+            ${LIB_PATH}/*.cpp
+            ${LIB_PATH}/*.c
+            ${LIB_PATH}/*.cc
+            ${LIB_PATH}/*.cxx
+            ${LIB_PATH}/*.h
+            ${LIB_PATH}/*.hh
+            ${LIB_PATH}/*.hxx)
 
     if(RECURSE)
         file(GLOB_RECURSE LIB_FILES ${FILE_SEARCH_LIST})
@@ -1425,7 +1425,7 @@ endfunction()
 function(setup_serial_target TARGET_NAME CMD SERIAL_PORT)
     string(CONFIGURE "${CMD}" FULL_CMD @ONLY)
     add_custom_target(${TARGET_NAME}-serial
-                      COMMAND ${FULL_CMD})
+            COMMAND ${FULL_CMD})
 endfunction()
 
 
@@ -1521,61 +1521,61 @@ endfunction()
 function(LOAD_ARDUINO_STYLE_SETTINGS SETTINGS_LIST SETTINGS_PATH)
 
     if(NOT ${SETTINGS_LIST} AND EXISTS ${SETTINGS_PATH})
-    file(STRINGS ${SETTINGS_PATH} FILE_ENTRIES)  # Settings file split into lines
+        file(STRINGS ${SETTINGS_PATH} FILE_ENTRIES)  # Settings file split into lines
 
-    foreach(FILE_ENTRY ${FILE_ENTRIES})
-        if("${FILE_ENTRY}" MATCHES "^[^#]+=.*")
-            string(REGEX MATCH "^[^=]+" SETTING_NAME  ${FILE_ENTRY})
-            string(REGEX MATCH "[^=]+$" SETTING_VALUE ${FILE_ENTRY})
-            string(REPLACE "." ";" ENTRY_NAME_TOKENS ${SETTING_NAME})
-            string(STRIP "${SETTING_VALUE}" SETTING_VALUE)
+        foreach(FILE_ENTRY ${FILE_ENTRIES})
+            if("${FILE_ENTRY}" MATCHES "^[^#]+=.*")
+                string(REGEX MATCH "^[^=]+" SETTING_NAME  ${FILE_ENTRY})
+                string(REGEX MATCH "[^=]+$" SETTING_VALUE ${FILE_ENTRY})
+                string(REPLACE "." ";" ENTRY_NAME_TOKENS ${SETTING_NAME})
+                string(STRIP "${SETTING_VALUE}" SETTING_VALUE)
 
-            list(LENGTH ENTRY_NAME_TOKENS ENTRY_NAME_TOKENS_LEN)
+                list(LENGTH ENTRY_NAME_TOKENS ENTRY_NAME_TOKENS_LEN)
 
-            # Add entry to settings list if it does not exist
-            list(GET ENTRY_NAME_TOKENS 0 ENTRY_NAME)
-            list(FIND ${SETTINGS_LIST} ${ENTRY_NAME} ENTRY_NAME_INDEX)
-            if(ENTRY_NAME_INDEX LESS 0)
-                # Add entry to main list
-                list(APPEND ${SETTINGS_LIST} ${ENTRY_NAME})
-            endif()
-
-            # Add entry setting to entry settings list if it does not exist
-            set(ENTRY_SETTING_LIST ${ENTRY_NAME}.SETTINGS)
-            list(GET ENTRY_NAME_TOKENS 1 ENTRY_SETTING)
-            list(FIND ${ENTRY_SETTING_LIST} ${ENTRY_SETTING} ENTRY_SETTING_INDEX)
-            if(ENTRY_SETTING_INDEX LESS 0)
-                # Add setting to entry
-                list(APPEND ${ENTRY_SETTING_LIST} ${ENTRY_SETTING})
-                set(${ENTRY_SETTING_LIST} ${${ENTRY_SETTING_LIST}}
-                    CACHE INTERNAL "Arduino ${ENTRY_NAME} Board settings list")
-            endif()
-
-            set(FULL_SETTING_NAME ${ENTRY_NAME}.${ENTRY_SETTING})
-
-            # Add entry sub-setting to entry sub-settings list if it does not exists
-            if(ENTRY_NAME_TOKENS_LEN GREATER 2)
-                set(ENTRY_SUBSETTING_LIST ${ENTRY_NAME}.${ENTRY_SETTING}.SUBSETTINGS)
-                list(GET ENTRY_NAME_TOKENS 2 ENTRY_SUBSETTING)
-                list(FIND ${ENTRY_SUBSETTING_LIST} ${ENTRY_SUBSETTING} ENTRY_SUBSETTING_INDEX)
-                if(ENTRY_SUBSETTING_INDEX LESS 0)
-                    list(APPEND ${ENTRY_SUBSETTING_LIST} ${ENTRY_SUBSETTING})
-                    set(${ENTRY_SUBSETTING_LIST}  ${${ENTRY_SUBSETTING_LIST}}
-                        CACHE INTERNAL "Arduino ${ENTRY_NAME} Board sub-settings list")
+                # Add entry to settings list if it does not exist
+                list(GET ENTRY_NAME_TOKENS 0 ENTRY_NAME)
+                list(FIND ${SETTINGS_LIST} ${ENTRY_NAME} ENTRY_NAME_INDEX)
+                if(ENTRY_NAME_INDEX LESS 0)
+                    # Add entry to main list
+                    list(APPEND ${SETTINGS_LIST} ${ENTRY_NAME})
                 endif()
-                set(FULL_SETTING_NAME ${FULL_SETTING_NAME}.${ENTRY_SUBSETTING})
+
+                # Add entry setting to entry settings list if it does not exist
+                set(ENTRY_SETTING_LIST ${ENTRY_NAME}.SETTINGS)
+                list(GET ENTRY_NAME_TOKENS 1 ENTRY_SETTING)
+                list(FIND ${ENTRY_SETTING_LIST} ${ENTRY_SETTING} ENTRY_SETTING_INDEX)
+                if(ENTRY_SETTING_INDEX LESS 0)
+                    # Add setting to entry
+                    list(APPEND ${ENTRY_SETTING_LIST} ${ENTRY_SETTING})
+                    set(${ENTRY_SETTING_LIST} ${${ENTRY_SETTING_LIST}}
+                            CACHE INTERNAL "Arduino ${ENTRY_NAME} Board settings list")
+                endif()
+
+                set(FULL_SETTING_NAME ${ENTRY_NAME}.${ENTRY_SETTING})
+
+                # Add entry sub-setting to entry sub-settings list if it does not exists
+                if(ENTRY_NAME_TOKENS_LEN GREATER 2)
+                    set(ENTRY_SUBSETTING_LIST ${ENTRY_NAME}.${ENTRY_SETTING}.SUBSETTINGS)
+                    list(GET ENTRY_NAME_TOKENS 2 ENTRY_SUBSETTING)
+                    list(FIND ${ENTRY_SUBSETTING_LIST} ${ENTRY_SUBSETTING} ENTRY_SUBSETTING_INDEX)
+                    if(ENTRY_SUBSETTING_INDEX LESS 0)
+                        list(APPEND ${ENTRY_SUBSETTING_LIST} ${ENTRY_SUBSETTING})
+                        set(${ENTRY_SUBSETTING_LIST}  ${${ENTRY_SUBSETTING_LIST}}
+                                CACHE INTERNAL "Arduino ${ENTRY_NAME} Board sub-settings list")
+                    endif()
+                    set(FULL_SETTING_NAME ${FULL_SETTING_NAME}.${ENTRY_SUBSETTING})
+                endif()
+
+                # Save setting value
+                set(${FULL_SETTING_NAME} ${SETTING_VALUE}
+                        CACHE INTERNAL "Arduino ${ENTRY_NAME} Board setting")
+
+
             endif()
-
-            # Save setting value
-            set(${FULL_SETTING_NAME} ${SETTING_VALUE}
-                CACHE INTERNAL "Arduino ${ENTRY_NAME} Board setting")
-            
-
-        endif()
-    endforeach()
-    set(${SETTINGS_LIST} ${${SETTINGS_LIST}}
-        CACHE STRING "List of detected Arduino Board configurations")
-    mark_as_advanced(${SETTINGS_LIST})
+        endforeach()
+        set(${SETTINGS_LIST} ${${SETTINGS_LIST}}
+                CACHE STRING "List of detected Arduino Board configurations")
+        mark_as_advanced(${SETTINGS_LIST})
     endif()
 endfunction()
 
@@ -1652,8 +1652,8 @@ function(SETUP_ARDUINO_EXAMPLE TARGET_NAME LIBRARY_NAME EXAMPLE_NAME OUTPUT_VAR)
     set(EXAMPLE_SKETCH_PATH )
 
     get_property(LIBRARY_SEARCH_PATH
-                 DIRECTORY     # Property Scope
-                 PROPERTY LINK_DIRECTORIES)
+            DIRECTORY     # Property Scope
+            PROPERTY LINK_DIRECTORIES)
     foreach(LIB_SEARCH_PATH ${LIBRARY_SEARCH_PATH} ${ARDUINO_LIBRARIES_PATH} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/libraries)
         if(EXISTS "${LIB_SEARCH_PATH}/${LIBRARY_NAME}/examples/${EXAMPLE_NAME}")
             set(EXAMPLE_SKETCH_PATH "${LIB_SEARCH_PATH}/${LIBRARY_NAME}/examples/${EXAMPLE_NAME}")
@@ -1709,15 +1709,15 @@ function(SETUP_ARDUINO_SKETCH TARGET_NAME SKETCH_PATH OUTPUT_VAR)
         file(GLOB SKETCH_SOURCES ${SKETCH_PATH}/*.pde ${SKETCH_PATH}/*.ino)
         list(REMOVE_ITEM SKETCH_SOURCES ${MAIN_SKETCH})
         list(SORT SKETCH_SOURCES)
-        
+
         generate_cpp_from_sketch("${MAIN_SKETCH}" "${SKETCH_SOURCES}" "${SKETCH_CPP}")
 
         # Regenerate build system if sketch changes
         add_custom_command(OUTPUT ${SKETCH_CPP}
-                           COMMAND ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR}
-                           WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                           DEPENDS ${MAIN_SKETCH} ${SKETCH_SOURCES}
-                           COMMENT "Regnerating ${SKETCH_NAME} Sketch")
+                COMMAND ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR}
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                DEPENDS ${MAIN_SKETCH} ${SKETCH_SOURCES}
+                COMMENT "Regnerating ${SKETCH_NAME} Sketch")
         set_source_files_properties(${SKETCH_CPP} PROPERTIES GENERATED TRUE)
         # Mark file that it exists for find_file
         set_source_files_properties(${SKETCH_CPP} PROPERTIES GENERATED_SKETCH TRUE)
@@ -1804,7 +1804,7 @@ function(GENERATE_CPP_FROM_SKETCH MAIN_SKETCH_PATH SKETCH_SOURCES SKETCH_CPP)
 
         # Write function prototypes
         file(APPEND ${SKETCH_CPP} "\n//=== START Forward: ${SKETCH_SOURCE_PATH}\n")
-        foreach(SKETCH_PROTOTYPE ${SKETCH_PROTOTYPES})  
+        foreach(SKETCH_PROTOTYPE ${SKETCH_PROTOTYPES})
             string(REPLACE "\n" " " SKETCH_PROTOTYPE "${SKETCH_PROTOTYPE}")
             string(REPLACE "{" "" SKETCH_PROTOTYPE "${SKETCH_PROTOTYPE}")
             arduino_debug_msg("\tprototype: ${SKETCH_PROTOTYPE};")
@@ -1818,7 +1818,7 @@ function(GENERATE_CPP_FROM_SKETCH MAIN_SKETCH_PATH SKETCH_SOURCES SKETCH_CPP)
         endforeach()
         file(APPEND ${SKETCH_CPP} "//=== END Forward: ${SKETCH_SOURCE_PATH}\n")
     endforeach()
-    
+
     # Write Sketch CPP source
     get_num_lines("${SKETCH_HEAD}" HEAD_NUM_LINES)
     file(APPEND ${SKETCH_CPP} "#line ${HEAD_NUM_LINES} \"${MAIN_SKETCH_PATH}\"\n")
@@ -2106,7 +2106,7 @@ set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "${ARDUINO_LINKER_FLAGS}" CACHE STR
 #                         Arduino Settings                                    
 #=============================================================================#
 set(ARDUINO_OBJCOPY_EEP_FLAGS -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load
-    --no-change-warnings --change-section-lma .eeprom=0   CACHE STRING "")
+        --no-change-warnings --change-section-lma .eeprom=0   CACHE STRING "")
 set(ARDUINO_OBJCOPY_HEX_FLAGS -O ihex -R .eeprom          CACHE STRING "")
 set(ARDUINO_AVRDUDE_FLAGS -V                              CACHE STRING "")
 
@@ -2115,40 +2115,53 @@ set(ARDUINO_AVRDUDE_FLAGS -V                              CACHE STRING "")
 #=============================================================================#
 if(NOT ARDUINO_FOUND AND ARDUINO_SDK_PATH)
     register_hardware_platform(${ARDUINO_SDK_PATH}/hardware/arduino/)
+    register_hardware_platform(${ARDUINO_SDK_PATH}/hardware/arduino/avr)
+
+    find_file(ARDUINO_LIBRARIES_PATH_DEF
+            NAMES libraries
+            PATHS ${ARDUINO_SDK_PATH} DOC "Path to directory containing the Arduino (default) libraries.")
+
+    find_file(ARDUINO_LIBRARIES_PATH_PLATFORM
+            NAMES libraries
+            PATHS ${ARDUINO_SDK_PATH}/hardware/arduino/avr/
+            DOC "Path to directory containing the Arduino (plateform specific) libraries.")
+
+    set (ARDUINO_LIBRARIES_PATH "${ARDUINO_LIBRARIES_PATH_DEF};${ARDUINO_LIBRARIES_PATH_PLATFORM}"
+            CACHE STRING "Path to directory containing the Arduino (default) libraries.")
 
     find_file(ARDUINO_LIBRARIES_PATH
-        NAMES libraries
-        PATHS ${ARDUINO_SDK_PATH}
-        DOC "Path to directory containing the Arduino libraries.")
+            NAMES libraries
+            PATHS ${ARDUINO_SDK_PATH}
+            DOC "Path to directory containing the Arduino libraries.")
 
     find_file(ARDUINO_VERSION_PATH
-        NAMES lib/version.txt
-        PATHS ${ARDUINO_SDK_PATH}
-        DOC "Path to Arduino version file.")
+            NAMES lib/version.txt
+            PATHS ${ARDUINO_SDK_PATH}
+            DOC "Path to Arduino version file.")
 
     find_program(ARDUINO_AVRDUDE_PROGRAM
-        NAMES avrdude
-        PATHS ${ARDUINO_SDK_PATH}
-        PATH_SUFFIXES hardware/tools
-        NO_DEFAULT_PATH)
+            NAMES avrdude
+            PATHS ${ARDUINO_SDK_PATH}
+            PATH_SUFFIXES hardware/tools
+            NO_DEFAULT_PATH)
 
     find_program(ARDUINO_AVRDUDE_PROGRAM
-        NAMES avrdude
-        DOC "Path to avrdude programmer binary.")
+            NAMES avrdude
+            DOC "Path to avrdude programmer binary.")
 
     find_program(AVRSIZE_PROGRAM
-        NAMES avr-size)
+            NAMES avr-size)
 
     find_file(ARDUINO_AVRDUDE_CONFIG_PATH
-        NAMES avrdude.conf
-        PATHS ${ARDUINO_SDK_PATH} /etc/avrdude
-        PATH_SUFFIXES hardware/tools
-                      hardware/tools/avr/etc
-        DOC "Path to avrdude programmer configuration file.")
+            NAMES avrdude.conf
+            PATHS ${ARDUINO_SDK_PATH} /etc/avrdude
+            PATH_SUFFIXES hardware/tools
+            hardware/tools/avr/etc
+            DOC "Path to avrdude programmer configuration file.")
 
     if(NOT CMAKE_OBJCOPY)
         find_program(AVROBJCOPY_PROGRAM
-                     avr-objcopy)
+                avr-objcopy)
         set(ADDITIONAL_REQUIRED_VARS AVROBJCOPY_PROGRAM)
         set(CMAKE_OBJCOPY ${AVROBJCOPY_PROGRAM})
     endif(NOT CMAKE_OBJCOPY)
@@ -2160,19 +2173,19 @@ if(NOT ARDUINO_FOUND AND ARDUINO_SDK_PATH)
 
     # Ensure that all required paths are found
     required_variables(VARS
-        ARDUINO_PLATFORMS
-        ARDUINO_CORES_PATH
-        ARDUINO_BOOTLOADERS_PATH
-        ARDUINO_LIBRARIES_PATH
-        ARDUINO_BOARDS_PATH
-        ARDUINO_PROGRAMMERS_PATH
-        ARDUINO_VERSION_PATH
-        ARDUINO_AVRDUDE_FLAGS
-        ARDUINO_AVRDUDE_PROGRAM
-        ARDUINO_AVRDUDE_CONFIG_PATH
-        AVRSIZE_PROGRAM
-        ${ADDITIONAL_REQUIRED_VARS}
-        MSG "Invalid Arduino SDK path (${ARDUINO_SDK_PATH}).\n")
+            ARDUINO_PLATFORMS
+            ARDUINO_CORES_PATH
+            ARDUINO_BOOTLOADERS_PATH
+            ARDUINO_LIBRARIES_PATH
+            ARDUINO_BOARDS_PATH
+            ARDUINO_PROGRAMMERS_PATH
+            ARDUINO_VERSION_PATH
+            ARDUINO_AVRDUDE_FLAGS
+            ARDUINO_AVRDUDE_PROGRAM
+            ARDUINO_AVRDUDE_CONFIG_PATH
+            AVRSIZE_PROGRAM
+            ${ADDITIONAL_REQUIRED_VARS}
+            MSG "Invalid Arduino SDK path (${ARDUINO_SDK_PATH}).\n")
 
     detect_arduino_version(ARDUINO_SDK_VERSION)
     set(ARDUINO_SDK_VERSION       ${ARDUINO_SDK_VERSION}       CACHE STRING "Arduino SDK Version")
@@ -2181,7 +2194,7 @@ if(NOT ARDUINO_FOUND AND ARDUINO_SDK_PATH)
     set(ARDUINO_SDK_VERSION_PATCH ${ARDUINO_SDK_VERSION_PATCH} CACHE STRING "Arduino SDK Patch Version")
 
     if(ARDUINO_SDK_VERSION VERSION_LESS 0.19)
-         message(FATAL_ERROR "Unsupported Arduino SDK (require verion 0.19 or higher)")
+        message(FATAL_ERROR "Unsupported Arduino SDK (require verion 0.19 or higher)")
     endif()
 
     message(STATUS "Arduino SDK version ${ARDUINO_SDK_VERSION}: ${ARDUINO_SDK_PATH}")
@@ -2194,18 +2207,18 @@ if(NOT ARDUINO_FOUND AND ARDUINO_SDK_PATH)
 
     set(ARDUINO_FOUND True CACHE INTERNAL "Arduino Found")
     mark_as_advanced(
-        ARDUINO_CORES_PATH
-        ARDUINO_VARIANTS_PATH
-        ARDUINO_BOOTLOADERS_PATH
-        ARDUINO_LIBRARIES_PATH
-        ARDUINO_BOARDS_PATH
-        ARDUINO_PROGRAMMERS_PATH
-        ARDUINO_VERSION_PATH
-        ARDUINO_AVRDUDE_FLAGS
-        ARDUINO_AVRDUDE_PROGRAM
-        ARDUINO_AVRDUDE_CONFIG_PATH
-        ARDUINO_OBJCOPY_EEP_FLAGS
-        ARDUINO_OBJCOPY_HEX_FLAGS
-        AVRSIZE_PROGRAM)
+            ARDUINO_CORES_PATH
+            ARDUINO_VARIANTS_PATH
+            ARDUINO_BOOTLOADERS_PATH
+            ARDUINO_LIBRARIES_PATH
+            ARDUINO_BOARDS_PATH
+            ARDUINO_PROGRAMMERS_PATH
+            ARDUINO_VERSION_PATH
+            ARDUINO_AVRDUDE_FLAGS
+            ARDUINO_AVRDUDE_PROGRAM
+            ARDUINO_AVRDUDE_CONFIG_PATH
+            ARDUINO_OBJCOPY_EEP_FLAGS
+            ARDUINO_OBJCOPY_HEX_FLAGS
+            AVRSIZE_PROGRAM)
 endif()
 

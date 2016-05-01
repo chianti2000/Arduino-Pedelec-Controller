@@ -59,6 +59,14 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
     switches.cpp
     switches.h
     switches_action.h
+        VESC/buffer.cpp
+        VESC/buffer.h
+        VESC/crc.cpp
+        VESC/crc.h
+        VESC/datatypes.h
+
+        VESC/vesc_uart.cpp
+        VESC/vesc_uart.h
     )
 generate_arduino_firmware(${FIRMWARE_NAME})
 

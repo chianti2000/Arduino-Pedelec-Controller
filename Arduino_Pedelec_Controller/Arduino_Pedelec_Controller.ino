@@ -28,7 +28,8 @@ Features:
 - optional Bluetooth module to communicate with Android app
 */
 
-#include "config.h"          //place all your personal configurations there and keep that file when updating!   
+#include <VESC/datatypes.h>
+#include "config.h"          //place all your personal configurations there and keep that file when updating!
 #include "globals.h"
 #include "display.h"         //display output functions
 #include "display_backlight.h"  // LCD display backlight support
@@ -37,6 +38,12 @@ Features:
 #include "switches.h"        //contains switch handling functions
 #include "menu.h"            //on the go menu
 #include "serial_command.h"       //serial (bluetooth) communication stuff
+
+#ifdef TEENSY_VERSION
+#include "Display/DisplayController.h"
+#include "VESC/vesc_uart.h"
+mc_values vesc_values;
+#endif
 
 #ifdef SUPPORT_MOTOR_SERVO   //RC motor controller connected to motor output
 #include <Servo.h>
@@ -55,6 +62,8 @@ DSPC01 dspc;
 unsigned long dspc_timer = 0;
 boolean dspc_mode=0;  //is false if temperature, true if altitude
 #endif
+
+//TODO Teensy RTC
 
 #ifdef SUPPORT_RTC
 #include <Wire.h>
@@ -92,7 +101,7 @@ Time now;
 #error Software controlled lights switch is not compatible with X-CELL RT support
 #endif
 
-#if defined(SUPPORT_LIGHTS_SWITCH) && HARDWARE_REV < 3
+#if defined(SUPPORT_LIGHTS_SWITCH) && HARDWARE_REV < 3 && !defined(TEENSY_VERSION)
 #error Lights switch is only possible on FC hardware rev 3 or newer
 #endif
 
@@ -159,7 +168,7 @@ const int current_in = A2;           //Current read-Pin
 const int option_pin = A3;           //Analog option
 const int lights_pin = A3;           //Software controlled lights switch
 #endif
-#if HARDWARE_REV <= 5
+#if HARDWARE_REV <= 5 && !defined(TEENSY_VERSION)
 const int poti_in = A6;              //PAS Speed-Poti-Pin
 const int throttle_in = A7;          //Throttle read-Pin
 const int pas_in = 2;                //PAS Sensor read-Pin
@@ -193,6 +202,30 @@ const int switch_disp = 37;           //Display switch
 const int buzzer=11;
 #endif
 
+
+#ifdef TEENSY_VERSION
+//UNUSED pins
+const int throttle_out = 255;
+const int poti_in = 255;
+const int voltage_in = 255;
+const int current_in = 255;
+
+const int throttle_in = A3;          //Throttle read-Pin
+const int brake_in = 4;
+const int wheel_in = 2;              //Speed read-Pin
+const int pas_in = 3; //PAS_in 1
+const int option_pin = 4; //PAS_in 2
+
+const int fet_out = 12;
+
+const int switch_disp = 9;           //Display switch
+const int switch_disp_2 = 8;           //Display switch2
+const int switch_thr = 10;           //thr switch
+
+const int lights_pin = 11;           //lights switch
+const int buzzer = 12;           //buzzer switch
+
+#endif
 
 
 //Variable-Declarations-----------------------------------------------------------------------------------------------
@@ -305,6 +338,8 @@ boolean first_aid_ignore_throttle = false;
 
 // Forward declarations for compatibility with new gcc versions
 void pas_change();
+void pas_change_1();
+void pas_change_2();
 void pas_change_dual(boolean signal);
 void speed_change();
 void send_serial_data();
@@ -456,36 +491,42 @@ digitalWrite(option_pin,HIGH);
     display_show_welcome_msg();
 
 //setup interrupt handling
-#if HARDWARE_REV < 20
-#ifdef SUPPORT_PAS
-    attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
-#endif
-    attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
+#ifndef TEENSY_VERSION
+    #if HARDWARE_REV < 20
+    #ifdef SUPPORT_PAS
+        attachInterrupt(0, pas_change, CHANGE); //attach interrupt for PAS-Sensor
+    #endif
+        attachInterrupt(1, speed_change, RISING); //attach interrupt for Wheel-Sensor
+    #else
+        bitClear(DDRE,7);      //configure PE7 as input
+        bitSet(PORTE,7);       //enable pull-up on wheel sensor
+        bitSet(EICRB,6);      //trigger on rising edge INT7 for wheel sensor
+        bitSet(EICRB,7);      //trigger on rising edge INT7 for wheel sensor
+        EIMSK  |= (1<<INT7);  //turn on interrupt for wheel sensor
+    #ifdef SUPPORT_PAS
+        bitClear(DDRE,5);      //configure PE5 as input
+        bitSet(PORTE,5);       //enable pull-up on PAS sensor
+    #if !defined(SUPPORT_XCELL_RT) && !defined(SUPPORT_BBS)
+        bitSet(EICRB,2);      //trigger on any edge INT5 for PAS sensor
+        EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
+    #else
+        bitClear(DDRE,6);      //configure PE6 as input
+        bitSet(PORTE,6);       //enable pull-up on PAS 2 sensor
+        bitSet(EICRB,2);      //trigger on rising edge INT5 for Thun sensor/BBS
+        bitSet(EICRB,3);      //trigger on rising edge INT5 for Thun sensor/BBS
+        bitSet(EICRB,4);      //trigger on rising edge INT6 for Thun sensor/BBS
+        bitSet(EICRB,5);      //trigger on rising edge INT6 for Thun sensor/BBS
+        EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
+        EIMSK  |= (1<<INT6);  //turn on interrupt for Thun sensor/BBS
+    #endif
+    #endif
+    #endif
 #else
-    bitClear(DDRE,7);      //configure PE7 as input
-    bitSet(PORTE,7);       //enable pull-up on wheel sensor
-    bitSet(EICRB,6);      //trigger on rising edge INT7 for wheel sensor
-    bitSet(EICRB,7);      //trigger on rising edge INT7 for wheel sensor
-    EIMSK  |= (1<<INT7);  //turn on interrupt for wheel sensor
-#ifdef SUPPORT_PAS
-    bitClear(DDRE,5);      //configure PE5 as input
-    bitSet(PORTE,5);       //enable pull-up on PAS sensor
-#if !defined(SUPPORT_XCELL_RT) && !defined(SUPPORT_BBS)
-    bitSet(EICRB,2);      //trigger on any edge INT5 for PAS sensor
-    EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
-#else
-    bitClear(DDRE,6);      //configure PE6 as input
-    bitSet(PORTE,6);       //enable pull-up on PAS 2 sensor
-    bitSet(EICRB,2);      //trigger on rising edge INT5 for Thun sensor/BBS
-    bitSet(EICRB,3);      //trigger on rising edge INT5 for Thun sensor/BBS
-    bitSet(EICRB,4);      //trigger on rising edge INT6 for Thun sensor/BBS
-    bitSet(EICRB,5);      //trigger on rising edge INT6 for Thun sensor/BBS
-    EIMSK  |= (1<<INT5);  //turn on interrupt INT5 for PAS sensor
-    EIMSK  |= (1<<INT6);  //turn on interrupt for Thun sensor/BBS
-#endif
-#endif
-#endif
+    attachInterrupt(wheel_in, speed_change, RISING);
+    attachInterrupt(pas_in, pas_change_1, CHANGE);
+    attachInterrupt(option_pin, pas_change_2, CHANGE);
 
+#endif
     myPID.SetMode(AUTOMATIC);             //initialize pid
     myPID.SetOutputLimits(0,1023);        //initialize pid
     myPID.SetSampleTime(10);              //compute pid every 10 ms
@@ -612,32 +653,46 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #endif
 //voltage, current, power
 
-#ifndef USE_EXTERNAL_VOLTAGE_SENSOR
-    voltage = analogRead_noISR(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
-#else
-    voltage = analogRead_noISR(external_voltage_in)*external_voltage_amplitude+external_voltage_offset; //check with multimeter, change in config.h if needed!
-#endif    
-    
-#ifndef USE_EXTERNAL_CURRENT_SENSOR
-  #if HARDWARE_REV <= 2
-      // Read in current and auto-calibrate the shift offset:
-      // There is a constant offset depending on the
-      // Arduino / resistor value, so we automatically
-      // shift it to zero on the scale.
-      int raw_current = analogRead_noISR(current_in);
-      if (raw_current < lowest_raw_current)
-          lowest_raw_current = raw_current;
-      current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
-      current = constrain(current,0,30);
-  #endif
-  #if HARDWARE_REV >= 3
-      current = (analogRead_noISR(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
-      current = constrain(current,-30,30);
-  #endif
-#else //using external current sensor
-    current = analogRead_noISR(external_current_in)*external_current_amplitude+external_current_offset;
-#endif
+#ifndef TEENSY_VERSION
+    #ifndef USE_EXTERNAL_VOLTAGE_SENSOR
+        voltage = analogRead_noISR(voltage_in)*voltage_amplitude+voltage_offset; //check with multimeter, change in config.h if needed!
+    #else
+        voltage = analogRead_noISR(external_voltage_in)*external_voltage_amplitude+external_voltage_offset; //check with multimeter, change in config.h if needed!
+    #endif
 
+    #ifndef USE_EXTERNAL_CURRENT_SENSOR
+      #if HARDWARE_REV <= 2
+          // Read in current and auto-calibrate the shift offset:
+          // There is a constant offset depending on the
+          // Arduino / resistor value, so we automatically
+          // shift it to zero on the scale.
+          int raw_current = analogRead_noISR(current_in);
+          if (raw_current < lowest_raw_current)
+              lowest_raw_current = raw_current;
+          current = (raw_current-lowest_raw_current)*current_amplitude_R11; //check with multimeter, change in config.h if needed!
+          current = constrain(current,0,30);
+      #endif
+      #if HARDWARE_REV >= 3
+          current = (analogRead_noISR(current_in)-512)*current_amplitude_R13+current_offset;    //check with multimeter, change in config.h if needed!
+          current = constrain(current,-30,30);
+      #endif
+    #else //using external current sensor
+        current = analogRead_noISR(external_current_in)*external_current_amplitude+external_current_offset;
+    #endif
+#else
+    if (vesc_get_values(vesc_values)) {
+        //	SerialPrint(VescMeasuredValues);
+        voltage = vesc_values.v_in;
+        current = vesc_values.current_in;
+        temperature = vesc_values.temp_pcb;
+    }
+    else
+    {
+        DEBUGSERIAL.println("could not get Data from VESC");
+    }
+    voltage = 0;
+    current = 0;
+#endif
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
     power=current*voltage;
@@ -848,10 +903,14 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     }
 #endif
 //Broken speed sensor detection END
+#ifndef TEENSY_VERSION
 #ifdef SUPPORT_MOTOR_SERVO
     motorservo.writeMicroseconds(throttle_write);
 #else
     analogWrite(throttle_out,throttle_write);
+#endif
+#else
+    set_motor_current(float(throttle_write/ 10.));
 #endif
 
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
@@ -1038,6 +1097,42 @@ ISR(INT5_vect)
     pas_change();
 }
 #endif
+#endif
+#endif
+
+#ifdef TEENSY_VERSION
+void pas_change_1()
+{
+    pas_change_dual(false);
+}
+void pas_change_2()
+{
+    pas_change_dual(true);
+}
+
+void pas_change_dual(boolean signal)
+{
+    if (signal)
+        pedaling=digitalRead(pas_in);
+    else
+    {
+        pedaling=!digitalRead(option_pin);
+#ifdef SUPPORT_XCELL_RT
+        cad=7500/(millis()-last_pas_event); //8 pulses per revolution
+#else
+        cad=2500/(millis()-last_pas_event); //24 pulses per revolution
+#endif
+        last_pas_event = millis();
+    }
+    pedalingbackwards=!pedaling;
+#ifdef SUPPORT_XCELL_RT
+    if (analogRead_in_use)
+    {
+      thun_want_calculation = true;
+      return;
+    }
+    read_current_torque();
+
 #endif
 #endif
 
@@ -1492,9 +1587,10 @@ void save_shutdown()
   
   save_eeprom(); //save variables now
   
-#if HARDWARE_REV >= 2
+#if HARDWARE_REV >= 2 || defined(TEENSY_VERSION)
   digitalWrite(fet_out,FET_OFF); //turn off
 #endif
+
   while(true); //there is nothing more to do -> stay in endless loop until turned off
 
 }
