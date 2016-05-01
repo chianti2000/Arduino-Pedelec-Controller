@@ -16,6 +16,8 @@ set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
 # Hack until we replace the .ino file with a stub
 # and move everything to main.cpp
 configure_file(Arduino_Pedelec_Controller.ino main.cpp COPYONLY)
+link_directories(/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/libraries/)
+link_directories(/Users/danielclaes/Documents/Arduino/libraries/)
 
 set(${FIRMWARE_NAME}_SRCS                          # Source code
     ${CMAKE_CURRENT_BINARY_DIR}/main.cpp
