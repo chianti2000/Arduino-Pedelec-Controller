@@ -28,7 +28,6 @@ Features:
 - optional Bluetooth module to communicate with Android app
 */
 
-#include <VESC/datatypes.h>
 #include "config.h"          //place all your personal configurations there and keep that file when updating!
 #include "globals.h"
 #include "display.h"         //display output functions
@@ -41,7 +40,9 @@ Features:
 
 #ifdef TEENSY_VERSION
 #include "Display/DisplayController.h"
+#include "VESC/datatypes.h"
 #include "VESC/vesc_uart.h"
+
 mc_values vesc_values;
 #endif
 
@@ -1132,21 +1133,19 @@ void pas_change_2()
     pas_change_dual(true);
 }
 
-void pas_change_dual(boolean signal)
-{
+void pas_change_dual(boolean signal) {
     if (signal)
-        pedaling=digitalRead(pas_in);
-    else
-    {
-        pedaling=!digitalRead(option_pin);
+        pedaling = digitalRead(pas_in);
+    else {
+        pedaling = !digitalRead(option_pin);
 #ifdef SUPPORT_XCELL_RT
         cad=7500/(millis()-last_pas_event); //8 pulses per revolution
 #else
-        cad=2500/(millis()-last_pas_event); //24 pulses per revolution
+        cad = 2500 / (millis() - last_pas_event); //24 pulses per revolution
 #endif
         last_pas_event = millis();
     }
-    pedalingbackwards=!pedaling;
+    pedalingbackwards = !pedaling;
 #ifdef SUPPORT_XCELL_RT
     if (analogRead_in_use)
     {
@@ -1157,6 +1156,7 @@ void pas_change_dual(boolean signal)
 
 #endif
 #endif
+}
 
 #if HARDWARE_REV >= 20
 #if defined(SUPPORT_XCELL_RT) || defined(SUPPORT_BBS)
@@ -1171,7 +1171,7 @@ void pas_change_dual(boolean signal)
         cad=7500/(millis()-last_pas_event); //8 pulses per revolution
 #else
         cad=2500/(millis()-last_pas_event); //24 pulses per revolution
-#endif        
+#endif
         last_pas_event = millis();
     }
     pedalingbackwards=!pedaling;
@@ -1194,7 +1194,7 @@ void read_current_torque() //this reads the current torque value
     torqueindex++;
     if (torqueindex==torquevalues_count)
         torqueindex=0;
-    readtorque=true;  
+    readtorque=true;
 }
 #endif
 
@@ -1241,7 +1241,7 @@ void speed_change()    //Wheel Sensor Change------------------------------------
     wheel_counter++;
     wheel_time=(millis()-last_wheel_time)*wheel_magnets;
     spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
-    
+
     if (wheel_counter>(wheel_magnets-1)) //wheel has made one complete revolution
     {
       wheel_counter=0;
@@ -1252,14 +1252,14 @@ void speed_change()    //Wheel Sensor Change------------------------------------
       slope=0.98*slope+2*(altitude-last_altitude)/wheel_circumference;
       last_altitude=altitude;
 //slope-stuff end---------------------------------
-#endif    
+#endif
     }
     last_wheel_time=millis();
 }
 
 
 void serial_android(HardwareSerial* localSerial)
-{ 
+{
 #if (SERIAL_MODE & SERIAL_MODE_ANDROID)||(BLUETOOTH_MODE & BLUETOOTH_MODE_ANDROID)
     localSerial->print(voltage,1);
     localSerial->print(MY_F(";"));
@@ -1286,7 +1286,7 @@ void serial_android(HardwareSerial* localSerial)
 }
 
 void serial_logview(HardwareSerial* localSerial)
-{ 
+{
 #if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)||(BLUETOOTH_MODE & BLUETOOTH_MODE_LOGVIEW)
     localSerial->print(MY_F("$1;1;0;"));
     localSerial->print(voltage,2);
@@ -1318,7 +1318,7 @@ void serial_logview(HardwareSerial* localSerial)
 }
 
 void serial_debug(HardwareSerial* localSerial)
-{ 
+{
 #if (SERIAL_MODE & SERIAL_MODE_DEBUG)||(BLUETOOTH_MODE & BLUETOOTH_MODE_DEBUG)
 #ifdef DEBUG_MEMORY_USAGE
     localSerial->print(MY_F("memFree"));
@@ -1398,7 +1398,7 @@ void serial_debug(HardwareSerial* localSerial)
 }
 
 void serial_mmc(HardwareSerial* localSerial)
-{ 
+{
 #if (SERIAL_MODE & SERIAL_MODE_MMC)||(BLUETOOTH_MODE & BLUETOOTH_MODE_MMC)
     localSerial->print((int)(voltage_display*10));
     localSerial->print(MY_F("\t"));
@@ -1417,7 +1417,7 @@ void serial_mmc(HardwareSerial* localSerial)
 }
 
 void serial_ios(HardwareSerial* localSerial)
-{ 
+{
 #if (SERIAL_MODE & SERIAL_MODE_IOS)||(BLUETOOTH_MODE & BLUETOOTH_MODE_IOS)
     localSerial->print(voltage,1);
     localSerial->print(MY_F(";"));
@@ -1454,19 +1454,19 @@ void send_bluetooth_data() //send bluetooth data
 #if HARDWARE_REV >=20
 #if (BLUETOOTH_MODE & BLUETOOTH_MODE_ANDROID)
     serial_android(&Serial1);
-#endif     
-  
+#endif
+
 #if (BLUETOOTH_MODE & BLUETOOTH_MODE_LOGVIEW)
     serial_logview(&Serial1);
-#endif    
+#endif
 
 #if (BLUETOOTH_MODE & BLUETOOTH_MODE_DEBUG)
     serial_debug(&Serial1);
-#endif   
-  
+#endif
+
 #if (BLUETOOTH_MODE & BLUETOOTH_MODE_MMC)
     serial_mmc(&Serial1);
-#endif 
+#endif
 
 #if (BLUETOOTH_MODE & BLUETOOTH_MODE_IOS)
     serial_ios(&Serial1);
@@ -1482,19 +1482,19 @@ void send_serial_data()  //send serial data
 {
 #if (SERIAL_MODE & SERIAL_MODE_ANDROID)
     serial_android(&Serial);
-#endif     
-  
+#endif
+
 #if (SERIAL_MODE & SERIAL_MODE_LOGVIEW)
     serial_logview(&Serial);
-#endif    
+#endif
 
 #if (SERIAL_MODE & SERIAL_MODE_DEBUG)
     serial_debug(&Serial);
-#endif   
-  
+#endif
+
 #if (SERIAL_MODE & SERIAL_MODE_MMC)
     serial_mmc(&Serial);
-#endif 
+#endif
 
 #if (SERIAL_MODE & SERIAL_MODE_IOS)
     serial_ios(&Serial);
@@ -1557,7 +1557,7 @@ void handle_dspc()
 
 void save_eeprom()
 {
-  //save the voltage value 2 seconds before switch-off-detection    
+  //save the voltage value 2 seconds before switch-off-detection
   if (voltage_2s)
       variable_new.voltage=voltage_2s;
   else
@@ -1603,16 +1603,16 @@ void save_shutdown()
   //power saving stuff. This is critical if battery is disconnected.
   EIMSK=0; //disable interrupts
   cli(); //disable interrupts
-  ADCSRA = 0; //disable ADC 
+  ADCSRA = 0; //disable ADC
 #if HARDWARE_REV < 20
   PRR=B11101111;
 #else
   PRR0=B11101111; //shut down I2C, Timers, ADCs, UARTS
-  PRR1=B00111111; //shut down I2C, Timers, ADCs, UARTS   
-#endif  
-  
+  PRR1=B00111111; //shut down I2C, Timers, ADCs, UARTS
+#endif
+
   save_eeprom(); //save variables now
-  
+
 #if HARDWARE_REV >= 2 || defined(TEENSY_VERSION)
   digitalWrite(fet_out,FET_OFF); //turn off
 #endif
@@ -1656,3 +1656,4 @@ int analogRead_noISR(uint8_t pin) //this function makes sure that analogRead is 
 #endif
     return temp;
 }
+
