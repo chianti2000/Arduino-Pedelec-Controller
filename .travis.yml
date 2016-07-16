@@ -1,0 +1,20 @@
+---
+sudo: required
+dist: trusty
+
+language:
+    - c
+
+cache:
+    - ccache
+
+addons:
+ apt:
+   packages:
+   - gcc-avr
+   - binutils-avr
+   - avr-libc
+   - arduino
+   - python3.4
+
+script: tools/compile_test.py

@@ -293,7 +293,8 @@ PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
 unsigned int idle_shutdown_count = 0;
 unsigned long idle_shutdown_last_wheel_time = millis();
 byte pulse_human=0;          //cyclist's heart rate
-double torque=0.0;           //cyclist's torque
+double torque=0.0;           //cyclist's torque in Nm (averaged over one pedal revolution)
+double torque_instant=0.0;   //cyclist's torque in Nm (live)
 double power_human=0.0;      //cyclist's power
 double wh_human=0;
 #ifdef SUPPORT_XCELL_RT
@@ -312,6 +313,10 @@ volatile boolean readtorque=false;  //true if torque array has been updated -> r
 #endif
 #ifdef SUPPORT_BBS
 unsigned long bbs_pausestart=0; //start time of power pause for gear change
+#endif
+
+#ifdef SUPPORT_THERMISTOR
+float temperature_thermistor=0; //thermistor temperature
 #endif
 
 #if (SERIAL_MODE & SERIAL_MODE_MMC)           //communicate with mmc-app
@@ -584,6 +589,10 @@ loadcell.tare();                   //set zero scale. remove any load diring star
 loadcell.set_scale(hx711_scale);   //apply scaling
 #endif
 
+#ifdef SUPPORT_THERMISTOR
+  pinMode(thermistor_pin,INPUT);
+#endif
+
 #ifdef DEBUG_MEMORY_USAGE
     Serial.print(MY_F("memFree after setup:"));
     Serial.print(memFree());
@@ -611,7 +620,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 }
 #endif
 
-#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
+#if ((DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3)||(DISPLAY_TYPE & DISPLAY_TYPE_BAFANG))
     display_update();
 #endif
 
@@ -698,6 +707,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     power=current*voltage;
 
 #ifdef SUPPORT_XCELL_RT
+    torque_instant=(analogRead(option_pin)-torque_zero);  //multiplication constant for THUN X-CELL RT is approx. 1Nm/count
     if (readtorque==true)
     {
         torque=0.0;
@@ -811,6 +821,14 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #if CONTROL_MODE == CONTROL_MODE_TORQUE                      //human power control mode
 #ifdef SUPPORT_XCELL_RT
     power_poti = poti_stat/102300.0* curr_power_poti_max*power_human*(1+spd/20.0); //power_poti_max is in this control mode interpreted as percentage. Example: power_poti_max=200 means; motor power = 200% of human power
+#ifdef SUPPORT_TORQUE_THROTTLE                              //we want to trigger throttle just by pedal torque
+    if (abs(torque_instant)>torque_throttle_min)            //we are above the threshold to trigger throttle
+    {
+      double power_torque_throttle = abs(torque_instant/torque_throttle_full*poti_stat/1023*curr_power_max);  //translate torque_throttle_full to maximum power
+      power_throttle = max(power_throttle,power_torque_throttle); //decide if thumb throttle or torque throttle are higher
+      power_throttle = constrain(power_throttle,0,curr_power_max); //constrain throttle value to maximum power 
+    }
+#endif
 #endif
 #endif
 
@@ -855,7 +873,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 
     if (power_set>curr_power_max*factor_speed)
     {power_set=curr_power_max*factor_speed;}                  //Maximum allowed power including Speed-Cutoff    
-    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(throttle_stat==0))||(brake_stat==0))  //integral part of PID regulator is slowly shrinked to 0 when you stop pedaling or brake
+    if ((((poti_stat<=throttle_stat)||(pedaling==false))&&(power_throttle<10))||(brake_stat==0))  //integral part of PID regulator is slowly shrinked to 0 when you stop pedaling or brake
     {
 #ifdef RESET_PID_ON_BRAKE
       myPID.ResetIntegral();
@@ -884,9 +902,9 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
 #endif
 #ifdef SUPPORT_PAS
-    if ((pedaling==false)&&(throttle_stat<5)||power_set<=0||spd>curr_spd_max2)
+    if ((pedaling==false)&&(power_throttle<10)||power_set<=0||spd>curr_spd_max2)
 #else
-    if (throttle_stat<5||spd>curr_spd_max2)
+    if (power_throttle<10||spd>curr_spd_max2)
 #endif
     {throttle_write=motor_offset;}
 //Broken speed sensor detection START
@@ -1024,13 +1042,17 @@ if (loadcell.is_ready())     //new conversion result from load cell available
         sensors.requestTemperatures(); // read temperature(s) from DS18x20 sensor. Readouts are in sensors.getTempCByIndex(n)
 #endif
 
+#ifdef SUPPORT_THERMISTOR
+        temperature_thermistor=1/(thermistor_t0+thermistor_b*log((10/(1023.0/analogRead(thermistor_pin)-1))/thermistor_r))-273.15; //calculate thermistor temperature from Steinhart-Hart parameters
+#endif
+
         battery_percent_fromcapacity = constrain((1-wh/ curr_capacity)*100,0,100);     //battery percent calculation from battery capacity. For voltage-based calculation see above
         range=constrain(curr_capacity/wh*km-km,0.0,200.0);               //range calculation from battery capacity
         wh+=current*(millis()-last_writetime)/3600000.0*voltage;  //watthours calculation
         wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
-#if (!(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
+#if (!(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS3)&& !(DISPLAY_TYPE & DISPLAY_TYPE_BAFANG))
 #if !(DISPLAY_TYPE == DISPLAY_TYPE_NONE)
         display_update();
 #endif
@@ -1315,7 +1337,7 @@ void serial_debug(HardwareSerial* localSerial)
     localSerial->print(MY_F(" Pedaling"));
     localSerial->print(pedaling);
     localSerial->print(MY_F(" Torque"));
-    localSerial->print(torque,1);
+    localSerial->print(torque_instant,1); //print current torque value in Nm
 #else
     localSerial->print(MY_F(" PAS_On"));
     localSerial->print(pas_on_time);
@@ -1337,6 +1359,10 @@ void serial_debug(HardwareSerial* localSerial)
 #ifdef SUPPORT_TEMP_SENSOR
     localSerial->print(MY_F(" Temp"));
     localSerial->print(sensors.getTempCByIndex(0),2);
+#endif
+#ifdef SUPPORT_THERMISTOR
+    localSerial->print(MY_F(" Temp"));
+    localSerial->print(temperature_thermistor,1);
 #endif
     /*
         localSerial->print(MY_F(" TEMP"));

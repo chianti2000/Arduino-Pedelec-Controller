@@ -28,12 +28,21 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "display_kingmeter.h"
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+#include "display_bafang.h"
+#endif
+
 
 display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
 display_mode_type display_mode_last = DISPLAY_MODE_TEXT; //last screen type
 boolean display_force_text = false;
 
+// Nokia displays: Default to graphic view on startup if compiled in
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined(DV_GRAPHIC)
+display_view_type display_view = DISPLAY_VIEW_GRAPHIC;
+#else
 display_view_type display_view = DISPLAY_VIEW_MAIN;
+#endif
 display_view_type display_view_last = display_view;
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -53,6 +62,17 @@ static SerialLCD lcd(serial_display_16x2_pin);                      //16x2 New H
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)         // For King-Meter J-LCD, SW-LCD, KM5s-LCD, EBS-LCD2
 KINGMETER_t KM;                                     // Context of the King-Meter object
+#if HARDWARE_REV < 20
+#include <SoftwareSerial.h>
+static SoftwareSerial mySerial(10, 11);             // RX (YELLOW cable), TX (GREEN cable)
+SoftwareSerial* displaySerial =& mySerial;
+#else
+HardwareSerial* displaySerial=&Serial2;
+#endif
+#endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)            // For Bafang BBS0x displays
+BAFANG_t BF;                                     // Context of the Bafang object
 #if HARDWARE_REV < 20
 #include <SoftwareSerial.h>
 static SoftwareSerial mySerial(10, 11);             // RX (YELLOW cable), TX (GREEN cable)
@@ -365,6 +385,7 @@ static void display_16x2_view_main()
     lcd.print(MY_F(" km"));
 }
 
+#ifdef DV_TIME
 static void display_16x2_view_time()
 {
     lcd.setCursor(0,0);
@@ -384,7 +405,9 @@ static void display_16x2_view_time()
     lcd.print(now.mm);
 #endif
 }
+#endif
 
+#ifdef DV_BATTERY
 static void display_16x2_view_battery()
 {
     lcd.setCursor(0,0);
@@ -408,7 +431,9 @@ static void display_16x2_view_battery()
         lcd.print(MY_F("---"));
     lcd.print(MY_F(" AVG "));
 }
+#endif
 
+#ifdef DV_ENVIRONMENT
 bool show_altitude = false;
 static void display_16x2_view_environment()
 {
@@ -449,7 +474,9 @@ static void display_16x2_view_environment()
     lcd.print(MY_F(" C "));
 #endif
 }
+#endif
 
+#ifdef DV_HUMAN
 static void display_16x2_view_human()
 {
     lcd.setCursor(0,0);
@@ -467,6 +494,19 @@ static void display_16x2_view_human()
     lcd.print(MY_F(" "));
 #endif
 }
+#endif
+
+#ifdef DV_ODOMETER
+static void display_16x2_view_odometer()
+{
+    lcd.setCursor(0,0);
+
+    // show total mileage
+    lcd.print(MY_F("ODO: "));
+    lcd.print(odo/1000.0*wheel_circumference,1);
+    lcd.print(MY_F(" km"));
+}
+#endif
 
 static void display_16x2_update()
 {
@@ -479,20 +519,33 @@ static void display_16x2_update()
 
     switch (display_view)
     {
+#ifdef DV_TIME
         case DISPLAY_VIEW_TIME:
             display_16x2_view_time();
             break;
+#endif
+#ifdef DV_BATTERY
         case DISPLAY_VIEW_BATTERY:
             display_16x2_view_battery();
             break;
+#endif
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)
+#ifdef DV_ENVIRONMENT
         case DISPLAY_VIEW_ENVIRONMENT:
             display_16x2_view_environment();
             break;
 #endif
+#endif
+#ifdef DV_HUMAN
         case DISPLAY_VIEW_HUMAN:
             display_16x2_view_human();
             break;
+#endif
+#ifdef DV_ODOMETER
+        case DISPLAY_VIEW_ODOMETER:
+            display_16x2_view_odometer();
+            break;
+#endif
         case DISPLAY_VIEW_MAIN:
         default:
             display_16x2_view_main();
@@ -636,6 +689,47 @@ void kingmeter_update(void)
 }
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+void bafang_update(void)
+{
+    Bafang_Service(&BF);
+    /* Apply Rx parameters */
+
+    #ifdef SUPPORT_LIGHTS_SWITCH
+    if(BF.Rx.Headlight == false)
+    {
+        digitalWrite(lights_pin, 0);
+    }
+    else
+    {
+        digitalWrite(lights_pin, 1);
+    }
+    #endif
+
+    if(BF.Rx.PushAssist == true)
+    {
+        throttle_stat = 200;
+    }
+    else
+    {
+        throttle_stat = 0;
+        poti_stat     = map(BF.Rx.AssistLevel, 0, 9, 0,1023);
+    }
+
+
+    /* Shutdown in case we received no message in the last 3s */
+
+    if((millis() - BF.LastRx) > 3000)
+    {
+        poti_stat     = 0;
+        throttle_stat = 0;
+        #if HARDWARE_REV >=2
+        save_shutdown();
+        #endif
+    }
+}
+#endif
+
 
 static void slcd_update(byte battery, unsigned int wheeltime, byte error)
 {
@@ -756,6 +850,11 @@ void display_init()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER)
     KingMeter_Init(&KM, displaySerial);
 #endif
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+    Bafang_Init(&BF, displaySerial);
+#endif
+
 
 #if ((DISPLAY_TYPE == DISPLAY_TYPE_BMS) || (DISPLAY_TYPE == DISPLAY_TYPE_BMS3))
     displaySerial->begin(9600);
@@ -940,7 +1039,7 @@ static void display_nokia_view_main()
 }
 #endif// (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined (DV_GRAPHIC)
 static void display_nokia_view_graphic()
 {
     //print range in km in the top left corner
@@ -1004,7 +1103,7 @@ static void display_nokia_view_graphic()
 }
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined (DV_HUMAN)
 static void display_nokia_view_human()
 {
 
@@ -1039,7 +1138,7 @@ static void display_nokia_view_human()
 }
 #endif
 
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined (DV_ENVIRONMENT)
 static void display_nokia_view_environment()
 {
 #if defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01)
@@ -1076,6 +1175,17 @@ static void display_nokia_view_environment()
 }
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) && defined(DV_ODOMETER)
+static void display_nokia_view_odometer()
+{
+    lcd.setCursor(0,3);
+    lcd.print(MY_F("ODO: "));
+    lcd.print(odo/1000.0*wheel_circumference,1);
+    // lcd.print(MY_F(" km"));
+}
+#endif
+
+
 static void display_nokia_update()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -1090,19 +1200,24 @@ static void display_nokia_update()
 
     switch (display_view)
     {
-#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR))&& defined(DV_ENVIRONMENT)
+#if (defined(SUPPORT_BMP085) || defined(SUPPORT_DSPC01) || defined(SUPPORT_TEMP_SENSOR)) && defined(DV_ENVIRONMENT)
         case DISPLAY_VIEW_ENVIRONMENT:
             display_nokia_view_environment();
             break;
 #endif
-#if defined(DV_GRAPHIC)
+#ifdef DV_GRAPHIC
         case DISPLAY_VIEW_GRAPHIC:
             display_nokia_view_graphic();
             break;
 #endif
-#if defined(DV_HUMAN)
+#ifdef DV_HUMAN
         case DISPLAY_VIEW_HUMAN:
             display_nokia_view_human();
+            break;
+#endif
+#ifdef DV_ODOMETER
+        case DISPLAY_VIEW_ODOMETER:
+            display_nokia_view_odometer();
             break;
 #endif
         case DISPLAY_VIEW_MAIN:
@@ -1156,6 +1271,9 @@ void display_update()
     kingmeter_update();
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+    bafang_update();
+#endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
     slcd_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time,0);
@@ -1223,6 +1341,17 @@ void display_debug(HardwareSerial* localSerial)
     localSerial->print(((float)KM.Rx.SPEEDMAX_Limit_x10)/10);
     localSerial->print(MY_F("  CurrLim "));
     localSerial->println(((float)KM.Rx.CUR_Limit_x10)/10);
+    #endif
+    
+    #if (DISPLAY_TYPE & DISPLAY_TYPE_BAFANG)
+    localSerial->print(MY_F("  Assist "));
+    localSerial->print(BF.Rx.AssistLevel);
+    localSerial->print(MY_F("  Light "));
+    localSerial->print(BF.Rx.Headlight, HEX);
+    localSerial->print(MY_F("  Push "));
+    localSerial->print(BF.Rx.PushAssist, HEX);
+    localSerial->print(MY_F("  Diameter "));
+    localSerial->println(BF.Rx.Wheeldiameter,DEC);
     #endif
 
     

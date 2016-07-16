@@ -4,6 +4,7 @@
 """Licensed under the GPL v3, part of the pedelec controller"""
 """Written by Thomas Jarosch, (c) 2014-2015"""
 import os
+import sys
 import subprocess
 import unittest
 import multiprocessing
@@ -30,6 +31,7 @@ ALL_FEATURES = [
                   'SUPPORT_THROTTLE',
                   'SUPPORT_PAS',
                   'SUPPORT_XCELL_RT',
+                  'SUPPORT_TORQUE_THROTTLE',
                   'SUPPORT_HRMI',
                   'SUPPORT_BRAKE',
                   'INVERT_BREAK',
@@ -45,6 +47,7 @@ ALL_FEATURES = [
                   'SUPPORT_GEAR_SHIFT',
                   'SUPPORT_MOTOR_SERVO',
                   'SUPPORT_TEMP_SENSOR',
+                  'SUPPORT_THERMISTOR',
                   'SUPPORT_HX711',
                   'DETECT_BROKEN_SPEEDSENSOR',
                   'USE_EXTERNAL_CURRENT_SENSOR',
@@ -65,13 +68,24 @@ DEFAULT_FEATURES = [
                   'DETECT_BROKEN_SPEEDSENSOR'
                  ]
 
+ALL_DISPLAY_VIEWS = [
+                   'DV_GRAPHIC',
+                   'DV_TIME',
+                   'DV_BATTERY',
+                   'DV_ENVIRONMENT',
+                   'DV_HUMAN',
+                   'DV_ODOMETER'
+                  ]
+
+
 def write_config_h(filename=CONFIG_H,
                    hardware_rev=21,
                    display_type='NOKIA_4PIN',
                    serial_mode='DEBUG',
                    bluetooth_mode='NONE',
                    features=DEFAULT_FEATURES,
-                   control_mode='NORMAL'):
+                   control_mode='NORMAL',
+                   display_views=ALL_DISPLAY_VIEWS):
     with open(filename, 'w') as f:
         f.write('#ifndef CONFIG_H\n')
         f.write('#define CONFIG_H\n')
@@ -97,6 +111,9 @@ def write_config_h(filename=CONFIG_H,
         f.write('#define DISPLAY_TYPE_KINGMETER_618U (1<<4)                  // King-Meter 618U protocol (KM5s, EBS-LCD2, J-LCD, SW-LCD)\n')
         f.write('#define DISPLAY_TYPE_KINGMETER_901U (1<<8)                  // King-Meter 901U protocol (KM5s)\n')
         f.write('#define DISPLAY_TYPE_KINGMETER      (DISPLAY_TYPE_KINGMETER_618U|DISPLAY_TYPE_KINGMETER_901U)\n')
+        f.write('#define DISPLAY_TYPE_BAFANG_C961    (1<<9)\n')
+        f.write('#define DISPLAY_TYPE_BAFANG_C965    (1<<10)\n')
+        f.write('#define DISPLAY_TYPE_BAFANG         (DISPLAY_TYPE_BAFANG_C961|DISPLAY_TYPE_BAFANG_C965)\n')
         f.write('\n')
         f.write('#define DISPLAY_TYPE DISPLAY_TYPE_' + display_type + '    //Set your display type here. CHANGES ONLY HERE!<-----------------------------\n')
         f.write('\n')
@@ -104,11 +121,10 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('\n')
         f.write('//Selection of available display views: comment out any view that you do not want. Can save much programming space!\n')
-        f.write('#define DV_GRAPHIC\n')
-        f.write('#define DV_TIME 1\n')
-        f.write('#define DV_BATTERY\n')
-        f.write('#define DV_ENVIRONMENT\n')
-        f.write('#define DV_HUMAN\n')
+        for dv in display_views:
+            if dv not in ALL_DISPLAY_VIEWS:
+                raise Exception('Unknown display view: ' + dv)
+            f.write('#define ' + dv + '\n')
         f.write('\n')
         f.write('\n')
         f.write('const int serial_display_16x2_pin = 12;\n')
@@ -145,6 +161,8 @@ def write_config_h(filename=CONFIG_H,
                 raise Exception('Unknown feature: ' + feature)
             f.write('#define ' + feature + '\n')
         f.write('// FEATURES end\n')
+        f.write('\n')
+        f.write('#define BBS_GEARCHANGEPAUSE 2000 //powerless time in milliseconds to allow gear change\n')
         f.write('\n')
 
         f.write('\n')
@@ -188,6 +206,10 @@ def write_config_h(filename=CONFIG_H,
         f.write('\n')
         f.write('//Config Options-----------------------------------------------------------------------------------------------------\n')
         f.write('const byte temp_pin = A2;                //pin connected to Data pin of the DS18x20 temperature Sensor\n')
+        f.write('const byte thermistor_pin = A2;              //thermistor pin\n')
+        f.write('const float thermistor_t0=0.00335401643;     // 1/T0 of thermistor in 1/K\n')
+        f.write('const float thermistor_b=0.00025316455;      // 1/beta of thermistor in 1/K\n')
+        f.write('const float thermistor_r=10;                 // r of thermistor in kOhm\n')
         f.write('const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes\n')
         f.write('const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)\n')
         f.write('const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)\n')
@@ -287,7 +309,7 @@ class CompileTest(unittest.TestCase):
         os.mkdir(test_name)
         os.chdir(test_name)
 
-        subprocess.call('cmake ../ -DDOCUMENTATION=OFF', shell=True)
+        subprocess.call('cmake -DDOCUMENTATION=OFF -Wno-dev ../', shell=True)
 
     def run_make(self, build_name):
         ret = subprocess.call('make -j' + str(CPU_COUNT), shell=True)
@@ -331,7 +353,9 @@ class CompileTest(unittest.TestCase):
                           'KINGMETER_618U',
                           'KINGMETER_901U',
                           'BMS',
-                          'BMS3']:
+                          'BMS3',
+                          'BAFANG_C961',
+                          'BAFANG_C965']:
             self.build_firmware(disp_type, display_type=disp_type)
 
     def test_16x2_serial_with_dynamic_backlight(self):
@@ -341,6 +365,15 @@ class CompileTest(unittest.TestCase):
         self.build_firmware(hardware_rev = 5,
                     display_type='16X2_SERIAL',
                     features=my_features)
+
+    def test_display_views(self):
+        for disp_type in ['16X2_SERIAL',
+                          'NOKIA_4PIN'
+                         ]:
+            for view in ALL_DISPLAY_VIEWS:
+                name_hint = disp_type + "_" + view
+                self.build_firmware(name_hint, display_type=disp_type,
+                                    display_views=[view])
 
     def test_serial_modes(self):
         for serial_mode in ['NONE',
@@ -448,6 +481,7 @@ class CompileTest(unittest.TestCase):
                             'SUPPORT_BATTERY_CHARGE_COUNTER',
                             'SUPPORT_GEAR_SHIFT',
                             'SUPPORT_TEMP_SENSOR',
+                            'SUPPORT_THERMISTOR',
                             'SUPPORT_HX711',
                             'DETECT_BROKEN_SPEEDSENSOR'
                         ]
@@ -483,3 +517,6 @@ if __name__ == '__main__':
         print('All fine. Cleaning build directories')
         subprocess.call('rm -rf ' + BUILD_PREFIX + '*', shell=True)
         print('')
+    else:
+        print('Build failed')
+        sys.exit(1)

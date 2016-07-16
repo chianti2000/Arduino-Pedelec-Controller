@@ -25,6 +25,9 @@
 #define DISPLAY_TYPE_KINGMETER_618U (1<<4)                  // King-Meter 618U protocol (KM5s, EBS-LCD2, J-LCD, SW-LCD)
 #define DISPLAY_TYPE_KINGMETER_901U (1<<8)                  // King-Meter 901U protocol (KM5s)
 #define DISPLAY_TYPE_KINGMETER      (DISPLAY_TYPE_KINGMETER_618U|DISPLAY_TYPE_KINGMETER_901U)
+#define DISPLAY_TYPE_BAFANG_C961    (1<<9)
+#define DISPLAY_TYPE_BAFANG_C965    (1<<10)
+#define DISPLAY_TYPE_BAFANG         (DISPLAY_TYPE_BAFANG_C961|DISPLAY_TYPE_BAFANG_C965)
 
 #define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
@@ -35,6 +38,7 @@
 #define DV_BATTERY
 #define DV_ENVIRONMENT
 #define DV_HUMAN
+#define DV_ODOMETER
 
 // If using a New Haven serial 16x2 display: The pin the display is connected to
 #if HARDWARE_REV < 20
@@ -114,7 +118,7 @@ const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.
                                      // Normally the backlight is always on. If you enable this option,
                                      // it will only be on when something important is shown.
-                                     
+
                                      // The Nokia 5110 display needs a 120 Ohm resistor on the backlight pin
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
 const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f.e. instead of display switch #2 (12, default).
@@ -139,6 +143,7 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 #define SUPPORT_BBS         //uncomment if BBS02 PAS sensor is connected (2 wires analog to Thun)
 #define BBS_GEARCHANGEPAUSE 2000 //powerless time in milliseconds to allow gear change 
 // #define SUPPORT_XCELL_RT    //uncomment if X-CELL RT connected. FC1.4: pas_factor_min=0.2, pas_factor_max=0.5. FC1.5: pas_factor_min=0.5, pas_factor_max=1.5. pas_magnets=8
+// #define SUPPORT_TORQUE_THROTTLE
 // #define SUPPORT_HRMI         //uncomment if polar heart-rate monitor interface connected to i2c port
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
@@ -171,6 +176,12 @@ const byte gear_shift_pin_high_gear = 7;     //pin that connects to the high gea
 
 //#define SUPPORT_TEMP_SENSOR                //uncomment if you want to use a DS18x20 temperature sensor
 const byte temp_pin = A2;                     //pin connected to Data pin of the DS18x20 temperature Sensor
+
+//#define SUPPORT_THERMISTOR                 //uncomment if you have thermistor connected
+const byte thermistor_pin = A2;              //thermistor pin
+const float thermistor_t0=0.00335401643;     // 1/T0 of thermistor in 1/K
+const float thermistor_b=0.00025316455;      // 1/beta of thermistor in 1/K
+const float thermistor_r=10;                 // r of thermistor in kOhm
 
 //#define SUPPORT_HX711                        //uncomment this if you want to use a load cell with hx711 amplifier
 const byte hx711_data=20;                    //data pin of hx711 sensor
@@ -213,7 +224,8 @@ const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
 const int pas_timeout=500;               //time in ms after which pedaling is set to false
-
+const int torque_throttle_min=5;         //minimum torque in Nm to trigger starting aid
+const int torque_throttle_full=20;       //torque to give full throttle
 //Config Options for profile 2-----------------------------------------------------------------------------------------------------
 const int startingaid_speed_2 = 6;
 const int spd_max1_2=50;                   //speed cutoff start in Km/h
