@@ -22,7 +22,7 @@ set(${TESTPROGRAM_NAME}_SRCS
         VESC/buffer.cpp
         VESC/crc.cpp
         VESC/vesc_uart.cpp
-        Adafruit_PCD8544/Adafruit_PCD8544.cpp
+        #Adafruit_PCD8544/Adafruit_PCD8544.cpp
     )
 generate_arduino_firmware(${TESTPROGRAM_NAME})
 

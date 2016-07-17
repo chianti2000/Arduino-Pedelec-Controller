@@ -26,25 +26,26 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 #define MAX_AMPS 25
 
 #define ZERO_MARGIN 30
-#define MIN_THROTTLE 315+ZERO_MARGIN
-#define MAX_THROTTLE 1000
+#define MIN_THROTTLE 190+ZERO_MARGIN
+#define MAX_THROTTLE 900
 
 #include "EEPROM.h"          //
-#include "EEPROMAnything.h"  //to enable data storage when powered off
-#define TEXTSIZE 1
+#include "EEPROMAnything.h"          //
+
+#define TEXTSIZE 3
 
 #if DISPLAY_TYPE == 1
 #include "PCD8544_nano.h"                    //for Nokia Display
-static PCD8544 lcd(13,11,9,10,255);   
+static PCD8544 lcd(13,11,9,10,255);
 #endif
 
 #include "VESC/vesc_uart.h"
+#include "Config.h"
 
 #include "SPI.h"
 
 
 #if DISPLAY_TYPE == 5
-#include "Adafruit_GFX.h"
 #include "ILI9341_t3.h"
 
 // For the Adafruit shield, these are the default.
@@ -54,20 +55,6 @@ static PCD8544 lcd(13,11,9,10,255);
 
 // Use hardware SPI (on Uno, #13, #12, #11) and the above for CS/DC
 ILI9341_t3 lcd = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST);
-#endif
-
-#if DISPLAY_TYPE == 0
-#define TEXTSIZE 8
-
-#include <Adafruit_GFX.h>
-#include "Adafruit_PCD8544/Adafruit_PCD8544.h"
-//Adafruit_PCD8544 lcd = Adafruit_PCD8544(13, 11, 9, 255, 10);
-Adafruit_PCD8544 lcd = Adafruit_PCD8544(9, 255, 10);
-#endif
-
-#if DISPLAY_TYPE == 2
-#include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
-LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
 
 mc_values VescMeasuredValues;
@@ -81,25 +68,6 @@ struct savings   //add variables if you want to store additional values to the e
 };
 savings variable = {0.0,0.0,0.0}; //variable stores last voltage and capacity read from EEPROM
 
-//Pin Assignments-----------------------------------------------------------------------------------------------------
-#if HARDWARE_REV == 1
-const int option_pin = A0;         //Analog option
-const int voltage_in = A1;         //Voltage read-Pin
-const int current_in = A2;         //Current read-Pin
-#endif
-#if HARDWARE_REV == 2
-const int fet_out = A0;              //FET: Pull high to switch off
-const int voltage_in = A1;           //Voltage read-Pin
-const int option_pin = A2;           //Analog option
-const int current_in = A3;           //Current read-Pin
-#endif
-#if HARDWARE_REV >= 3
-const int voltage_in = A0;           //Voltage read-Pin
-const int fet_out = A1;              //FET: Pull high to switch off
-const int current_in = A2;           //Current read-Pin
-const int option_pin = A3;            //Analog option
-#endif
-
 //Config Options-----------------------------------------------------------------------------------------------------
 const float wheel_circumference = 2.252; //wheel circumference in m
 
@@ -109,25 +77,30 @@ volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor c
 volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
 
 //PAS
-const int pas_magnets=12; 
+const int pas_magnets=12;
 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 
 
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
 volatile boolean pedaling = false;  //pedaling? (in forward direction!)
+volatile boolean pedalingbackwards = false;  //pedaling? (in forward direction!)
+
+
 volatile int cad=0;            //Cadence
 const int pas_timeout=500;               //time in ms after which pedaling is set to false
 
 //Pin inputs
 const int throttle_in = A9;          //Throttle read-Pin
+
 const int pas_in = 3;                //PAS Sensor read-Pin
+const int option_pin = 4;                //PAS Sensor read-Pin
 const int wheel_in = 2;              //Speed read-Pin
-const int brake_in = 19;              //Brake-In-Pin
-//const int switch_thr = 5;            //Throttle-Switch read-Pin
-//const int throttle_out = 6;          //Throttle out-Pin
-//const int bluetooth_pin = 7;         //Bluetooth-Supply, do not use in Rev. 1.1!!!
-//const int switch_disp = 8;           //Display switch
+
+const int brake_in = 22;              //Brake-In-Pin
+const int switch_thr = 21;            //Throttle-Switch read-Pin
+const int switch_disp = 20;           //Display switch
+const int switch_disp2 = 19;           //Display switch
 
 
 const double capacity = 166.0;       //battery capacity in watthours for range calculation
@@ -156,8 +129,12 @@ unsigned long last_writetime = millis();  //last time display has been refreshed
 volatile unsigned long last_pas_event = millis();  //last change-time of PAS sensor status
 
 boolean brake_stat = true; //brake activated?
-boolean firstrun = true;   //first run of loop?
-boolean variables_saved=false; //already saved variables to eeprom?
+boolean disp_stat = true; //brake activated?
+boolean disp2_stat = true; //brake activated?
+boolean thr_stat = true; //brake activated?
+
+boolean firstrun = false;   //first run of loop?
+boolean variables_saved=true; //already saved variables to eeprom?
 
 // Forward declarations for compatibility with new gcc versions
 void display_nokia_setup();
@@ -168,11 +145,11 @@ void speed_change();
 void setup()
 {
 #if DISPLAY_TYPE == 0
-   lcd.begin();
+    lcd.begin();
    //lcd.setContrast(50);
    //   lcd.display();
    lcd.clearDisplay();
-   lcd.setTextSize(1);
+   lcd.setTextSize(TEXTSIZE);
    lcd.setTextColor(BLACK);
         lcd.setCursor(0,0);
         //digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
@@ -182,7 +159,7 @@ void setup()
    //digitalWrite(13,LOW);
 #endif
 #if DISPLAY_TYPE == 1
-   //pinMode(13,OUTPUT);
+    //pinMode(13,OUTPUT);
    //digitalWrite(13,LOW);
     display_nokia_setup();    //for Nokia Display
 #endif
@@ -192,17 +169,21 @@ void setup()
 #if DISPLAY_TYPE == 5
     lcd.begin();
     lcd.fillScreen(ILI9341_BLACK);
-    lcd.setTextColor(ILI9341_YELLOW);
-    lcd.setTextSize(2);
+    lcd.setTextColor(ILI9341_YELLOW, ILI9341_BLACK);
+    lcd.setTextSize(TEXTSIZE);
 #endif
     DEBUGSERIAL.begin(115200);     //bluetooth-module requires 115200
     SERIALIO.begin(115200);
     pinMode(pas_in, INPUT);
+    pinMode(option_pin, INPUT);
+
     pinMode(wheel_in, INPUT);
- //   pinMode(switch_thr, INPUT);
- //   pinMode(switch_disp, INPUT);
+
+    pinMode(switch_thr, INPUT);
+    pinMode(switch_disp, INPUT);
+    pinMode(switch_disp2, INPUT);
     pinMode(brake_in, INPUT);
-  //  pinMode(option_pin,OUTPUT);
+    pinMode(option_pin, INPUT);
 #if HARDWARE_REV >= 2
     pinMode(fet_out,OUTPUT);
     pinMode(bluetooth_pin,OUTPUT);
@@ -210,12 +191,17 @@ void setup()
     digitalWrite(fet_out, LOW);           // turn on whole system on (write high to fet_out if you want to power off)
 #endif
     digitalWrite(brake_in, HIGH);         // turn on pullup resistors on brake
-    //digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
-    //digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
+    digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
+    digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
+    digitalWrite(switch_disp2, HIGH);      // turn on pullup resistors on display-switch
+
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
-    attachInterrupt(pas_in, pas_change, CHANGE); //attach interrupt for PAS-Sensor
-    attachInterrupt(wheel_in, speed_change, RISING); //attach interrupt for Wheel-Sensor
+    digitalWrite(option_pin, HIGH);           // turn on pullup resistors on pas-sensor
+
+    attachInterrupt(wheel_in, speed_change, RISING);
+    attachInterrupt(pas_in, pas_change_1, CHANGE);
+    attachInterrupt(option_pin, pas_change_2, CHANGE);
     EEPROM_readAnything(0,variable);      //read stored variables
 }
 
@@ -233,12 +219,15 @@ void loop()
 
 
     brake_stat = digitalRead(brake_in);
+    disp_stat = digitalRead(switch_disp);
+    disp2_stat = digitalRead(switch_disp2);
+    thr_stat = digitalRead(switch_thr);
 //voltage, current, power
     //voltage = analogRead(voltage_in)*0.05859375;          //check with multimeter and change if needed!
 
     unsigned long wheeltime_temp=(millis()-last_wheel_time)*wheel_magnets; //current upper limit of the speed based on last measurement
     if (wheeltime_temp>wheel_time)                                //is current upper limit slower than last real measurement?
-      spd = 3600*wheel_circumference/wheeltime_temp;
+        spd = 3600*wheel_circumference/wheeltime_temp;
 
     if ((millis()-last_wheel_time)>3000) //wheel did not spin for 3 seconds --> speed is zero
     {
@@ -273,7 +262,7 @@ void loop()
     }
     else
     {
-       DEBUGSERIAL.println("could not get Data from VESC");
+        DEBUGSERIAL.println("could not get Data from VESC");
     }
 
 
@@ -298,9 +287,9 @@ void loop()
     throttle_write=float(map(throttle_stat,0,1023,0, MAX_AMPS * 10)) / 10.; //be careful if motor connected!
     set_motor_current(throttle_write);
 
-    /*analogWrite(throttle_out,throttle_write);
+    //analogWrite(throttle_out,throttle_write);
 
-    if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
+    /*if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
     {
         if (switch_disp_last==false)
         {
@@ -327,21 +316,23 @@ void loop()
 
 
 //Show something on the LCD and Serial Port
-    if (millis()-last_writetime > 500)
+    if (millis()-last_writetime > 100)
     {
-      DEBUGSERIAL.print(voltage);
-      DEBUGSERIAL.println(" voltage");
+        DEBUGSERIAL.print(voltage);
+        DEBUGSERIAL.println(" voltage");
 #if DISPLAY_TYPE==0
-      lcd.clearDisplay();
+        lcd.clearDisplay();
 #endif
 #if DISPLAY_TYPE != 5
         lcd.setCursor(0,0);
 #else
-        lcd.fillScreen(ILI9341_BLACK);
+        lcd.setCursor(0,0);
+        //lcd.fillRect(0, 0, 240, lcd.getTextSize()*8, ILI9341_BLACK);
+        //lcd.fillScreen(ILI9341_BLACK);
 
 #endif
         //digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
-        lcd.print(voltage,2);
+        lcd.print(voltage,1);
         lcd.print("V ");
         lcd.print(current,1);
         lcd.print("A");
@@ -351,6 +342,8 @@ void loop()
         lcd.setCursor(0,1 * TEXTSIZE);
 #else
         lcd.println();
+        //lcd.fillRect(0, 1 * lcd.getTextSize()*8, 240, lcd.getTextSize()*8, ILI9341_BLACK);
+
 #endif
         lcd.print(motor_current,1);
         lcd.print("A M");
@@ -362,8 +355,13 @@ void loop()
 #else
         lcd.println();
 #endif
-        lcd.print("Pfac ");
-        lcd.print((float)pas_on_time/pas_off_time);
+        lcd.print("Pas ");
+        lcd.print(digitalRead(pas_in));
+        lcd.print(" Pas ");
+
+        lcd.print(digitalRead(option_pin));
+
+        //lcd.print((float)pas_on_time/pas_off_time);
 #if DISPLAY_TYPE != 5
         lcd.setCursor(0,3 * TEXTSIZE);
 #else
@@ -372,8 +370,7 @@ void loop()
 
         lcd.print(spd);
         lcd.print("kmh ");
-
-        lcd.print(" Br ");
+        lcd.print("Br ");
         lcd.print(brake_stat);
 #if DISPLAY_TYPE != 5
         lcd.setCursor(0,4 * TEXTSIZE);
@@ -382,26 +379,64 @@ void loop()
 #endif
         //lcd.print(" P");
         //lcd.print(poti_stat);
-        lcd.print("ThIn");
+        lcd.print("ThIn ");
         lcd.print(throttle_stat);
-        lcd.setCursor(0,5* TEXTSIZE);
+        lcd.print("  ");
 
-        lcd.print("ThOut");
+#if DISPLAY_TYPE != 5
+        lcd.setCursor(0,5 * TEXTSIZE);
+#else
+        lcd.println();
+#endif
+        lcd.print("ThOut ");
         lcd.print(throttle_write, 1); //throttle_write);
+        lcd.print("  ");
+
 #if DISPLAY_TYPE == 0
         lcd.display();
+#endif
+#if DISPLAY_TYPE == 5
+        lcd.println();
+        lcd.print("But ");
+        lcd.print(disp_stat);
+        lcd.print(" ");
+        lcd.print(disp2_stat);
+        lcd.print(" ");
+        lcd.print(thr_stat);
 #endif
         last_writetime=millis();
     }
 }
 
+void pas_change_1()
+{
+    pas_change_dual(false);
+}
+void pas_change_2()
+{
+    pas_change_dual(true);
+}
+
+void pas_change_dual(boolean signal) {
+    if (signal)
+        pedaling = digitalRead(pas_in);
+    else {
+        pedaling = !digitalRead(option_pin);
+
+        cad = 2500 / (millis() - last_pas_event); //24 pulses per revolution
+        last_pas_event = millis();
+    }
+    pedalingbackwards = !pedaling;
+}
+
+
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------
 {
     if (last_pas_event>(millis()-10)) return;
     if (digitalRead(pas_in)==true)
-        {pas_off_time=millis()-last_pas_event;}
+    {pas_off_time=millis()-last_pas_event;}
     else
-        {pas_on_time=millis()-last_pas_event;}
+    {pas_on_time=millis()-last_pas_event;}
     last_pas_event = millis();
     pas_failtime=pas_failtime+1;
     cad=12000/(pas_on_time+pas_off_time);
@@ -415,7 +450,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
 {
-     if (last_wheel_time>(millis()-10)) return;                         //debouncing reed-sensor
+    if (last_wheel_time>(millis()-10)) return;                         //debouncing reed-sensor
     wheel_time=(millis()-last_wheel_time)*wheel_magnets;
     spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
 
@@ -428,4 +463,3 @@ void display_nokia_setup()    //first time setup of nokia display---------------
     lcd.begin(84, 48);
 #endif
 }
-
