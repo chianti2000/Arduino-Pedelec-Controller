@@ -28,8 +28,10 @@
 #define DISPLAY_TYPE_BAFANG_C961    (1<<9)
 #define DISPLAY_TYPE_BAFANG_C965    (1<<10)
 #define DISPLAY_TYPE_BAFANG         (DISPLAY_TYPE_BAFANG_C961|DISPLAY_TYPE_BAFANG_C965)
+#define DISPLAY_TYPE_ILI22          (1<<11)
 
-#define DISPLAY_TYPE DISPLAY_TYPE_NOKIA_4PIN                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
+
+#define DISPLAY_TYPE DISPLAY_TYPE_ILI22                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
 
 //Selection of available display views: comment out any view that you do not want. Can save much programming space!
@@ -59,7 +61,7 @@ const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always
 #define SERIAL_MODE_IOS             (1<<5)                  // Send IOS-compatible data over serial
 #define SERIAL_MODE_DISPLAYDEBUG    (1<<6)                  // Send display-debug data over serial
 
-#define SERIAL_MODE SERIAL_MODE_DEBUG                       //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+#define SERIAL_MODE SERIAL_MODE_NONE                     //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
 
 //Since hardware revision 2.0 the bluetooth port uses a separate serial interface, select data here:
 #define BLUETOOTH_MODE_NONE         (1<<0)                  // Don't send bluetooth data at all

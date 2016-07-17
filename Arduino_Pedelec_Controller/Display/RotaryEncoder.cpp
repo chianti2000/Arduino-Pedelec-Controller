@@ -12,7 +12,7 @@
 #include "RotaryEncoder.h"
 
 
-// The array holds the values –1 for the entries where a position was decremented,
+// The array holds the values -1 for the entries where a position was decremented,
 // a 1 for the entries where the position was incremented
 // and 0 in all the other (no change or not valid) cases.
 
@@ -73,7 +73,7 @@ void RotaryEncoder::tick(void)
 
   if (_oldState != thisState) {
     _position += KNOBDIR[thisState | (_oldState<<2)];
-    
+
     if (thisState == LATCHSTATE)
       _positionExt = _position >> 2;
     

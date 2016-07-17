@@ -18,7 +18,7 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 #include "vesc_uart.h"
 #include "buffer.h"
 #include "crc.h"
-#include "datatypes.h"
+#include "config.h"
 
 int process_received_msg(uint8_t *payloadReceived) {
 
@@ -193,7 +193,7 @@ bool vesc_get_values(mc_values& values) {
     uint8_t command[1] = { COMM_GET_VALUES };
     uint8_t payload[256];
     send_payload(command, 1);
-    delay(100); //needed, otherwise data is not read
+    delay(20); //needed, otherwise data is not read
     int lenPayload = process_received_msg(payload);
     if (lenPayload > 0) {
         bool read = process_read_package(payload, values, lenPayload); //returns true if sucessfull

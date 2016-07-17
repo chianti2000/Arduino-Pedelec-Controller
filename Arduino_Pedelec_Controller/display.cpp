@@ -32,6 +32,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "display_bafang.h"
 #endif
 
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+#include "Display/DisplayController.h"
+#endif
 
 display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
 display_mode_type display_mode_last = DISPLAY_MODE_TEXT; //last screen type
@@ -105,7 +108,7 @@ static const PROGMEM byte glyph1[] = {0x0b, 0xfc, 0x4e, 0xac, 0x0b}; //symbol fo
 static const PROGMEM byte glyph2[] = {0xc8, 0x2f, 0x6a, 0x2e, 0xc8}; //symbol for wh/km part 2
 static const PROGMEM byte glyph3[] = {0x44, 0x28, 0xfe, 0x6c, 0x28}; //bluetooth-symbol       check this out: http://www.carlos-rodrigues.com/projects/pcd8544/
 unsigned long show_important_info_until = 0;
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)  || (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
 static void prepare_important_info(int duration_secs)
 {
     unsigned long seconds = 2;
@@ -117,9 +120,12 @@ static void prepare_important_info(int duration_secs)
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     enable_backlight();
 #endif
-
+#ifndef DISPLAY_TYPE_ILI22
     lcd.clear();
     lcd.setCursor(0, 2);
+#else
+    //tft.setCursor(0, 2);
+#endif
 }
 #endif
 
@@ -841,6 +847,9 @@ static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte 
 
 void display_init()
 {
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+    displayControllerSetup();
+#endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)

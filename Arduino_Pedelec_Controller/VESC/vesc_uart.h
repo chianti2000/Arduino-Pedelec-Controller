@@ -39,7 +39,7 @@ If you want to use debug, uncomment DEBUGSERIAL and define a port.*/
 #include "WProgram.h"
 #endif
 
-#include "VESC/datatypes.h"
+#include "datatypes.h"
 
 bool unpack_payload(uint8_t *message, int lenMes, uint8_t *payload, int lenPa);
 bool process_read_package(uint8_t *message, mc_values &values, int len);

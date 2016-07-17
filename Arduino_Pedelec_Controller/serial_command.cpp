@@ -65,7 +65,11 @@ serial_struct serial_port2={Reset,{0},0,{0},0};
 #endif
 
 serial_struct* active_serial = &serial_port1;
+#ifdef TEENSY_VERSION
+usb_serial_class* active_serial_port = &Serial;
+#else
 HardwareSerial* active_serial_port = &Serial;
+#endif
 
 /**
  * @brief Look for valid commands in command input buffer

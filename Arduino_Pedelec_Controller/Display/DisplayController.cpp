@@ -21,7 +21,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "DisplayController.h"
 
-#include "Adafruit_GFX.h"
+//#include "Adafruit_GFX.h"
 #include "ILI9341_t3.h"
 #include "RotaryEncoder.h"
 
@@ -86,14 +86,14 @@ void displayControllerSetup() {
   currentView->activate();
 
   // Button
-  pinMode(KEY, INPUT);
-  pinMode(KNOB0, INPUT);
-  pinMode(KNOB1, INPUT);
+  //pinMode(KEY, INPUT);
+  //pinMode(KNOB0, INPUT);
+  //pinMode(KNOB1, INPUT);
 
   // enable pullup
-  digitalWrite(KEY, HIGH);
-  digitalWrite(KNOB0, HIGH);
-  digitalWrite(KNOB1, HIGH);
+  //digitalWrite(KEY, HIGH);
+  //digitalWrite(KNOB0, HIGH);
+  //digitalWrite(KNOB1, HIGH);
 
   // You may have to modify the next 2 lines if using other pins than A1 and A2
   // This enables Pin Change Interrupt 1 that covers the Analog input pins or Port C.
