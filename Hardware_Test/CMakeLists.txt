@@ -16,9 +16,13 @@ set(${TESTPROGRAM_NAME}_BOARD ${FC_PROCESSOR})
 set(${TESTPROGRAM_NAME}_PORT /dev/ttyUSB0)
 
 set(${TESTPROGRAM_NAME}_SRCS
-    ${CMAKE_CURRENT_BINARY_DIR}/testprogram.cpp
-    PCD8544_charset.cpp
-    PCD8544_nano.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/testprogram.cpp
+        PCD8544_charset.cpp
+        PCD8544_nano.cpp
+        VESC/buffer.cpp
+        VESC/crc.cpp
+        VESC/vesc_uart.cpp
+        Adafruit_PCD8544/Adafruit_PCD8544.cpp
     )
 generate_arduino_firmware(${TESTPROGRAM_NAME})
 

@@ -1,4 +1,3 @@
-
 /*
 Arduino Pedelec "Forumscontroller" test and EEPROM-initialization program for Hardware 1.1-1.3
 written by jenkie / pedelecforum.de
@@ -21,10 +20,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMWriteAnything
 */
 
-#define DISPLAY_TYPE 0      //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
+#define DISPLAY_TYPE 5    //display type 0:Nokia5110 5-pin-mode 1: Nokia5110 4-pin-mode (SCE pin tied to GND) 2: 16x2 LCD 4bit-mode
 #define HARDWARE_REV 0      //place your hardware revision (1-5) here: x means hardware-revision 1.x
 
-#define TEXTSIZE 8
 #define MAX_AMPS 25
 
 #define ZERO_MARGIN 30
@@ -33,26 +31,46 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 
 #include "EEPROM.h"          //
 #include "EEPROMAnything.h"  //to enable data storage when powered off
-#if DISPLAY_TYPE <= 1
-//#include "PCD8544_nano.h"                    //for Nokia Display
-#include "datatypes.h"
-#include "VescUart.h"
+#define TEXTSIZE 1
 
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_PCD8544.h>
-
-Adafruit_PCD8544 lcd = Adafruit_PCD8544(9, 255, 10);
-
-
-//static PCD8544 lcd;                          //for Nokia Display
+#if DISPLAY_TYPE == 1
+#include "PCD8544_nano.h"                    //for Nokia Display
+static PCD8544 lcd(13,11,9,10,255);   
 #endif
+
+#include "VESC/vesc_uart.h"
+
+#include "SPI.h"
+
+
+#if DISPLAY_TYPE == 5
+#include "Adafruit_GFX.h"
+#include "ILI9341_t3.h"
+
+// For the Adafruit shield, these are the default.
+#define TFT_DC  9
+#define TFT_CS 10
+#define TFT_RST 10
+
+// Use hardware SPI (on Uno, #13, #12, #11) and the above for CS/DC
+ILI9341_t3 lcd = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST);
+#endif
+
+#if DISPLAY_TYPE == 0
+#define TEXTSIZE 8
+
+#include <Adafruit_GFX.h>
+#include "Adafruit_PCD8544/Adafruit_PCD8544.h"
+//Adafruit_PCD8544 lcd = Adafruit_PCD8544(13, 11, 9, 255, 10);
+Adafruit_PCD8544 lcd = Adafruit_PCD8544(9, 255, 10);
+#endif
+
 #if DISPLAY_TYPE == 2
 #include "LiquidCrystalDogm.h"             //for 4bit (e.g. EA-DOGM) Display
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);   //for 4bit (e.g. EA-DOGM) Display
 #endif
 
-struct bldcMeasure VescMeasuredValues;
+mc_values VescMeasuredValues;
 
 struct savings   //add variables if you want to store additional values to the eeprom
 {
@@ -151,21 +169,31 @@ void setup()
 {
 #if DISPLAY_TYPE == 0
    lcd.begin();
-   lcd.setContrast(50);
+   //lcd.setContrast(50);
    //   lcd.display();
    lcd.clearDisplay();
    lcd.setTextSize(1);
    lcd.setTextColor(BLACK);
+        lcd.setCursor(0,0);
+        //digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
    //   lcd.clearDisplay();
 
    //pinMode(13,OUTPUT);
    //digitalWrite(13,LOW);
 #endif
-#if DISPLAY_TYPE <= 1
-    //display_nokia_setup();    //for Nokia Display
+#if DISPLAY_TYPE == 1
+   //pinMode(13,OUTPUT);
+   //digitalWrite(13,LOW);
+    display_nokia_setup();    //for Nokia Display
 #endif
 #if DISPLAY_TYPE == 2
     lcd.begin(16, 2);        //for 4bit (e.g. EA-DOGM) Display
+#endif
+#if DISPLAY_TYPE == 5
+    lcd.begin();
+    lcd.fillScreen(ILI9341_BLACK);
+    lcd.setTextColor(ILI9341_YELLOW);
+    lcd.setTextSize(2);
 #endif
     DEBUGSERIAL.begin(115200);     //bluetooth-module requires 115200
     SERIALIO.begin(115200);
@@ -173,10 +201,6 @@ void setup()
     pinMode(wheel_in, INPUT);
  //   pinMode(switch_thr, INPUT);
  //   pinMode(switch_disp, INPUT);
-#if DISPLAY_TYPE == 1
- //   pinMode(switch_disp_2, INPUT);
- //   digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
-#endif
     pinMode(brake_in, INPUT);
   //  pinMode(option_pin,OUTPUT);
 #if HARDWARE_REV >= 2
@@ -240,15 +264,16 @@ void loop()
     current = (analogRead(current_in)-512)*0.0740543263;        //check with multimeter and change if needed!
     current = constrain(current,-30,30);
 #endif
-    if (VescUartGetValue(VescMeasuredValues)) {
-        //	SerialPrint(VescMeasuredValues);
-        voltage = VescMeasuredValues.inpVoltage;
-        current = VescMeasuredValues.avgInputCurrent;
-        motor_current = VescMeasuredValues.avgMotorCurrent;
+    if (vesc_get_values(VescMeasuredValues)) {
+        //serial_print(VescMeasuredValues);
+        voltage = VescMeasuredValues.v_in;
+        current = VescMeasuredValues.current_in;
+        motor_current = VescMeasuredValues.current_motor;
+
     }
     else
     {
-       // DEBUGSERIAL.println("could not get Data from VESC");
+       DEBUGSERIAL.println("could not get Data from VESC");
     }
 
 
@@ -271,13 +296,8 @@ void loop()
 //Throttle output-------------------------------------------------------------------------------------------------------
 
     throttle_write=float(map(throttle_stat,0,1023,0, MAX_AMPS * 10)) / 10.; //be careful if motor connected!
+    set_motor_current(throttle_write);
 
-    VescUartSetCurrent(throttle_write);
-//    remPack.valLowerButton = 0;
-//    remPack.valUpperButton = 0;
-//    remPack.valXJoy = 128;
-//    remPack.valYJoy = map(throttle_write, 0, 255, -128, 128);;
-//    VescUartSetNunchukValues(remPack);
     /*analogWrite(throttle_out,throttle_write);
 
     if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
@@ -309,10 +329,17 @@ void loop()
 //Show something on the LCD and Serial Port
     if (millis()-last_writetime > 500)
     {
-      DEBUGSERIAL.println("voltage");
+      DEBUGSERIAL.print(voltage);
+      DEBUGSERIAL.println(" voltage");
+#if DISPLAY_TYPE==0
       lcd.clearDisplay();
+#endif
+#if DISPLAY_TYPE != 5
         lcd.setCursor(0,0);
+#else
+        lcd.fillScreen(ILI9341_BLACK);
 
+#endif
         //digitalWrite(option_pin,!digitalRead(option_pin));  //switch lamp on and off
         lcd.print(voltage,2);
         lcd.print("V ");
@@ -320,27 +347,39 @@ void loop()
         lcd.print("A");
         //lcd.print(" W");
         //lcd.print(power,0);
+#if DISPLAY_TYPE != 5
         lcd.setCursor(0,1 * TEXTSIZE);
-        
+#else
+        lcd.println();
+#endif
         lcd.print(motor_current,1);
         lcd.print("A M");
         //lcd.print(VescMeasuredValues.)
         //lcd.print(" POff");
         //lcd.print(pas_off_time);
-       
+#if DISPLAY_TYPE != 5
         lcd.setCursor(0,2 * TEXTSIZE);
-       lcd.print("Pfac ");
+#else
+        lcd.println();
+#endif
+        lcd.print("Pfac ");
         lcd.print((float)pas_on_time/pas_off_time);
-
+#if DISPLAY_TYPE != 5
         lcd.setCursor(0,3 * TEXTSIZE);
+#else
+        lcd.println();
+#endif
 
         lcd.print(spd);
         lcd.print("kmh ");
 
         lcd.print(" Br ");
         lcd.print(brake_stat);
+#if DISPLAY_TYPE != 5
         lcd.setCursor(0,4 * TEXTSIZE);
-
+#else
+        lcd.println();
+#endif
         //lcd.print(" P");
         //lcd.print(poti_stat);
         lcd.print("ThIn");
@@ -349,7 +388,9 @@ void loop()
 
         lcd.print("ThOut");
         lcd.print(throttle_write, 1); //throttle_write);
+#if DISPLAY_TYPE == 0
         lcd.display();
+#endif
         last_writetime=millis();
     }
 }
@@ -383,7 +424,7 @@ void speed_change()    //Wheel Sensor Change------------------------------------
 
 void display_nokia_setup()    //first time setup of nokia display------------------------------------------------------------------------------------------------------------------
 {
-#if DISPLAY_TYPE <= 1
+#if DISPLAY_TYPE == 0
     lcd.begin(84, 48);
 #endif
 }

@@ -22,7 +22,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "DisplayController.h"
 
 #include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
+#include "ILI9341_t3.h"
 #include "RotaryEncoder.h"
 
 #include "MainView.h"
@@ -97,21 +97,21 @@ void displayControllerSetup() {
 
   // You may have to modify the next 2 lines if using other pins than A1 and A2
   // This enables Pin Change Interrupt 1 that covers the Analog input pins or Port C.
-  PCICR |= (1 << PCIE1);
+ // PCICR |= (1 << PCIE1);
 
   // This enables the interrupt for pin 1 and 2 of Port C.
-  PCMSK1 |= (1 << PCINT9) | (1 << PCINT10);
+  //PCMSK1 |= (1 << PCINT9) | (1 << PCINT10);
 
   // Run timer2 interrupt every 15 ms
-  TCCR2A = 0;
-  TCCR2B = 1 << CS22 | 1 << CS21 | 1 << CS20;
+//  TCCR2A = 0;
+ // TCCR2B = 1 << CS22 | 1 << CS21 | 1 << CS20;
 
   // Timer2 Overflow Interrupt Enable
-  TIMSK2 |= 1 << TOIE2;
+ // TIMSK2 |= 1 << TOIE2;
 }
 
 //! Timer 2 interrupt, for button debouncing
-SIGNAL(TIMER2_OVF_vect) {
+/*SIGNAL(TIMER2_OVF_vect) {
   static bool lastState = 1;
   bool currentState = digitalRead(KEY);
 
@@ -132,7 +132,7 @@ ISR(PCINT1_vect) {
   // Handle rotary interrupts
   encoder.tick();
 }
-
+*/
 //! Call in the main loop
 void displayControllerLoop() {
   int diff = encoder.getPosition();

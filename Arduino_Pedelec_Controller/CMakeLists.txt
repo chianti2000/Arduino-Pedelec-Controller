@@ -77,7 +77,6 @@ set(${FIRMWARE_NAME}_SRCS                          # Source code
         VESC/crc.cpp
         VESC/crc.h
         VESC/datatypes.h
-
         VESC/vesc_uart.cpp
         VESC/vesc_uart.h
     )
