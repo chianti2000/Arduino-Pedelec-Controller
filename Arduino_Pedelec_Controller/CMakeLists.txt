@@ -10,8 +10,8 @@ include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}
 
 set(FIRMWARE_NAME pcontroller)
 
-set(${FIRMWARE_NAME}_BOARD ${FC_PROCESSOR})
-set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
+#set(${FIRMWARE_NAME}_BOARD ${FC_PROCESSOR})
+#set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)            # Serial upload port
 
 # special compile flags for the Travis CI environment
 # (avr-gcc is rather outdated and outputs crazy warnings)
@@ -25,62 +25,65 @@ endif("$ENV{TRAVIS}" STREQUAL "true")
 # Hack until we replace the .ino file with a stub
 # and move everything to main.cpp
 configure_file(Arduino_Pedelec_Controller.ino main.cpp COPYONLY)
-link_directories(/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/libraries/)
-link_directories(/Users/danielclaes/Documents/Arduino/libraries/)
 
-set(${FIRMWARE_NAME}_SRCS                          # Source code
-    ${CMAKE_CURRENT_BINARY_DIR}/main.cpp
+
+import_arduino_library(EEPROM)
+import_arduino_library(SPI)
+import_arduino_library(ILI9341_t3)
+import_arduino_library(OneWire)
+import_arduino_library(Wire)
+
+
+set(${FIRMWARE_NAME}_SRCS
+    Arduino_Pedelec_Controller.ino
     BMP085.cpp
-    BMP085.h
+    #BMP085.h
     DSPC01_nano.cpp
-    DSPC01_nano.h
+    #DSPC01_nano.h
     DallasTemp.cpp
-    DallasTemp.h
+    #DallasTemp.h
     HX711.cpp
-    HX711.h
+    #HX711.h
     LiquidCrystalDogm.cpp
-    LiquidCrystalDogm.h
+    #LiquidCrystalDogm.h
     MenuSystem.cpp
-    MenuSystem.h
+    #MenuSystem.h
     PCD8544_charset.cpp
     PCD8544_nano.cpp
-    PCD8544_nano.h
+    #PCD8544_nano.h
     PID_v1_nano.cpp
-    PID_v1_nano.h
-    config.h
+    #PID_v1_nano.h
+    #config.h
     display.cpp
-    display.h
+    #display.h
     display_backlight.cpp
-    display_backlight.h
+    #display_backlight.h
     display_bafang.cpp
-    display_bafang.h
+    #display_bafang.h
     display_kingmeter.cpp
-    display_kingmeter.h
+    #display_kingmeter.h
     ds1307.cpp
-    ds1307.h
-    globals.h
+    #ds1307.h
+    #globals.h
     hrmi_funcs.cpp
-    hrmi_funcs.h
+    #hrmi_funcs.h
     menu.cpp
-    menu.h
+    #menu.h
     serial_command.cpp
-    serial_command.h
+    #serial_command.h
     serial_lcd.cpp
-    serial_lcd.h
+    #serial_lcd.h
     switches.cpp
-    switches.h
+    #switches.h
     switches_action.h
-        VESC/buffer.cpp
-        VESC/buffer.h
-        VESC/crc.cpp
-        VESC/crc.h
-        VESC/datatypes.h
-        VESC/vesc_uart.cpp
-        VESC/vesc_uart.h
+    VESC/buffer.cpp
+    #VESC/buffer.h
+    VESC/crc.cpp
+    #VESC/crc.h
+    #VESC/config.h
+    #VESC/datatypes.h
+    VESC/vesc_uart.cpp
     )
-generate_arduino_firmware(${FIRMWARE_NAME})
 
-# Dirty hack to solve compile error on Fedora 15
-#target_link_libraries(${FIRMWARE_NAME} m)
-#target_link_libraries(${FIRMWARE_NAME} c)
-#target_link_libraries(${FIRMWARE_NAME} m)
+add_teensy_executable(${FIRMWARE_NAME} "${${FIRMWARE_NAME}_SRCS}")
+

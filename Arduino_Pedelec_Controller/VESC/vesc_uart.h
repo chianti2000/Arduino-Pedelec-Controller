@@ -30,9 +30,6 @@ to debug. The serial ports are define with #define:
 So you need here to define the right serial port for your arduino.
 If you want to use debug, uncomment DEBUGSERIAL and define a port.*/
 
-#define SERIALIO Serial1
-#define DEBUGSERIAL Serial
-
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
 #else

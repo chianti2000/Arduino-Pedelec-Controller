@@ -43,6 +43,7 @@ Features:
 
 #ifdef TEENSY_VERSION
 #include "VESC/datatypes.h"
+#include <VESC/config.h>
 #include "VESC/vesc_uart.h"
 mc_values vesc_values;
 #endif

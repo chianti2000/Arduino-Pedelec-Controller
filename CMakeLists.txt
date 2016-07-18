@@ -5,20 +5,29 @@
 # Description: Pedelec controller cmake project                               #
 #                                                                             #
 #=============================================================================#
-set(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake) # Arduino Toolchain
+#set(CMAKE_TOOLCHAIN_FILE cmake/ArduinoToolchain.cmake) # Arduino Toolchain
+
 
 cmake_minimum_required(VERSION 2.8)
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/teensy-arm.toolchain.cmake")
+
 project(Pedelec_Controller C CXX)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+include(Teensy)
 
 # "grep" for FC 2.0 hardware in config.h
-file(STRINGS Arduino_Pedelec_Controller/config.h config_h_lines REGEX "^#define HARDWARE_REV 2[0-9]")
-if (config_h_lines)
-    message("Building firmware for FC 2.0 or higher")
-    set(FC_PROCESSOR mega2560)
-else(config_h_lines)
-    set(FC_PROCESSOR uno)
-endif(config_h_lines)
+#file(STRINGS Arduino_Pedelec_Controller/config.h config_h_lines REGEX "^#define HARDWARE_REV 2[0-9]")
+#if (config_h_lines)
+#    message("Building firmware for FC 2.0 or higher")
+#    set(FC_PROCESSOR mega2560)
+#else(config_h_lines)
+#    set(FC_PROCESSOR uno)
+#endif(config_h_lines)
 
 # Documentation
 option(DOCUMENTATION "Generate API documentation with Doxygen" OFF)
@@ -60,5 +69,9 @@ else(DOCUMENTATION AND DOXYGEN_FOUND)
    message(STATUS "Not generating API documentation")
 endif(DOCUMENTATION AND DOXYGEN_FOUND)
 
+# add libraries to project
+#link_directories(${ARDUINO_SDK}/libraries)
+
 add_subdirectory(Arduino_Pedelec_Controller)
 add_subdirectory(Hardware_Test)
+

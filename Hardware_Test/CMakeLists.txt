@@ -12,8 +12,13 @@ configure_file(Hardware_Test.ino testprogram.cpp COPYONLY)
 
 # Hardware test program
 set(TESTPROGRAM_NAME testprogram)
-set(${TESTPROGRAM_NAME}_BOARD ${FC_PROCESSOR})
-set(${TESTPROGRAM_NAME}_PORT /dev/ttyUSB0)
+#set(${TESTPROGRAM_NAME}_BOARD ${FC_PROCESSOR})
+#set(${TESTPROGRAM_NAME}_PORT /dev/ttyUSB0)
+
+import_arduino_library(EEPROM)
+import_arduino_library(SPI)
+import_arduino_library(ILI9341_t3)
+
 
 set(${TESTPROGRAM_NAME}_SRCS
         ${CMAKE_CURRENT_BINARY_DIR}/testprogram.cpp
@@ -24,7 +29,10 @@ set(${TESTPROGRAM_NAME}_SRCS
         VESC/vesc_uart.cpp
         #Adafruit_PCD8544/Adafruit_PCD8544.cpp
     )
-generate_arduino_firmware(${TESTPROGRAM_NAME})
+
+add_teensy_executable(${TESTPROGRAM_NAME} "${${TESTPROGRAM_NAME}_SRCS}")
+
+#generate_arduino_firmware(${TESTPROGRAM_NAME})
 
 # Dirty hack to solve compile error on Fedora 15
 #target_link_libraries(${TESTPROGRAM_NAME} m)

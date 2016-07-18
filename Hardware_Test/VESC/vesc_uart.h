@@ -30,9 +30,6 @@ to debug. The serial ports are define with #define:
 So you need here to define the right serial port for your arduino.
 If you want to use debug, uncomment DEBUGSERIAL and define a port.*/
 
-#define SERIALIO Serial1
-#define DEBUGSERIAL Serial
-
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
 #else
@@ -40,6 +37,7 @@ If you want to use debug, uncomment DEBUGSERIAL and define a port.*/
 #endif
 
 #include "datatypes.h"
+#include "config.h"
 
 bool unpack_payload(uint8_t *message, int lenMes, uint8_t *payload, int lenPa);
 bool process_read_package(uint8_t *message, mc_values &values, int len);
