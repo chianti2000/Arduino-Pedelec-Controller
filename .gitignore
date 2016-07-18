@@ -1,3 +1,5 @@
+*.idea
+*.DS_STORE
 # Backup files and stuff from patches
 *.orig
 *.rej
