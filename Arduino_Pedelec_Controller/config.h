@@ -32,7 +32,7 @@
 #define DISPLAY_TYPE_ILI22          (1<<11)
 
 
-#define DISPLAY_TYPE DISPLAY_TYPE_ILI22                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
+#define DISPLAY_TYPE DISPLAY_TYPE_NONE                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
 
 //Selection of available display views: comment out any view that you do not want. Can save much programming space!
@@ -135,7 +135,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 // #define SUPPORT_THROTTLE_AUTO_CRUISE //uncomment to automatically set poti value when throttle is held constant for a while
 
 
-// #define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI
+#define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI
 const int poti_value_on_startup_in_watts = 100;    //poti startup value in watts
 const int poti_level_step_size_in_watts = 50;    //number of watts to increase / decrease poti value by switch press
 const int poti_fixed_value_via_switch = 250;     //fixed number of watts for the soft poti when ACTION_SET_FIXED_POTI_VALUE is triggered

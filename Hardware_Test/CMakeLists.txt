@@ -8,7 +8,7 @@
 include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}
                     ${CMAKE_SOURCE_DIR}/Hardware_Test)
 
-configure_file(Hardware_Test.ino testprogram.cpp COPYONLY)
+#configure_file(main.cpp testprogram.cpp COPYONLY)
 
 # Hardware test program
 set(TESTPROGRAM_NAME testprogram)
@@ -21,7 +21,7 @@ import_arduino_library(ILI9341_t3)
 
 
 set(${TESTPROGRAM_NAME}_SRCS
-        ${CMAKE_CURRENT_BINARY_DIR}/testprogram.cpp
+        main.cpp
         PCD8544_charset.cpp
         PCD8544_nano.cpp
         VESC/buffer.cpp

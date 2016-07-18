@@ -40,7 +40,6 @@ static PCD8544 lcd(13,11,9,10,255);
 #endif
 
 #include "VESC/vesc_uart.h"
-#include "Config.h"
 
 #include "SPI.h"
 
@@ -140,6 +139,10 @@ boolean variables_saved=true; //already saved variables to eeprom?
 void display_nokia_setup();
 void pas_change();
 void speed_change();
+
+void pas_change_1();
+void pas_change_2();
+void pas_change_dual(boolean signal);
 
 //Setup---------------------------------------------------------------------------------------------------------------------
 void setup()

@@ -24,7 +24,7 @@ endif("$ENV{TRAVIS}" STREQUAL "true")
 
 # Hack until we replace the .ino file with a stub
 # and move everything to main.cpp
-configure_file(Arduino_Pedelec_Controller.ino main.cpp COPYONLY)
+#configure_file(main.cpp main.cpp COPYONLY)
 
 
 import_arduino_library(EEPROM)
@@ -35,7 +35,7 @@ import_arduino_library(Wire)
 
 
 set(${FIRMWARE_NAME}_SRCS
-    Arduino_Pedelec_Controller.ino
+    main.cpp
     BMP085.cpp
     #BMP085.h
     DSPC01_nano.cpp

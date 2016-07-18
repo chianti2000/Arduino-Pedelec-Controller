@@ -444,7 +444,7 @@ void setup()
 #ifdef SUPPORT_DSPC01
 #ifndef TEENSY_VERSION
 #if HARDWARE_REV < 20
-    dspc.begin(A5,A4);
+    //dspc.begin(A5,A4);
 #else
     dspc.begin(21,20);
 #endif
@@ -498,6 +498,9 @@ void setup()
 #endif
     digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
+#ifdef TEENSY_VERSION
+    digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
+#endif
 #if HARDWARE_REV < 20
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
 #endif
@@ -774,6 +777,9 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 //handle switches----------------------------------------------------------------------------------------------------------
     handle_switch(SWITCH_THROTTLE, digitalRead(switch_thr));
     handle_switch(SWITCH_DISPLAY1, digitalRead(switch_disp));
+#ifdef TEENSY_VERSION
+    handle_switch(SWITCH_DISPLAY2, digitalRead(switch_disp_2));
+#endif
 #if (DISPLAY_TYPE & (DISPLAY_TYPE_NOKIA_4PIN|DISPLAY_TYPE_16X2_SERIAL))
 #if HARDWARE_REV >= 20
     handle_switch(SWITCH_DISPLAY2, bitRead(PINH, 2));
@@ -1064,9 +1070,7 @@ pedaling=true;//FIXME TODO TAKE OUT
   }
 #endif   
 
-#ifdef TEENSY_DEBUG_SCREEN
-  debug_display();
-#endif
+
 
 // Emergency power down to protect battery from undervoltage. Also saves to EEPROM
 // Don't shut down on USB power.
@@ -1078,8 +1082,11 @@ pedaling=true;//FIXME TODO TAKE OUT
             }
 
 //slow loop start----------------------//use this subroutine to place any functions which should happen only once a second
-    if (millis()-last_writetime > 1000)              //don't do this more than once a second
+    if (millis()-last_writetime > 100)              //don't do this more than once a second
     {
+#ifdef TEENSY_DEBUG_SCREEN
+        debug_display();
+#endif
         voltage_2s=voltage_1s;                           //update voltage history
         voltage_1s=voltage;                              //update voltage history
 
@@ -1408,11 +1415,11 @@ void debug_display(){
   
         lcd.println();
         lcd.print("But ");
-        lcd.print(digitalRead(switch_thr));
+        lcd.print(digitalReadFast(switch_thr));
         lcd.print(" ");
-        lcd.print(digitalRead(switch_disp));
+        lcd.print(digitalReadFast(switch_disp));
         lcd.print(" ");
-        lcd.print(digitalRead(switch_disp_2));
+        lcd.print(digitalReadFast(switch_disp_2));
         lcd.println();
 
         lcd.print("Tmp ");
