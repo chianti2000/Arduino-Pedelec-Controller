@@ -18,7 +18,7 @@ along with this program.If not, see <http://www.gnu.org/licenses/>.
 #include "vesc_uart.h"
 #include "buffer.h"
 #include "crc.h"
-#include "config.h"
+#include "datatypes.h"
 
 int process_received_msg(uint8_t *payloadReceived) {
 

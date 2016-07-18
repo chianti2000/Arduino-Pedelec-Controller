@@ -36,7 +36,7 @@ EEPROMAnything is taken from here: http://www.arduino.cc/playground/Code/EEPROMW
 
 #if DISPLAY_TYPE == 1
 #include "PCD8544_nano.h"                    //for Nokia Display
-static PCD8544 lcd(13,11,9,10,255);
+static PCD8544 lcd(13,11,9,10,255);   
 #endif
 
 #include "VESC/vesc_uart.h"
@@ -77,7 +77,7 @@ volatile unsigned long last_wheel_time = millis(); //last time of wheel sensor c
 volatile unsigned long wheel_time = 65535;  //time for one revolution of the wheel
 
 //PAS
-const int pas_magnets=12;
+const int pas_magnets=12; 
 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
 #define pas_time 60000/pas_magnets //conversion factor for pas_time to rpm (cadence)
 
@@ -145,7 +145,7 @@ void speed_change();
 void setup()
 {
 #if DISPLAY_TYPE == 0
-    lcd.begin();
+   lcd.begin();
    //lcd.setContrast(50);
    //   lcd.display();
    lcd.clearDisplay();
@@ -159,7 +159,7 @@ void setup()
    //digitalWrite(13,LOW);
 #endif
 #if DISPLAY_TYPE == 1
-    //pinMode(13,OUTPUT);
+   //pinMode(13,OUTPUT);
    //digitalWrite(13,LOW);
     display_nokia_setup();    //for Nokia Display
 #endif
@@ -176,9 +176,9 @@ void setup()
     SERIALIO.begin(115200);
     pinMode(pas_in, INPUT);
     pinMode(option_pin, INPUT);
-
+    
     pinMode(wheel_in, INPUT);
-
+    
     pinMode(switch_thr, INPUT);
     pinMode(switch_disp, INPUT);
     pinMode(switch_disp2, INPUT);
@@ -194,7 +194,7 @@ void setup()
     digitalWrite(switch_thr, HIGH);       // turn on pullup resistors on throttle-switch
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
     digitalWrite(switch_disp2, HIGH);      // turn on pullup resistors on display-switch
-
+   
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
     digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
     digitalWrite(option_pin, HIGH);           // turn on pullup resistors on pas-sensor
@@ -227,7 +227,7 @@ void loop()
 
     unsigned long wheeltime_temp=(millis()-last_wheel_time)*wheel_magnets; //current upper limit of the speed based on last measurement
     if (wheeltime_temp>wheel_time)                                //is current upper limit slower than last real measurement?
-        spd = 3600*wheel_circumference/wheeltime_temp;
+      spd = 3600*wheel_circumference/wheeltime_temp;
 
     if ((millis()-last_wheel_time)>3000) //wheel did not spin for 3 seconds --> speed is zero
     {
@@ -262,7 +262,7 @@ void loop()
     }
     else
     {
-        DEBUGSERIAL.println("could not get Data from VESC");
+       DEBUGSERIAL.println("could not get Data from VESC");
     }
 
 
@@ -288,7 +288,7 @@ void loop()
     set_motor_current(throttle_write);
 
     //analogWrite(throttle_out,throttle_write);
-
+  
     /*if (digitalRead(switch_disp)==0)  //switch on/off bluetooth if switch is pressed
     {
         if (switch_disp_last==false)
@@ -318,10 +318,10 @@ void loop()
 //Show something on the LCD and Serial Port
     if (millis()-last_writetime > 100)
     {
-        DEBUGSERIAL.print(voltage);
-        DEBUGSERIAL.println(" voltage");
+      DEBUGSERIAL.print(voltage);
+      DEBUGSERIAL.println(" voltage");
 #if DISPLAY_TYPE==0
-        lcd.clearDisplay();
+      lcd.clearDisplay();
 #endif
 #if DISPLAY_TYPE != 5
         lcd.setCursor(0,0);
@@ -396,7 +396,7 @@ void loop()
         lcd.display();
 #endif
 #if DISPLAY_TYPE == 5
-        lcd.println();
+      lcd.println();
         lcd.print("But ");
         lcd.print(disp_stat);
         lcd.print(" ");
@@ -434,9 +434,9 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
 {
     if (last_pas_event>(millis()-10)) return;
     if (digitalRead(pas_in)==true)
-    {pas_off_time=millis()-last_pas_event;}
+        {pas_off_time=millis()-last_pas_event;}
     else
-    {pas_on_time=millis()-last_pas_event;}
+        {pas_on_time=millis()-last_pas_event;}
     last_pas_event = millis();
     pas_failtime=pas_failtime+1;
     cad=12000/(pas_on_time+pas_off_time);
@@ -450,7 +450,7 @@ void pas_change()       //Are we pedaling? PAS Sensor Change--------------------
 
 void speed_change()    //Wheel Sensor Change------------------------------------------------------------------------------------------------------------------
 {
-    if (last_wheel_time>(millis()-10)) return;                         //debouncing reed-sensor
+     if (last_wheel_time>(millis()-10)) return;                         //debouncing reed-sensor
     wheel_time=(millis()-last_wheel_time)*wheel_magnets;
     spd = (spd+3600*wheel_circumference/wheel_time)/2;  //a bit of averaging for smoother speed-cutoff
 
@@ -463,3 +463,4 @@ void display_nokia_setup()    //first time setup of nokia display---------------
     lcd.begin(84, 48);
 #endif
 }
+

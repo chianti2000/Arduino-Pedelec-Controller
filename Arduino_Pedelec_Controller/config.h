@@ -12,6 +12,7 @@
 #define HARDWARE_REV 0      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 
 #define TEENSY_VERSION
+#define TEENSY_DEBUG_SCREEN
 
 #define DISPLAY_TYPE_NONE           (1<<0)                  // No display at all
 #define DISPLAY_TYPE_NOKIA_5PIN     (1<<1)                  // Nokia 5110 5-pin mode
@@ -61,7 +62,7 @@ const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always
 #define SERIAL_MODE_IOS             (1<<5)                  // Send IOS-compatible data over serial
 #define SERIAL_MODE_DISPLAYDEBUG    (1<<6)                  // Send display-debug data over serial
 
-#define SERIAL_MODE SERIAL_MODE_NONE                     //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+#define SERIAL_MODE SERIAL_MODE_DEBUG                     //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
 
 //Since hardware revision 2.0 the bluetooth port uses a separate serial interface, select data here:
 #define BLUETOOTH_MODE_NONE         (1<<0)                  // Don't send bluetooth data at all
@@ -111,10 +112,10 @@ const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
 const sw_action SW_POTI_SHORT_PRESS = ACTION_NONE;
 const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
 
-const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
+const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_INCREASE_POTI;
 const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_ENTER_MENU;
 
-const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
+const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DECREASE_POTI;
 const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.
@@ -135,7 +136,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 
 
 // #define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI
-const int poti_value_on_startup_in_watts = 0;    //poti startup value in watts
+const int poti_value_on_startup_in_watts = 100;    //poti startup value in watts
 const int poti_level_step_size_in_watts = 50;    //number of watts to increase / decrease poti value by switch press
 const int poti_fixed_value_via_switch = 250;     //fixed number of watts for the soft poti when ACTION_SET_FIXED_POTI_VALUE is triggered
 const int fixed_throttle_in_watts = 250;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
@@ -150,7 +151,7 @@ const int fixed_throttle_in_watts = 250;         //number of watts to set as thr
 #define SUPPORT_BRAKE        //uncomment if brake switch connected
 // #define INVERT_BRAKE         //uncomment if brake signal is low when not braking
 // #define RESET_PID_ON_BRAKE   //uncomment to reset the pid regulator if you are braking or stop pedaling. If this config option is not active, the pid regulator will slowly ramp down instead, which gives you a faster kick-in of the motor if you release the brake or start pedaling again
-#define DETECT_BROKEN_SPEEDSENSOR //detect broken speed sensor and disable motor (useful for legalisation)
+//#define DETECT_BROKEN_SPEEDSENSOR //detect broken speed sensor and disable motor (useful for legalisation)
 
 
 #define SUPPORT_PROFILE_SWITCH_MENU           //uncomment to disable support for profile switching in the menu
@@ -190,35 +191,36 @@ const byte hx711_data=20;                    //data pin of hx711 sensor
 const byte hx711_sck=21;                     //clock pin of hx711 sensor
 const double hx711_scale=78514.375;         //this is the scale to apply. 
 
+#define NUM_CELLS 12
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
 const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)
-const int throttle_max=832;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
+const int throttle_max=900;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
 const int poti_offset=0;                 //Offset voltage of poti when in "0" position (0..1023 = 0..5V)
 const int poti_max=1023;                 //Offset voltage of poti when in "MAX" position (0..1023 = 0..5V)
 const int motor_offset=0;                //Offset for throttle output where Motor starts to spin (0..255 = 0..5V). Default: 50. In Servo mode this value is about 1000
 const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V). Default: 200. In Servo mode this value is about 2000
-const int spd_idle=55;                   //idle speed of motor in km/h - may be much higher than real idle speed (depending on controller)
+const int spd_idle=70;                   //idle speed of motor in km/h - may be much higher than real idle speed (depending on controller)
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
-const float vmax=50.0;                   //Battery voltage when fully charged
-const float vcutoff=42.0;                //cutoff voltage in V;
-const float vemergency_shutdown = 41.0;  //emergency power off situation to save the battery from undervoltage
+const float vmax=4.2*NUM_CELLS;                   //Battery voltage when fully charged
+const float vcutoff=3.6*NUM_CELLS;              //cutoff voltage in V;
+const float vemergency_shutdown = 3.5*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
 const byte wheel_magnets=2;              //configure your number of wheel magnets here
 const int spd_max1=25;                   //speed cutoff start in Km/h
 const int spd_max2=28;                   //speed cutoff stop (0W) in Km/h
 const int power_max=1000;                 //Maximum power in W (throttle mode)
 const int power_poti_max=1000;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
-const int thermal_limit=150;             //Maximum continuous thermal load motor can withstand
+const int thermal_limit=200;             //Maximum continuous thermal load motor can withstand
 const int thermal_safe_speed=20;         //Speed above which motor is thermally safe at maximum current, see EPACSim
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
 const unsigned int idle_shutdown_secs = 10 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
 const unsigned int menu_idle_timeout_secs = 10;            // Menu inactivity timeout in seconds.
-const double capacity = 355.0;           //battery capacity in watthours for range calculation
+const double capacity = 355.2;           //battery capacity in watthours for range calculation
 const double pas_factor_min=1.2;         //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const double pas_factor_max=3;           //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
-const int pas_magnets=5;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
+const int pas_magnets=12;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
 const double cfg_pid_p=0.0;              //pid p-value, default: 0.0
 const double cfg_pid_i=2.0;              //pid i-value, default: 2.0
 const double cfg_pid_p_throttle=0.05;    //pid p-value for throttle mode

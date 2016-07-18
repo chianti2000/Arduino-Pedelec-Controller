@@ -33,7 +33,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
-#include "Display/DisplayController.h"
+//#include "Display/DisplayController.h"
 #endif
 
 display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
@@ -848,7 +848,7 @@ static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte 
 void display_init()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
-    displayControllerSetup();
+    //displayControllerSetup();
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();
