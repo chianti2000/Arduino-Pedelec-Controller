@@ -48,6 +48,10 @@ Features:
 mc_values vesc_values;
 #endif
 
+#if defined(TEENSY_DEBUG_SCREEN) && defined(DISPLAY_TYPE_ILI22)
+#error You either have poti or soft-poti support. Disable one of them.
+#endif
+
 #ifdef TEENSY_DEBUG_SCREEN
 #include "ILI9341_t3.h"
 // For the Adafruit shield, these are the default.

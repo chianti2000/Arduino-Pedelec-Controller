@@ -20,9 +20,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MenuView.h"
-#include "Adafruit_GFX.h"
-#include "ILI9341_t3.h"
-
 #include "defines.h"
 
 /**
@@ -32,12 +29,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 //! Constructor
 MenuView::MenuView()
         : m_menu(1),
-          m_selectedMenuIndex(0),
           m_lastSelectedMenuIndex(-1),
           m_itemCount(-1),
-          m_selectedMenu({0}),
+          m_selectedMenuIndex(0),
+          m_selectedMenu(),
           m_backIndex(0),
-          m_selectedCheckboxes({0})
+          m_selectedCheckboxes{0}
 {
 }
 
@@ -81,24 +78,24 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
 
   if (clearScreen) {
     if (selected) {
-      tft.fillRect(0, y - 5, 240, 25, ILI9341_YELLOW);
+      lcd.fillRect(0, y - 5, 240, 25, ILI9341_YELLOW);
     } else {
-      tft.fillRect(0, y - 5, 240, 25, ILI9341_BLACK);
+      lcd.fillRect(0, y - 5, 240, 25, ILI9341_BLACK);
     }
   }
 
-  tft.setCursor(25, y);
-  tft.setTextColor(textColor);
-  tft.print(menuItem->text);
+  lcd.setCursor(25, y);
+  lcd.setTextColor(textColor);
+  lcd.print(menuItem->text);
 
   if (menuItem->flags & MENU_CHECKBOX) {
-    tft.drawRect(2, y, 15, 15, textColor);
+    lcd.drawRect(2, y, 15, 15, textColor);
 
     if (isSelected(menuItem->id)) {
-      tft.drawLine(0, y - 2, 17, y - 2 + 17, textColor);
-      tft.drawLine(1, y - 2, 18, y - 2 + 17, textColor);
-      tft.drawLine(17, y - 2, 0, y - 2 + 17, textColor);
-      tft.drawLine(18, y - 2, 1, y - 2 + 17, textColor);
+      lcd.drawLine(0, y - 2, 17, y - 2 + 17, textColor);
+      lcd.drawLine(1, y - 2, 18, y - 2 + 17, textColor);
+      lcd.drawLine(17, y - 2, 0, y - 2 + 17, textColor);
+      lcd.drawLine(18, y - 2, 1, y - 2 + 17, textColor);
     }
   }
 
@@ -106,7 +103,7 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
   if (menuItem->flags & MENU_WITH_SUBMENU) {
     uint8_t offset = 3;
     for (uint8_t i = 1; i <= 6; i++) {
-      tft.drawLine(2, y + offset, 15, y + offset, ILI9341_BLUE);
+      lcd.drawLine(2, y + offset, 15, y + offset, ILI9341_BLUE);
       offset++;
       if (i % 2 == 0) {
         offset += 2;
@@ -115,14 +112,14 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
   }
 
   if (menuItem->flags & MENU_BACK) {
-    tft.drawLine(2, y + 6, 7, y + 2, ILI9341_BLUE);
-    tft.drawLine(2, y + 7, 7, y + 3, ILI9341_BLUE);
+    lcd.drawLine(2, y + 6, 7, y + 2, ILI9341_BLUE);
+    lcd.drawLine(2, y + 7, 7, y + 3, ILI9341_BLUE);
 
-    tft.drawLine(2, y + 6, 15, y + 6, ILI9341_BLUE);
-    tft.drawLine(2, y + 7, 15, y + 7, ILI9341_BLUE);
+    lcd.drawLine(2, y + 6, 15, y + 6, ILI9341_BLUE);
+    lcd.drawLine(2, y + 7, 15, y + 7, ILI9341_BLUE);
 
-    tft.drawLine(2, y + 6, 7, y + 10, ILI9341_BLUE);
-    tft.drawLine(2, y + 7, 7, y + 11, ILI9341_BLUE);
+    lcd.drawLine(2, y + 6, 7, y + 10, ILI9341_BLUE);
+    lcd.drawLine(2, y + 7, 7, y + 11, ILI9341_BLUE);
   }
 }
 
@@ -134,11 +131,11 @@ void MenuView::drawMenu(bool clearScreen) {
 
   if (clearScreen) {
     // Clear full screen
-    tft.fillRect(0, 0, 240, 30, RGB_TO_565(150, 150, 255));
-    tft.fillRect(0, 30, 240, 290, ILI9341_BLACK);
+    lcd.fillRect(0, 0, 240, 30, RGB_TO_565(150, 150, 255));
+    lcd.fillRect(0, 30, 240, 290, ILI9341_BLACK);
   }
 
-  tft.setTextSize(2);
+  lcd.setTextSize(2);
 
   MenuItem current;
 
@@ -150,9 +147,9 @@ void MenuView::drawMenu(bool clearScreen) {
     readMenuItem(pMenu, &current);
 
     if (current.id == m_menu && clearScreen) {
-      tft.setTextColor(ILI9341_BLACK);
-      tft.setCursor(25, 7);
-      tft.print(current.text);
+      lcd.setTextColor(ILI9341_BLACK);
+      lcd.setCursor(25, 7);
+      lcd.print(current.text);
       m_backIndex = current.parentId;
     }
 
@@ -295,8 +292,6 @@ void MenuView::unselectCheckbox(uint8_t index) {
 
 //! Set the root menu ID
 void MenuView::setRootMenuId(uint8_t menu) {
-  Serial.print("menu: ");
-  Serial.println(menu);
   m_menu = menu;
   m_lastSelectedMenuIndex = -1;
   m_itemCount = -1;

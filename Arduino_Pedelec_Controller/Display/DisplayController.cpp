@@ -21,32 +21,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "DisplayController.h"
 
-//#include "Adafruit_GFX.h"
-#include "ILI9341_t3.h"
-#include "RotaryEncoder.h"
-
 #include "MainView.h"
 #include "MenuView.h"
 #include "MainViewEdit.h"
 
-#include "protocol.h"
 
 #include "Components.h"
 
 /**
  * Control the whole display Navigation and output
  */
-
-
-#define TFT_DC 10 //used
-#define TFT_RST 9 //used
-#define TFT_CS 8 //used
-#define TFT_MOSI 11
-#define TFT_CLK 13
-#define TFT_MISO 12
-
-// Use Hardware SPI
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 
 // Model with all data
 DataModel model;
@@ -58,7 +42,7 @@ DataModel model;
 #define KNOB1 A2
 
 // Setup a RoraryEncoder for pins A2 and A3:
-RotaryEncoder encoder(KNOB0, KNOB1);
+//RotaryEncoder encoder(KNOB0, KNOB1);
 
 //! Customizeable components on the main screen
 Components components;
@@ -76,12 +60,12 @@ MenuView menuView;
 BaseView* currentView;
 
 //! Key pressed flag
-volatile bool g_keyPressed = false;
+//volatile bool g_keyPressed = false;
+ILI9341_t3 lcd = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST);
 
 //! Call once on startup
 void displayControllerSetup() {
-  tft.begin();
-
+    lcd.begin();
   currentView = &mainView;
   currentView->activate();
 
@@ -133,17 +117,15 @@ ISR(PCINT1_vect) {
   encoder.tick();
 }
 */
-//! Call in the main loop
-void displayControllerLoop() {
-  int diff = encoder.getPosition();
-
-  if (diff != 0) {
-    encoder.setPosition(0);
+void updatePosition(int8_t diff) {
     currentView->movePosition(diff);
-  }
+}
 
-  if (g_keyPressed) {
-    g_keyPressed = false;
+void updateDisplay() {
+    currentView->updateDisplay();
+}
+
+void keyPressed() {
     ViewResult result = currentView->keyPressed();
 
     if (result.result == VIEW_RESULT_MENU) {
@@ -171,12 +153,12 @@ void displayControllerLoop() {
     } else if (result.result == VIEW_RESULT_CHECKBOX_CHECKED) {
       //! Checkbox toggled
     } else if (result.result == VIEW_RESULT_CHECKBOX_UNCHECKED) {
-      //! Checkbox toggled
+        //! Checkbox toggled
     }
-  }
 
 }
 
+/*
 //! Execute 1 byte command
 void displayControlerCommand1(uint8_t cmd, uint8_t value) {
   switch (cmd) {
@@ -205,6 +187,8 @@ void displayControlerCommand1(uint8_t cmd, uint8_t value) {
   }
 }
 
+void updateValues(uint16_t bat_perc, float_t speed, )
+
 //! Execute 2 byte command
 void displayControlerCommand2(uint8_t cmd, uint16_t value) {
   switch (cmd) {
@@ -224,4 +208,4 @@ void displayControlerCommand2(uint8_t cmd, uint16_t value) {
       mainView.setWattage(value);
       break;
   }
-}
+}*/

@@ -23,7 +23,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "Arduino.h"
 #include "Print.h"
-#include "Adafruit_GFX.h"
 #include "ILI9341_t3.h"
 #include "DataModel.h"
 
@@ -33,7 +32,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 // Don't use a member, use this extern declared reference
 // Not a nice coding practice, but saves about 300 Bytes of Flash
-extern Adafruit_ILI9341 tft;
 extern DataModel model;
 
 class BaseComponent {

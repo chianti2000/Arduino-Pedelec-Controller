@@ -24,6 +24,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
 #include "TextComponent.h"
+#include "defines.h"
 
 
 //! Constructor
@@ -44,11 +45,11 @@ uint8_t TextComponent::getHeight() {
 
 //! Draw the component to the display
 void TextComponent::draw() {
-   tft.setTextColor(ILI9341_WHITE);
-   tft.setCursor(0, m_y + 2);
-   tft.print(m_text.c_str());
+   lcd.setTextColor(ILI9341_WHITE);
+   lcd.setCursor(0, m_y + 2);
+   lcd.print(m_text.c_str());
 
-   tft.setTextColor(ILI9341_YELLOW);
-   tft.setCursor(240 - 5*12, m_y + 2);
-   tft.print("75.50");
+   lcd.setTextColor(ILI9341_YELLOW);
+   lcd.setCursor(240 - 5*12, m_y + 2);
+   lcd.print("75.50");
 }

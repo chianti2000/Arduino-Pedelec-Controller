@@ -168,19 +168,19 @@ const uint16_t DIAGRAM_DATA_COLOR = RGB_TO_565(0x28, 0x2B, 0xDA);
 //! Draw the component to the display
 void DiagramComponent::draw() {
   for (uint8_t i = 0; i <= 60; i += 30) {
-    tft.drawLine(0, m_y + i, 240, m_y + i, DIAGRAM_LINE_COLOR);
+    lcd.drawLine(0, m_y + i, 240, m_y + i, DIAGRAM_LINE_COLOR);
   }
 
   for (uint16_t x = 20; x < 240; x += 40) {
-    tft.drawLine(x, m_y + 1, x, m_y + 58, DIAGRAM_LINE_COLOR);
+    lcd.drawLine(x, m_y + 1, x, m_y + 58, DIAGRAM_LINE_COLOR);
   }
 
   for (uint8_t i = 0; i < sizeof(m_data) - 1; i++) {
     uint8_t x = i * 2;
     uint16_t y1 = m_y + (60 - m_data[i]) - 1;
     uint16_t y2 = m_y + (60 - m_data[i + 1]) - 1;
-    tft.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
-    tft.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
+    lcd.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
+    lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
   }
 }
 

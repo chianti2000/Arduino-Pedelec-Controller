@@ -23,6 +23,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * Defines, e.g. for Umlauts
  */
 
+#pragma once
+
+#include "ILI9341_t3.h"
+
 #define UE "\x81"
 #define OE "\x99"
 #define AE "\x83"
@@ -32,3 +36,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #define ue "\xa3"
 
 #define RGB_TO_565(r, g, b) ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
+
+
+#define TFT_DC 10 //used
+#define TFT_RST 10 //used
+#define TFT_CS 9 //used
+#define TFT_MOSI 11
+#define TFT_CLK 13
+#define TFT_MISO 12
+
+// Use Hardware SPI
+extern ILI9341_t3 lcd;

@@ -83,6 +83,20 @@ set(${FIRMWARE_NAME}_SRCS
     #VESC/config.h
     #VESC/datatypes.h
     VESC/vesc_uart.cpp
+    Display/BaseComponent.cpp
+    Display/BaseView.cpp
+    Display/Components.cpp
+    Display/DataModel.cpp
+    Display/DiagramComponent.cpp
+    Display/DisplayController.cpp
+    Display/IconComponent.cpp
+    Display/MainView.cpp
+    Display/MainViewEdit.cpp
+    Display/MenuEntries.cpp
+    Display/MenuView.cpp
+    #Display/RotaryEncoder.cpp
+    Display/SeparatorComponent.cpp
+    Display/TextComponent.cpp
     )
 
 add_teensy_executable(${FIRMWARE_NAME} "${${FIRMWARE_NAME}_SRCS}")

@@ -44,6 +44,6 @@ uint8_t SeparatorComponent::getHeight() {
 //! Draw the component to the display
 void SeparatorComponent::draw() {
   for (uint8_t i = 1; i <= 2; i++) {
-    tft.drawLine(0, m_y + i, 240, m_y + i, SEPARATOR_COLOR);
+    lcd.drawLine(0, m_y + i, 240, m_y + i, SEPARATOR_COLOR);
   }
 }

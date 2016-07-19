@@ -12,7 +12,7 @@
 #define HARDWARE_REV 0      //place your hardware revision here: 1-5 means hardware-revision 1.x, 2x means 2.x
 
 #define TEENSY_VERSION
-#define TEENSY_DEBUG_SCREEN
+//#define TEENSY_DEBUG_SCREEN
 
 #define DISPLAY_TYPE_NONE           (1<<0)                  // No display at all
 #define DISPLAY_TYPE_NOKIA_5PIN     (1<<1)                  // Nokia 5110 5-pin mode
@@ -32,7 +32,7 @@
 #define DISPLAY_TYPE_ILI22          (1<<11)
 
 
-#define DISPLAY_TYPE DISPLAY_TYPE_NONE                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
+#define DISPLAY_TYPE DISPLAY_TYPE_ILI22                // Set your display type here. CHANGES ONLY HERE!<-----------------------------
 
 
 //Selection of available display views: comment out any view that you do not want. Can save much programming space!

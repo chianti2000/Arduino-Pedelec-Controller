@@ -20,7 +20,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MainView.h"
-#include "Adafruit_GFX.h"
 #include "ILI9341_t3.h"
 
 #include "TextComponent.h"
@@ -65,15 +64,15 @@ void MainView::drawSpeed(bool clearScreen) {
   const uint8_t speedY = 25;
 
   if (clearScreen) {
-    tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+    lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   } else {
-    tft.setTextColor(ILI9341_WHITE);
+    lcd.setTextColor(ILI9341_WHITE);
   }
 
   uint16_t speed = model.getValue(VALUE_ID_SPEED);
 
-  tft.setTextSize(4);
-  tft.setCursor(45, speedY);
+  lcd.setTextSize(4);
+  lcd.setCursor(45, speedY);
   String str = "";
   uint8_t speed10 = (speed / 100) % 10;
 
@@ -86,19 +85,19 @@ void MainView::drawSpeed(bool clearScreen) {
   str += (speed / 10) % 10;
   str += ".";
   str += speed % 10;
-  tft.print(str);
+  lcd.print(str);
 
-  tft.setTextColor(ILI9341_WHITE);
-  tft.setTextSize(2);
+  lcd.setTextColor(ILI9341_WHITE);
+  lcd.setTextSize(2);
 
   if (!clearScreen) {
-    tft.setCursor(160, speedY - 5);
-    tft.print("km");
-    tft.setCursor(167, speedY + 17);
-    tft.print("h");
+    lcd.setCursor(160, speedY - 5);
+    lcd.print("km");
+    lcd.setCursor(167, speedY + 17);
+    lcd.print("h");
 
-    tft.drawLine(155, speedY + 12, 185, speedY + 12, ILI9341_WHITE);
-    tft.drawLine(155, speedY + 13, 185, speedY + 13, ILI9341_WHITE);
+    lcd.drawLine(155, speedY + 12, 185, speedY + 12, ILI9341_WHITE);
+    lcd.drawLine(155, speedY + 13, 185, speedY + 13, ILI9341_WHITE);
   }
 }
 
@@ -109,18 +108,20 @@ void MainView::drawBattery(bool clearScreen) {
   }
 
   if (!clearScreen) {
-    tft.drawRect(0, 9, 29, 7*9, ILI9341_WHITE);
-    tft.fillRect(10, 0, 9, 9, ILI9341_WHITE);
-    tft.setTextColor(ILI9341_WHITE);
+    lcd.drawRect(0, 9, 29, 7*9, ILI9341_WHITE);
+    lcd.fillRect(10, 0, 9, 9, ILI9341_WHITE);
+    lcd.setTextColor(ILI9341_WHITE);
   } else {
-    tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+    lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
-  uint16_t batteryVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_CURRENT);
-  uint16_t batteryMaxVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MAX);
-  uint16_t batteryMinVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MIN);
+  //uint16_t batteryVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_CURRENT);
+  uint16_t batterPercent = model.getValue(VALUE_ID_BATTERY_PERC_CURRENT);
 
-  uint8_t batterPercent = (batteryVoltage - batteryMinVoltage) * 100 / (batteryMaxVoltage - batteryMinVoltage);
+  //uint16_t batteryMaxVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MAX);
+  //uint16_t batteryMinVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MIN);
+
+  //uint8_t batterPercent = (batteryVoltage - batteryMinVoltage) * 100 / (batteryMaxVoltage - batteryMinVoltage);
 
   uint16_t batteryColor = RGB_TO_565(0, 255, 0);
   if (batterPercent <= 40) {
@@ -136,12 +137,12 @@ void MainView::drawBattery(bool clearScreen) {
       barColor = batteryColor;
     }
 
-    tft.fillRect(2, y * 9 + 10, 25, 7, barColor);
+    lcd.fillRect(2, y * 9 + 10, 25, 7, barColor);
   }
 
-  tft.setTextSize(2);
+  lcd.setTextSize(2);
 
-  tft.setCursor(0, 75);
+  lcd.setCursor(0, 75);
 
   String strPercent = "";
   if (batterPercent < 10) {
@@ -155,7 +156,7 @@ void MainView::drawBattery(bool clearScreen) {
     strPercent += " ";
   }
 
-  tft.print(strPercent);
+  lcd.print(strPercent);
 }
 
 //! Battery percent, 0 ... n
@@ -176,10 +177,10 @@ void MainView::drawWattage(bool clearScreen) {
 
   const uint8_t wattageBarHeight = 68;
   if (!clearScreen) {
-    tft.drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
-    tft.setTextColor(ILI9341_WHITE);
+    lcd.drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
+    lcd.setTextColor(ILI9341_WHITE);
   } else {
-    tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+    lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
   uint16_t wattage = m_wattage;
@@ -195,13 +196,13 @@ void MainView::drawWattage(bool clearScreen) {
   }
   uint8_t y = wattageBarHeight - h;
 
-  tft.fillRect(213, 3, 25, y, ILI9341_BLACK);
+  lcd.fillRect(213, 3, 25, y, ILI9341_BLACK);
 
   uint16_t  barColor = ILI9341_WHITE;
   if (m_wattage > 500) {
     barColor = ILI9341_RED;
   }
-  tft.fillRect(213, 3 + y, 25, h, barColor);
+  lcd.fillRect(213, 3 + y, 25, h, barColor);
 
   wattage = m_wattage;
   if (wattage > 9999) {
@@ -216,8 +217,8 @@ void MainView::drawWattage(bool clearScreen) {
     strWattage = " " + strWattage;
   }
 
-  tft.setCursor(180, 75);
-  tft.print(strWattage);
+  lcd.setCursor(180, 75);
+  lcd.print(strWattage);
 }
 
 //! Update full display
@@ -227,15 +228,15 @@ void MainView::updateDisplay() {
   }
 
   // Clear full screen
-  tft.fillRect(0, 0, 240, 320, ILI9341_BLACK);
+  lcd.fillRect(0, 0, 240, 320, ILI9341_BLACK);
 
   drawSpeed(false);
 
   // Gesamt KM
-  tft.setTextColor(ILI9341_WHITE);
-  tft.setTextSize(2);
-  tft.setCursor(60, 75);
-  tft.print("12345 km");
+  lcd.setTextColor(ILI9341_WHITE);
+  lcd.setTextSize(2);
+  lcd.setCursor(60, 75);
+  lcd.print("12345 km");
 
   drawBattery(false);
   drawWattage(false);

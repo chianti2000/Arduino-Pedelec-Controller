@@ -55,9 +55,10 @@ void DataModel::showIcon(uint8_t icon) {
 
 //! Set the value
 void DataModel::setValue(uint8_t valueId, uint16_t value) {
-  m_values[valueId] = value;
-
-  fireValueUpdate(valueId);
+  if (value != m_values[valueId]) {
+    m_values[valueId] = value;
+    fireValueUpdate(valueId);
+  }
 }
 
 //! Get a value

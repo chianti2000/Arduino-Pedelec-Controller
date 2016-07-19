@@ -33,7 +33,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
-//#include "Display/DisplayController.h"
+#include "Display/DisplayController.h"
+#include <Display/defines.h>
+
 #endif
 
 display_mode_type display_mode = DISPLAY_MODE_GRAPHIC; //startup screen
@@ -124,14 +126,16 @@ static void prepare_important_info(int duration_secs)
     lcd.clear();
     lcd.setCursor(0, 2);
 #else
-    //tft.setCursor(0, 2);
+    lcd.fillScreen(ILI9341_BLACK);
+    lcd.setCursor(0, 2);
+    lcd.setTextColor(ILI9341_YELLOW);
 #endif
 }
 #endif
 
 void display_show_important_info(const char *str, int duration_secs)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2) || (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     prepare_important_info(duration_secs);
     lcd.print(str);
 #endif
@@ -139,7 +143,7 @@ void display_show_important_info(const char *str, int duration_secs)
 
 void display_show_important_info(const __FlashStringHelper *str, int duration_secs)
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2) || (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     prepare_important_info(duration_secs);
     lcd.print(str);
 #endif
@@ -167,7 +171,7 @@ static byte calc_number_length(const unsigned long x)
 
 void display_show_welcome_msg()
 {
-#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA) || (DISPLAY_TYPE & DISPLAY_TYPE_16X2) || (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     display_show_important_info(FROM_FLASH(msg_welcome), 5);
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
@@ -176,6 +180,9 @@ void display_show_welcome_msg()
 #elif (DISPLAY_TYPE & DISPLAY_TYPE_16X2)
     lcd.setCursor(0, 1);
     const byte max_len = 14;
+#elif (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+    lcd.setCursor(0, 5);
+    const byte max_len = 20;
 #endif
 
     // Show total mileage (right aligned)
@@ -848,7 +855,7 @@ static void slcd3_update(byte battery, unsigned int wheeltime, byte error, byte 
 void display_init()
 {
 #if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
-    //displayControllerSetup();
+    displayControllerSetup();
 #endif
 #if (DISPLAY_TYPE & DISPLAY_TYPE_NOKIA)
     display_nokia_setup();
@@ -1287,7 +1294,19 @@ void display_update()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS)
     slcd_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time,0);
 #endif
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+    if (handle_important_info_expire())
+        return;
 
+   power;
+    battery_percent_fromcapacity;
+    battery_percent_fromvoltage;
+    spd;
+    voltage_display;
+
+    updateDisplay();
+
+#endif
 
 #if (DISPLAY_TYPE & DISPLAY_TYPE_BMS3)
     slcd3_update(map(battery_percent_fromcapacity,0,100,0,16),wheel_time, 0, max(power/9.75,0), (byte)0x20*(!brake_stat));

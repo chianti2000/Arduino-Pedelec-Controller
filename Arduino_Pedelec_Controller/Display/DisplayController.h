@@ -23,7 +23,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "Arduino.h"
 #include "Print.h"
-
+#include "defines.h"
 /**
  * Control the whole display Navigation and output
  */
@@ -32,7 +32,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 void displayControllerSetup();
 
 //! Call in the main loop
-void displayControllerLoop();
+void keyPressed();
+
+void updatePosition(int8_t diff);
+
+void updateDisplay();
+
 
 //! Execute 1 byte command
 void displayControlerCommand1(uint8_t cmd, uint8_t value);

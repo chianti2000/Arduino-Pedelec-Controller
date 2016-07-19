@@ -20,12 +20,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MainViewEdit.h"
-#include "Adafruit_GFX.h"
-#include "ILI9341_t3.h"
-
 #include "TextComponent.h"
 #include "Components.h"
 #include "MenuEntries.h"
+#include "defines.h"
 
 /**
  * Custmize main view
@@ -73,7 +71,7 @@ void MainViewEdit::drawSelection() {
   if (m_lastSelectedId != -1) {
     BaseComponent* component = m_components->get(m_lastSelectedId);
     if (component != NULL) {
-      tft.fillRect(0, component->getY() - 1, 240, component->getHeight() + 2, ILI9341_BLACK);
+      lcd.fillRect(0, component->getY() - 1, 240, component->getHeight() + 2, ILI9341_BLACK);
       component->draw();
     }
   }
@@ -85,7 +83,7 @@ void MainViewEdit::drawSelection() {
   }
 
   for (uint8_t i = 0; i <= 1; i++) {
-    tft.drawRect(i, component->getY() + i, 240 - 2 * i, component->getHeight() + 1 - 2 * i, ILI9341_MAGENTA);
+    lcd.drawRect(i, component->getY() + i, 240 - 2 * i, component->getHeight() + 1 - 2 * i, ILI9341_MAGENTA);
   }
 }
 

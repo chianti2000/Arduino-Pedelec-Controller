@@ -65,13 +65,13 @@ void IconComponent::drawBluetooth(bool clearScreen) {
     iconColor = ICON_DISABLED_COLOR;
   }
 
-  tft.drawLine(blX2, ICON_TOP_Y, blX2, ICON_TOP_Y + ICON_HEIGHT, iconColor);
+  lcd.drawLine(blX2, ICON_TOP_Y, blX2, ICON_TOP_Y + ICON_HEIGHT, iconColor);
 
-  tft.drawLine(blX2, ICON_TOP_Y, blX3, ICON_TOP_Y + ICON_HEIGHT/4, iconColor);
-  tft.drawLine(blX3, ICON_TOP_Y + ICON_HEIGHT - ICON_HEIGHT/4, blX1, ICON_TOP_Y + 10, iconColor);
+  lcd.drawLine(blX2, ICON_TOP_Y, blX3, ICON_TOP_Y + ICON_HEIGHT/4, iconColor);
+  lcd.drawLine(blX3, ICON_TOP_Y + ICON_HEIGHT - ICON_HEIGHT/4, blX1, ICON_TOP_Y + 10, iconColor);
 
-  tft.drawLine(blX2, ICON_TOP_Y + ICON_HEIGHT, blX3, ICON_TOP_Y + ICON_HEIGHT - ICON_HEIGHT/4, iconColor);
-  tft.drawLine(blX3, ICON_TOP_Y + ICON_HEIGHT/4, blX1, ICON_TOP_Y + ICON_HEIGHT - 10, iconColor);
+  lcd.drawLine(blX2, ICON_TOP_Y + ICON_HEIGHT, blX3, ICON_TOP_Y + ICON_HEIGHT - ICON_HEIGHT/4, iconColor);
+  lcd.drawLine(blX3, ICON_TOP_Y + ICON_HEIGHT/4, blX1, ICON_TOP_Y + ICON_HEIGHT - 10, iconColor);
 
 }
 
@@ -92,14 +92,14 @@ void IconComponent::drawBrakes(bool clearScreen) {
   }
 
   for (uint8_t i = 0; i < 2; i++) {
-    tft.drawCircle(ix + breakRadius, ICON_TOP_Y + breakRadius, breakRadius - i, iconColor);
-    tft.drawCircle(ix + breakRadius+14, ICON_TOP_Y + breakRadius, breakRadius - i, iconColor);
+    lcd.drawCircle(ix + breakRadius, ICON_TOP_Y + breakRadius, breakRadius - i, iconColor);
+    lcd.drawCircle(ix + breakRadius+14, ICON_TOP_Y + breakRadius, breakRadius - i, iconColor);
   }
 
-  tft.fillRect(ix + 7, ICON_TOP_Y, breakRadius + breakRadius, breakRadius + breakRadius + 2, ILI9341_BLACK);
+  lcd.fillRect(ix + 7, ICON_TOP_Y, breakRadius + breakRadius, breakRadius + breakRadius + 2, ILI9341_BLACK);
 
-  tft.drawCircle(ix + breakRadius + 7, ICON_TOP_Y + breakRadius, breakRadius, iconColor);
-  tft.drawCircle(ix + breakRadius + 7, ICON_TOP_Y + breakRadius, breakRadius-1, iconColor);
+  lcd.drawCircle(ix + breakRadius + 7, ICON_TOP_Y + breakRadius, breakRadius, iconColor);
+  lcd.drawCircle(ix + breakRadius + 7, ICON_TOP_Y + breakRadius, breakRadius-1, iconColor);
 
 
   for (int8_t i = -1; i < 2; i++) {
@@ -107,8 +107,8 @@ void IconComponent::drawBrakes(bool clearScreen) {
     uint8_t y1 = ICON_TOP_Y + 6;
     uint8_t y2 = ICON_TOP_Y + ICON_HEIGHT - 7 - 6;
 
-    tft.drawLine(bx, y1, bx, y2, iconColor);
-    tft.drawLine(bx, y2 + 4, bx, y2 + 7, iconColor);
+    lcd.drawLine(bx, y1, bx, y2, iconColor);
+    lcd.drawLine(bx, y2 + 4, bx, y2 + 7, iconColor);
   }
 }
 
@@ -128,10 +128,10 @@ void IconComponent::drawLight(bool clearScreen) {
     iconColor = ICON_DISABLED_COLOR;
   }
 
-  tft.fillCircle(ix + lightRadius, ICON_TOP_Y + lightRadius, lightRadius, iconColor);
-  tft.fillRect(ix + lightRadius - 4, ICON_TOP_Y + lightRadius * 2, 9, 8, iconColor);
+  lcd.fillCircle(ix + lightRadius, ICON_TOP_Y + lightRadius, lightRadius, iconColor);
+  lcd.fillRect(ix + lightRadius - 4, ICON_TOP_Y + lightRadius * 2, 9, 8, iconColor);
 
-  tft.fillRect(ix + lightRadius - 2, ICON_TOP_Y + lightRadius * 2 + 10, 5, 2, iconColor);
+  lcd.fillRect(ix + lightRadius - 2, ICON_TOP_Y + lightRadius * 2 + 10, 5, 2, iconColor);
 }
 
 //! Draw the component to the display
