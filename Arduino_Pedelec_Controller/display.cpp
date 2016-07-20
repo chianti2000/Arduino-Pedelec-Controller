@@ -122,7 +122,7 @@ static void prepare_important_info(int duration_secs)
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     enable_backlight();
 #endif
-#ifndef DISPLAY_TYPE_ILI22
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     lcd.clear();
     lcd.setCursor(0, 2);
 #else
@@ -230,6 +230,7 @@ void display_show_welcome_msg_temp()
 
 void display_prev_view()
 {
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     if (display_view == DISPLAY_VIEW_MAIN)
         display_view = _DISPLAY_VIEW_END;
 
@@ -239,12 +240,15 @@ void display_prev_view()
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     enable_backlight();
 #endif
-
+#else
+    updatePosition(-1);
+#endif
     display_update();
 }
 
 void display_next_view()
 {
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     // enums can't be incremented directly
     byte next_view = static_cast<byte>(display_view) + 1;
     display_view = static_cast<display_view_type>(next_view);
@@ -255,7 +259,9 @@ void display_next_view()
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     enable_backlight();
 #endif
-
+#else
+    updatePosition(1);
+#endif
     display_update();
 }
 
@@ -1297,8 +1303,20 @@ void display_update()
 #if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     if (handle_important_info_expire())
         return;
+    if (menu_active) {
+// Check if user has been idle for too long
+        if (menu_activity_expire && millis() > menu_activity_expire)
+        {
+            menu_active = false; //TODO jump out of menu in controller
+            return;
+        }
+        if (menu_changed) {
+            menu_changed = false;
+            menu_activity_expire = millis() + menu_idle_timeout_secs * 1000;
+        }
+    }
 
-   power;
+    power;
     battery_percent_fromcapacity;
     battery_percent_fromvoltage;
     spd;

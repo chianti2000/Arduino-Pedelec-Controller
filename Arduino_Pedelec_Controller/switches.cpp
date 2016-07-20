@@ -16,12 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
+
 #include "config.h"
 #include "switches.h"
 #include "display.h"
 #include "display_backlight.h"
 #include "menu.h"
 #include "globals.h"
+
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+#include "Display/DisplayController.h"
+#endif
+
 
 struct switch_state
 {
@@ -162,7 +168,7 @@ static void action_fixed_throttle_value()
 static void action_shutdown_system()
 {
     // Shut down system
-#if HARDWARE_REV >=2
+#if HARDWARE_REV >=2 || defined(TEENSY_VERSION)
     display_show_important_info(FROM_FLASH(msg_shutdown), 60);
     save_shutdown();
 #endif
@@ -197,9 +203,10 @@ static void action_enter_menu()
     menu_activity_expire = 0;
     menu_active = true;
     menu_changed = true;
-
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     // Reset to top level menu
     while (menu_system.back());
+#endif
 }
 
 static void action_set_profile(const boolean new_profile)
@@ -426,15 +433,28 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
     {
         case PRESSED_SHORT:
             if (sw == MENU_BUTTON_DOWN)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+                updatePosition(1);
+#else
                 menu_system.next(true);
+#endif
             else if (sw == MENU_BUTTON_UP)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+                updatePosition(-1);
+#else
                 menu_system.prev(true);
+#endif
 
             menu_changed = true;
             break;
         case PRESSED_LONG:
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+            keyPressed();
+#else
             menu_system.select();
+#endif
             menu_changed = true;
+
             break;
         default:
             break;

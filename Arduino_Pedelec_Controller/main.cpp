@@ -44,6 +44,7 @@ Features:
 #ifdef TEENSY_VERSION
 #include "VESC/datatypes.h"
 #include <VESC/config.h>
+#include <VESC/datatypes.h>
 #include "VESC/vesc_uart.h"
 mc_values vesc_values;
 #endif
@@ -245,6 +246,9 @@ const int fet_out = 15;
 const int lights_pin = 16;           //lights switch
 const int buzzer = 17;           //buzzer switch
 
+//temp reading
+float temperature_vesc = 0.0;       //temperature
+float motor_rpm = 0;
 #endif
 
 
@@ -744,8 +748,9 @@ if (loadcell.is_ready())     //new conversion result from load cell available
         //	SerialPrint(VescMeasuredValues);
         voltage = vesc_values.v_in;
         current = vesc_values.current_in;
-        temperature = vesc_values.temp_pcb;
+        temperature_vesc = vesc_values.temp_pcb;
         motor_current = vesc_values.current_motor;
+        motor_rpm = vesc_values.rpm;
     }
     else
     {
@@ -839,7 +844,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
         pedaling = true;
 
     cad=cad*pedaling;
-pedaling=true;//FIXME TODO TAKE OUT
+//pedaling=true;// FIXME TODO TAKE OUT
 #ifdef SUPPORT_BBS
     if (pedalingbackwards) //gear change pause requested
       bbs_pausestart=millis();
@@ -1113,10 +1118,8 @@ pedaling=true;//FIXME TODO TAKE OUT
         wh_human+=(millis()-last_writetime)/3600000.0*power_human;  //human watthours calculation
         mah+=current*(millis()-last_writetime)/3600.0;  //mah calculation
 
-#if (!(DISPLAY_TYPE & DISPLAY_TYPE_KINGMETER) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS) && !(DISPLAY_TYPE == DISPLAY_TYPE_BMS3)&& !(DISPLAY_TYPE & DISPLAY_TYPE_BAFANG))
-#if !(DISPLAY_TYPE == DISPLAY_TYPE_NONE)
+#if (DISPLAY_TYPE != DISPLAY_TYPE_NONE)
         display_update();
-#endif
 #endif
 
         send_serial_data();                                        //sends data over serial port depending on SERIAL_MODE
