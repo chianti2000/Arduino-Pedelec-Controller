@@ -49,7 +49,7 @@ Features:
 mc_values vesc_values;
 #endif
 
-#if defined(TEENSY_DEBUG_SCREEN) && defined(DISPLAY_TYPE_ILI22)
+#if defined(TEENSY_DEBUG_SCREEN) && (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
 #error You either have poti or soft-poti support. Disable one of them.
 #endif
 
@@ -434,7 +434,7 @@ void setup()
 #if (SERIAL_MODE & SERIAL_MODE_IOS)
     Serial.begin(57600);     //IOS app requires 57600
 #else
-    Serial.begin(115200);
+    //Serial.begin(115200);
 #endif
 
 #ifdef DEBUG_MEMORY_USAGE
@@ -467,9 +467,10 @@ void setup()
     altitude_start=dspc.altitude()/10.0;
 #endif
     init_switches();
+#if !(DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     init_menu();
+#endif
     display_init();
-
 #if (DISPLAY_TYPE & (DISPLAY_TYPE_NOKIA_4PIN|DISPLAY_TYPE_16X2_SERIAL))
 #if HARDWARE_REV >= 20
     // set to INPUT
@@ -754,7 +755,9 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     }
     else
     {
+#if (SERIAL_MODE & SERIAL_MODE_DEBUG)
         DEBUGSERIAL.println("could not get Data from VESC");
+#endif
         voltage = 0;
         current = 0;
     }

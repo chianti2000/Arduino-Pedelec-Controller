@@ -33,8 +33,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 MainViewEdit::MainViewEdit(Components* components)
         : MainView(components),
           m_selectedId(0),
-          m_selectionPosition(0),
-          m_lastSelectedId(-1)
+          m_lastSelectedId(-1),
+          m_selectionPosition(0)
 {
 }
 

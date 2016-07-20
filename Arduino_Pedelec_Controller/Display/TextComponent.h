@@ -27,12 +27,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * Display a text with value on the display
  */
 
-class TextComponent: public BaseComponent {
+class TextComponent: public BaseComponent, public DataListener {
   // Constructor / Destructor
 public:
   //! Constructor
-  TextComponent(String text);
-
+  TextComponent(String text, ValueId display_val, int precision);
   //! Destructor
   virtual ~TextComponent();
 
@@ -48,4 +47,13 @@ public:
 private:
   //! Text to display
   String m_text;
+    ValueId m_display_value_id;
+    int m_precision;
+    //! DataListener
+public:
+  //! Icon changed
+    virtual void onValueChanged(uint8_t valueId);
+
+  // Member
+private:
 };

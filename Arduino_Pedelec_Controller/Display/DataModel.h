@@ -31,7 +31,8 @@ enum IconId {
     ICON_ID_BLUETOOTH = (1 << 0),
     ICON_ID_BRAKE     = (1 << 1),
     ICON_ID_LIGHT     = (1 << 2),
-    ICON_ID_HEART     = (1 << 3)
+    ICON_ID_PROFILE   = (1 << 3),
+    ICON_ID_HEART     = (1 << 4)
 };
 
 enum ValueId {
@@ -43,7 +44,15 @@ enum ValueId {
             VALUE_ID_BATTERY_PERC_CURRENT,
     //Current Bat mah
             VALUE_ID_BATTERY_MAH_CURRENT,
-            VALUE_COUNT
+    VALUE_ID_BATTERY_CURRENT,
+    VALUE_ID_ODO_TOTAL,
+    VALUE_ID_REMAINING,
+    VALUE_ID_TIME_DRIVEN,
+    VALUE_ID_MOTOR_TEMP,
+    VALUE_ID_MOTOR_CURRENT,
+    VALUE_ID_MOTOR_RPM,
+
+    VALUE_COUNT
 };
 
 class DataListener {
@@ -99,7 +108,7 @@ private:
     uint8_t m_iconState;
 
     //! Listener list
-    DataListener* m_listener[16];
+    DataListener* m_listener[32];
 
     //! Values
     uint16_t m_values[VALUE_COUNT];

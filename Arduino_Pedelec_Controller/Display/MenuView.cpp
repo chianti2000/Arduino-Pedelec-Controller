@@ -21,6 +21,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "MenuView.h"
 #include "defines.h"
+#include "BaseView.h"
 
 /**
  * Display a single menu
@@ -233,24 +234,23 @@ ViewResult MenuView::keyPressed() {
     // Force repaint
     m_lastSelectedMenuIndex = m_selectedMenu.id;
 
+    //result.index = m_selectedMenuIndex;
+    result.value = m_selectedMenu.id;
     if (isSelected(m_selectedMenu.id)) {
       unselectCheckbox(m_selectedMenu.id);
+      result.result = VIEW_RESULT_CHECKBOX_UNCHECKED;
     } else {
       selectCheckbox(m_selectedMenu.id);
-    }
-
-    drawMenu(false);
-    return result;
-  }
-
-  if (m_selectedMenu.flags & MENU_CHECKBOX) {
-    if (isSelected(m_selectedMenu.id)) {
       result.result = VIEW_RESULT_CHECKBOX_CHECKED;
-    } else {
-      result.result = VIEW_RESULT_CHECKBOX_UNCHECKED;
     }
-
-    result.value = m_selectedMenu.id;
+    Serial.print(result.value);
+    Serial.println("Menu selected");
+    for (int i = 0; i < sizeof(m_selectedCheckboxes); ++i) {
+      Serial.print(m_selectedCheckboxes[i]);
+      Serial.print(" ");
+    }
+    Serial.println();
+    drawMenu(false);
     return result;
   }
 
@@ -277,6 +277,7 @@ void MenuView::selectCheckbox(uint8_t index) {
   for (uint8_t i = 0; i < sizeof(m_selectedCheckboxes); i++) {
     if (0 == m_selectedCheckboxes[i]) {
       m_selectedCheckboxes[i] = index;
+      break;
     }
   }
 }
@@ -286,6 +287,7 @@ void MenuView::unselectCheckbox(uint8_t index) {
   for (uint8_t i = 0; i < sizeof(m_selectedCheckboxes); i++) {
     if (index == m_selectedCheckboxes[i]) {
       m_selectedCheckboxes[i] = 0;
+      break;
     }
   }
 }
@@ -298,9 +300,7 @@ void MenuView::setRootMenuId(uint8_t menu) {
   m_selectedMenuIndex = 0;
   m_selectedMenu.id = 0;
   m_backIndex = 0;
-  for (uint8_t i = 0; i < sizeof(m_selectedCheckboxes); i++) {
-    m_selectedCheckboxes[i] = 0;
-  }
+
 
   drawMenu(true);
 }

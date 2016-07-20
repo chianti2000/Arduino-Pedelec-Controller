@@ -38,12 +38,32 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #define RGB_TO_565(r, g, b) ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
 
 
-#define TFT_DC 10 //used
-#define TFT_RST 10 //used
-#define TFT_CS 9 //used
+
 #define TFT_MOSI 11
 #define TFT_CLK 13
 #define TFT_MISO 12
 
+#define TFT_DC  9
+#define TFT_CS 10
+#define TFT_RST 10
+
 // Use Hardware SPI
 extern ILI9341_t3 lcd;
+extern boolean repaint;
+
+
+enum {
+    DISPLAY_ACTION_NONE = 0,
+    DISPLAY_ACTION_TOGGLE_LIGHT_ON,
+    DISPLAY_ACTION_TOGGLE_LIGHT_OFF,
+    DISPLAY_ACTION_TOGGLE_BLUETOOTH_ON,
+    DISPLAY_ACTION_TOGGLE_BLUETOOTH_OFF,
+    DISPLAY_ACTION_ACTIVE_PROFILE_1,
+    DISPLAY_ACTION_ACTIVE_PROFILE_2,
+    DISPLAY_ACTION_POTI_UP,
+    DISPLAY_ACTION_POTI_DOWN,
+    DISPLAY_ACTION_DISABLE_POTI,
+    DISPLAY_ACTION_DISABLE_WHEEL,
+    DISPLAY_ACTION_DISABLE_BRAKE,
+    DISPLAY_ACTION_DISABLE_PAS
+};

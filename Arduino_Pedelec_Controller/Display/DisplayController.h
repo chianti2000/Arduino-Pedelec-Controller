@@ -32,7 +32,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 void displayControllerSetup();
 
 //! Call in the main loop
-void keyPressed();
+int keyPressed();
 
 void updatePosition(int8_t diff);
 

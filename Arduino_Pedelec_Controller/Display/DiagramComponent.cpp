@@ -167,6 +167,8 @@ const uint16_t DIAGRAM_DATA_COLOR = RGB_TO_565(0x28, 0x2B, 0xDA);
 
 //! Draw the component to the display
 void DiagramComponent::draw() {
+  if (!m_active)
+    return;
   for (uint8_t i = 0; i <= 60; i += 30) {
     lcd.drawLine(0, m_y + i, 240, m_y + i, DIAGRAM_LINE_COLOR);
   }
@@ -182,5 +184,10 @@ void DiagramComponent::draw() {
     lcd.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
     lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
   }
+  lcd.setTextSize(2);
+  lcd.setTextColor(ILI9341_WHITE);
+  lcd.setCursor(0, m_y+2);
+  lcd.print("Volt");
+
 }
 

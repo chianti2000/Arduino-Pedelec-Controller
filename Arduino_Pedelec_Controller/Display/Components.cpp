@@ -24,30 +24,21 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
 #include "Components.h"
-#include "TextComponent.h"
-#include "DiagramComponent.h"
-#include "IconComponent.h"
-#include "SeparatorComponent.h"
 
 //! Constructor
+
 Components::Components()
-          : m_components({0})
 {
-  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    if (i == 1) {
-      m_components[i] = new IconComponent();
-    } else if (i == 0 || i == 2) {
-      m_components[i] = new SeparatorComponent();
-    } else if (i == 5) {
-      m_components[i] = new DiagramComponent();
-    } else {
-      String txt = "Eintrag ";
-      txt += i;
-      m_components[i] = new TextComponent(txt);
-    }
-
-  }
-
+  m_active_components_ids[0] = COMP_ID_SEP;
+  m_active_components_ids[1] = COMP_ID_ICON;
+  m_active_components_ids[2] = COMP_ID_SEP;
+  m_active_components_ids[3] = COMP_ID_DIAG;
+  m_active_components_ids[4] = COMP_ID_SEP;
+  m_active_components_ids[5] = COMP_ID_BAT_MAH;
+  m_active_components_ids[6] = COMP_ID_ODO_TOTAL;
+  m_active_components_ids[7] = COMP_ID_REMAINING;
+  m_active_components_ids[8] = COMP_ID_MOTOR_CURRENT;
+  m_active_components_ids[9] = COMP_ID_MOTOR_RPM;
   updatePositionAndRemoveInvisible();
 }
 
@@ -57,9 +48,9 @@ Components::~Components() {
 
 //! Activate / Deactivate children
 void Components::deActivateChilren(bool enabled) {
-  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    if (m_components[i] != NULL) {
-      m_components[i]->setActive(enabled);
+  for (uint8_t i = 0; i < MAX_COMP_ACTIVE; i++) {
+    if (m_active_components_ids[i] != COMP_ID_NONE) {
+      g_components[m_active_components_ids[i]]->setActive(enabled);
     }
   }
 }
@@ -68,49 +59,51 @@ void Components::deActivateChilren(bool enabled) {
 void Components::updatePositionAndRemoveInvisible() {
   uint16_t y = 95;
   uint8_t i = 0;
-  for (; i < COMPONENT_COUNT; i++) {
-    if (m_components[i] == NULL) {
-      break;
+  for (; i < MAX_COMP_ACTIVE; i++) {
+    if (m_active_components_ids[i] == COMP_ID_NONE) {
+      continue;
     }
-
-    m_components[i]->setY(y);
-    y += m_components[i]->getHeight();
-
+    y += g_components[m_active_components_ids[i]]->getHeight();
     if (y > 320) {
       // Not fully visible, the next will be invisible
       break;
     }
-
     y += 2;
   }
 
-  for (; i < COMPONENT_COUNT; i++) {
-    m_components[i] = NULL;
+  for (; i < MAX_COMP_ACTIVE; i++) {
+    if (!m_active_components_ids[i] == COMP_ID_SEP || !m_active_components_ids[i==COMP_ID_NONE])
+      g_components[m_active_components_ids[i]]->setActive(false);
+    m_active_components_ids[i] = COMP_ID_NONE;
   }
 }
 
 //! Return the component at position index
 BaseComponent* Components::get(uint8_t index) {
-  return m_components[index];
+  return g_components[m_active_components_ids[index]];
 }
 
 //! remove the element at index, but does not delete it
 void Components::remove(uint8_t index) {
-  for (uint8_t i = index; i < COMPONENT_COUNT - 1; i++) {
-    m_components[i] = m_components[i + 1];
-  }
+  if (!m_active_components_ids[index] == COMP_ID_SEP)
+    g_components[m_active_components_ids[index]]->setActive(false);
 
-  m_components[COMPONENT_COUNT - 1] = NULL;
+  m_active_components_ids[index] = COMP_ID_NONE;
 
   updatePositionAndRemoveInvisible();
 }
 
 //! Draw all components
 void Components::draw() {
-  for (uint8_t i = 0; i < COMPONENT_COUNT; i++) {
-    if (m_components[i] == NULL) {
-      return;
+  uint16_t y = 95;
+
+  for (uint8_t i = 0; i < MAX_COMP_ACTIVE; i++) {
+    if (m_active_components_ids[i] == COMP_ID_NONE) {
+      continue;
     }
-    m_components[i]->draw();
+    g_components[m_active_components_ids[i]]->setY(y);
+    y += g_components[m_active_components_ids[i]]->getHeight();
+    y += 2;
+    g_components[m_active_components_ids[i]]->draw();
   }
 }

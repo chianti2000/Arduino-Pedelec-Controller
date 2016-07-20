@@ -27,6 +27,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 
 #include "Components.h"
+#include "BaseView.h"
 
 /**
  * Control the whole display Navigation and output
@@ -57,41 +58,44 @@ MainViewEdit mainViewEdit(&components);
 MenuView menuView;
 
 //! Current active view
-BaseView* currentView;
+BaseView *currentView;
 
 //! Key pressed flag
 //volatile bool g_keyPressed = false;
 ILI9341_t3 lcd = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST);
 
+boolean repaint = true;
+
 //! Call once on startup
 void displayControllerSetup() {
     lcd.begin();
-  currentView = &mainView;
-  currentView->activate();
+    repaint = true;
+    currentView = &mainView;
+    currentView->activate();
 
-  // Button
-  //pinMode(KEY, INPUT);
-  //pinMode(KNOB0, INPUT);
-  //pinMode(KNOB1, INPUT);
+    // Button
+    //pinMode(KEY, INPUT);
+    //pinMode(KNOB0, INPUT);
+    //pinMode(KNOB1, INPUT);
 
-  // enable pullup
-  //digitalWrite(KEY, HIGH);
-  //digitalWrite(KNOB0, HIGH);
-  //digitalWrite(KNOB1, HIGH);
+    // enable pullup
+    //digitalWrite(KEY, HIGH);
+    //digitalWrite(KNOB0, HIGH);
+    //digitalWrite(KNOB1, HIGH);
 
-  // You may have to modify the next 2 lines if using other pins than A1 and A2
-  // This enables Pin Change Interrupt 1 that covers the Analog input pins or Port C.
- // PCICR |= (1 << PCIE1);
+    // You may have to modify the next 2 lines if using other pins than A1 and A2
+    // This enables Pin Change Interrupt 1 that covers the Analog input pins or Port C.
+    // PCICR |= (1 << PCIE1);
 
-  // This enables the interrupt for pin 1 and 2 of Port C.
-  //PCMSK1 |= (1 << PCINT9) | (1 << PCINT10);
+    // This enables the interrupt for pin 1 and 2 of Port C.
+    //PCMSK1 |= (1 << PCINT9) | (1 << PCINT10);
 
-  // Run timer2 interrupt every 15 ms
+    // Run timer2 interrupt every 15 ms
 //  TCCR2A = 0;
- // TCCR2B = 1 << CS22 | 1 << CS21 | 1 << CS20;
+    // TCCR2B = 1 << CS22 | 1 << CS21 | 1 << CS20;
 
-  // Timer2 Overflow Interrupt Enable
- // TIMSK2 |= 1 << TOIE2;
+    // Timer2 Overflow Interrupt Enable
+    // TIMSK2 |= 1 << TOIE2;
 }
 
 //! Timer 2 interrupt, for button debouncing
@@ -122,40 +126,82 @@ void updatePosition(int8_t diff) {
 }
 
 void updateDisplay() {
-    currentView->updateDisplay();
+    if (repaint) {
+        currentView->updateDisplay();
+        repaint = false;
+    }
+    //always draw Diagramm if active TODO add data listener?
+    if (g_components[COMP_ID_DIAG]->is_active())
+        g_components[COMP_ID_DIAG]->draw();
 }
 
-void keyPressed() {
+int keyPressed() {
     ViewResult result = currentView->keyPressed();
+    Serial.println("KEY Result: ");
+    Serial.print(result.result);
+    Serial.print(result.value);
+    Serial.println();
+    int response = 0;
 
     if (result.result == VIEW_RESULT_MENU) {
-      currentView->deactivate();
-      menuView.setRootMenuId(result.value);
-      currentView = &menuView;
-      currentView->activate();
+        currentView->deactivate();
+        menuView.setRootMenuId(result.value);
+        currentView = &menuView;
+        currentView->activate();
     } else if (result.result == VIEW_RESULT_BACK) {
-      currentView->deactivate();
-      currentView = &mainView;
-      currentView->activate();
-    } else if (result.result == VIEW_RESULT_SELECTED) {
-      currentView->deactivate();
-
-      if (MENU_ID_VIEW_EDIT == result.value) {
-        currentView = &mainViewEdit;
-      } else if (MENU_ID_COMPONENT_REMOVE == result.value) {
-        mainViewEdit.removeSelected();
-        currentView = &mainViewEdit;
-      } else {
+        currentView->deactivate();
         currentView = &mainView;
-      }
+        repaint = true;
+        currentView->activate();
+    } else if (result.result == VIEW_RESULT_SELECTED) {
+        currentView->deactivate();
 
-      currentView->activate();
+        if (MENU_ID_VIEW_EDIT == result.value) {
+            currentView = &mainViewEdit;
+        } else if (MENU_ID_COMPONENT_REMOVE == result.value) {
+            mainViewEdit.removeSelected();
+            currentView = &mainViewEdit;
+        } else {
+            currentView = &mainView;
+        }
+
+        currentView->activate();
     } else if (result.result == VIEW_RESULT_CHECKBOX_CHECKED) {
-      //! Checkbox toggled
-    } else if (result.result == VIEW_RESULT_CHECKBOX_UNCHECKED) {
-        //! Checkbox toggled
-    }
 
+
+
+        if (result.value == MENU_ID_LIGHT_CB) {
+            model.showIcon(ICON_ID_LIGHT);
+            response = DISPLAY_ACTION_TOGGLE_LIGHT_ON;
+
+        }
+        else if (result.value == MENU_ID_BLUETOOTH_CB) {
+            model.showIcon(ICON_ID_BLUETOOTH);
+            response = DISPLAY_ACTION_TOGGLE_BLUETOOTH_ON;
+        }
+
+        else if (result.value == MENU_ID_PROFIL_CB) {
+            model.showIcon(ICON_ID_PROFILE);
+            response = DISPLAY_ACTION_ACTIVE_PROFILE_1;
+        }
+
+        //! Checkbox toggled
+    } else if (result.result == VIEW_RESULT_CHECKBOX_UNCHECKED) {
+        if (result.value == MENU_ID_LIGHT_CB) {
+            model.clearIcon(ICON_ID_LIGHT);
+            response = DISPLAY_ACTION_TOGGLE_LIGHT_OFF;
+        }
+        else if (result.value == MENU_ID_BLUETOOTH_CB) {
+            model.clearIcon(ICON_ID_BLUETOOTH);
+            response = DISPLAY_ACTION_TOGGLE_BLUETOOTH_OFF;
+        }
+        else if (result.value == MENU_ID_PROFIL_CB) {
+            model.clearIcon(ICON_ID_PROFILE);
+            response = DISPLAY_ACTION_ACTIVE_PROFILE_2;
+        }
+
+    }
+    return response;
 }
 
 /*

@@ -65,6 +65,12 @@ protected:
   //! Y Position on display
   uint16_t m_y;
 
-  //! Flag if active / not active
+public:
+    bool is_active() const {
+      return m_active;
+    }
+
+protected:
+//! Flag if active / not active
   bool m_active;
 };

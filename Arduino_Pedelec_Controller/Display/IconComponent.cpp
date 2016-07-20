@@ -120,7 +120,7 @@ void IconComponent::drawLight(bool clearScreen) {
 
   uint16_t ix = 130;
   uint8_t lightRadius = 12;
-
+  uint8_t top_offset = 2;
   uint16_t iconColor;
   if (model.getIcon() & ICON_ID_LIGHT) {
     iconColor = ILI9341_YELLOW;
@@ -128,17 +128,42 @@ void IconComponent::drawLight(bool clearScreen) {
     iconColor = ICON_DISABLED_COLOR;
   }
 
-  lcd.fillCircle(ix + lightRadius, ICON_TOP_Y + lightRadius, lightRadius, iconColor);
-  lcd.fillRect(ix + lightRadius - 4, ICON_TOP_Y + lightRadius * 2, 9, 8, iconColor);
+  lcd.fillCircle(ix + lightRadius, top_offset + ICON_TOP_Y + lightRadius, lightRadius, iconColor);
+  lcd.fillRect(ix + lightRadius - 4, top_offset + ICON_TOP_Y + lightRadius * 2, 9, 8, iconColor);
 
-  lcd.fillRect(ix + lightRadius - 2, ICON_TOP_Y + lightRadius * 2 + 10, 5, 2, iconColor);
+  lcd.fillRect(ix + lightRadius - 2, top_offset + ICON_TOP_Y + lightRadius * 2 + 10, 5, 2, iconColor);
 }
+
+
+//! Draw Light Icon
+void IconComponent::drawProfile(bool clearScreen) {
+  if (!m_active) {
+    return;
+  }
+
+  uint16_t ix = 180;
+
+  uint16_t iconNum;
+  if (model.getIcon() & ICON_ID_PROFILE) {
+    iconNum = 2;
+    lcd.setTextColor(ILI9341_RED, ILI9341_BLACK);
+  } else {
+    iconNum = 1;
+    lcd.setTextColor(ILI9341_BLUE, ILI9341_BLACK);
+  }
+  lcd.setCursor(ix, ICON_TOP_Y + 5);
+  lcd.setTextSize(4);
+  lcd.print(iconNum);
+
+}
+
 
 //! Draw the component to the display
 void IconComponent::draw() {
   drawBluetooth(true);
   drawBrakes(true);
   drawLight(true);
+  drawProfile(true);
 }
 
 //! Icon changed
@@ -151,5 +176,8 @@ void IconComponent::onIconUpdate(uint8_t iconId) {
   }
   if (iconId & ICON_ID_LIGHT) {
     drawLight(true);
+  }
+  if (iconId & ICON_ID_PROFILE) {
+    drawProfile(true);
   }
 }

@@ -206,6 +206,8 @@ static void action_enter_menu()
 #if !(DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
     // Reset to top level menu
     while (menu_system.back());
+#else
+    keyPressed();
 #endif
 }
 

@@ -62,7 +62,7 @@ const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always
 #define SERIAL_MODE_IOS             (1<<5)                  // Send IOS-compatible data over serial
 #define SERIAL_MODE_DISPLAYDEBUG    (1<<6)                  // Send display-debug data over serial
 
-#define SERIAL_MODE SERIAL_MODE_DEBUG                     //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
+#define SERIAL_MODE SERIAL_MODE_NONE                    //Set your serial mode here. CHANGES ONLY HERE!<-----------------------------
 
 //Since hardware revision 2.0 the bluetooth port uses a separate serial interface, select data here:
 #define BLUETOOTH_MODE_NONE         (1<<0)                  // Don't send bluetooth data at all
@@ -117,7 +117,7 @@ const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
 const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_ENTER_MENU;
 
 //const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DECREASE_POTI;
-const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
+const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
 const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.
@@ -217,7 +217,7 @@ const int power_poti_max=1000;            //Maximum power in W (poti mode) or ma
 const int thermal_limit=200;             //Maximum continuous thermal load motor can withstand
 const int thermal_safe_speed=20;         //Speed above which motor is thermally safe at maximum current, see EPACSim
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
-const unsigned int idle_shutdown_secs = 10 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
+const unsigned int idle_shutdown_secs = 300 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
 const unsigned int menu_idle_timeout_secs = 10;            // Menu inactivity timeout in seconds.
 const double capacity = 355.2;           //battery capacity in watthours for range calculation
 const double pas_factor_min=1.2;         //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!

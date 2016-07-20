@@ -54,6 +54,9 @@ private:
   //! Draw Light Icon
   void drawLight(bool clearScreen);
 
+    //! Draw Light Icon
+  void drawProfile(bool clearScreen);
+
 //! DataListener
 public:
   //! Icon changed
