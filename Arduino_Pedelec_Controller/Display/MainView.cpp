@@ -20,11 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MainView.h"
-#include "ILI9341_t3.h"
-
-#include "TextComponent.h"
 #include "Components.h"
-#include "defines.h"
 
 /**
  * Main view
@@ -32,8 +28,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 //! Constructor
 MainView::MainView(Components* components)
-        : m_wattage(0),
-          m_components(components)
+        : m_components(components)
 {
   model.addListener(this);
 }
@@ -56,14 +51,14 @@ void MainView::deactivate() {
 }
 
 //! Draw speed
-void MainView::drawSpeed(bool clearScreen) {
+void MainView::drawSpeed(bool repaint) {
   if (!m_active) {
     return;
   }
 
   const uint8_t speedY = 25;
 
-  if (clearScreen) {
+  if (!repaint) {
     lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   } else {
     lcd.setTextColor(ILI9341_WHITE);
@@ -90,7 +85,7 @@ void MainView::drawSpeed(bool clearScreen) {
   lcd.setTextColor(ILI9341_WHITE);
   lcd.setTextSize(2);
 
-  if (!clearScreen) {
+  if (repaint) {
     lcd.setCursor(160, speedY - 5);
     lcd.print("km");
     lcd.setCursor(167, speedY + 17);
@@ -102,12 +97,12 @@ void MainView::drawSpeed(bool clearScreen) {
 }
 
 //! Draw battery
-void MainView::drawBattery(bool clearScreen) {
+void MainView::drawBattery(bool repaint) {
   if (!m_active) {
     return;
   }
 
-  if (!clearScreen) {
+  if (repaint) {
     lcd.drawRect(0, 9, 29, 7*9, ILI9341_WHITE);
     lcd.fillRect(10, 0, 9, 9, ILI9341_WHITE);
     lcd.setTextColor(ILI9341_WHITE);
@@ -115,13 +110,7 @@ void MainView::drawBattery(bool clearScreen) {
     lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
-  //uint16_t batteryVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_CURRENT);
   uint16_t batterPercent = model.getValue(VALUE_ID_BATTERY_PERC_CURRENT);
-
-  //uint16_t batteryMaxVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MAX);
-  //uint16_t batteryMinVoltage = model.getValue(VALUE_ID_BATTERY_VOLTAGE_MIN);
-
-  //uint8_t batterPercent = (batteryVoltage - batteryMinVoltage) * 100 / (batteryMaxVoltage - batteryMinVoltage);
 
   uint16_t batteryColor = RGB_TO_565(0, 255, 0);
   if (batterPercent <= 40) {
@@ -159,31 +148,23 @@ void MainView::drawBattery(bool clearScreen) {
   lcd.print(strPercent);
 }
 
-//! Battery percent, 0 ... n
-void MainView::setWattage(uint16_t wattage) {
-  if (m_wattage == wattage) {
-    return;
-  }
-
-  m_wattage = wattage;
-  drawWattage(true);
-}
 
 //! Draw wattage bar
-void MainView::drawWattage(bool clearScreen) {
+void MainView::drawWattage(bool repaint) {
   if (!m_active) {
     return;
   }
 
   const uint8_t wattageBarHeight = 68;
-  if (!clearScreen) {
+  if (repaint) {
     lcd.drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
     lcd.setTextColor(ILI9341_WHITE);
   } else {
     lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
 
-  uint16_t wattage = m_wattage;
+  uint16_t wattage = model.getValue(VALUE_ID_POWER);
+
   if (wattage > 500) {
     wattage = 500;
   }
@@ -199,18 +180,13 @@ void MainView::drawWattage(bool clearScreen) {
   lcd.fillRect(213, 3, 25, y, ILI9341_BLACK);
 
   uint16_t  barColor = ILI9341_WHITE;
-  if (m_wattage > 500) {
+  if (wattage > 500) {
     barColor = ILI9341_RED;
   }
   lcd.fillRect(213, 3 + y, 25, h, barColor);
 
-  wattage = m_wattage;
-  if (wattage > 9999) {
-    wattage = 9999;
-  }
-
   String strWattage = "";
-  strWattage += m_wattage;
+  strWattage += wattage;
   strWattage += "W";
 
   while (strWattage.length() < 5) {
@@ -222,26 +198,27 @@ void MainView::drawWattage(bool clearScreen) {
 }
 
 //! Update full display
-void MainView::updateDisplay() {
+void MainView::updateDisplay(bool repaint) {
   if (!m_active) {
     return;
   }
 
   // Clear full screen
-  lcd.fillRect(0, 0, 240, 320, ILI9341_BLACK);
+  if (repaint)
+    lcd.fillRect(0, 0, 240, 320, ILI9341_BLACK);
 
-  drawSpeed(false);
+  drawSpeed(repaint);
 
   // Gesamt KM
-  lcd.setTextColor(ILI9341_WHITE);
+  lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   lcd.setTextSize(2);
   lcd.setCursor(60, 75);
   lcd.print("12345 km");
 
-  drawBattery(false);
-  drawWattage(false);
+  drawBattery(repaint);
+  drawWattage(repaint);
 
-  m_components->draw();
+  m_components->draw(repaint);
 }
 
 //! UP / DOWN Key
@@ -264,10 +241,17 @@ ViewResult MainView::keyPressed() {
 void MainView::onValueChanged(uint8_t valueId) {
   switch (valueId) {
     case VALUE_ID_SPEED:
-      drawSpeed(true);
-      break;
+      drawSpeed(false);
+          break;
     case VALUE_ID_BATTERY_VOLTAGE_CURRENT:
       drawBattery(true);
+          break;
+    case VALUE_ID_POWER:
+      drawWattage(true);
+          break;
+    default:
       break;
   }
+
+
 }

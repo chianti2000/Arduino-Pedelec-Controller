@@ -42,5 +42,5 @@ public:
   virtual uint8_t getHeight();
 
   //! Draw the component to the display
-  virtual void draw();
+  virtual void draw(bool repaint);
 };

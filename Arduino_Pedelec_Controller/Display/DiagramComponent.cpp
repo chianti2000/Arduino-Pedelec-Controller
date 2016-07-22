@@ -25,132 +25,25 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "DiagramComponent.h"
 
-#include "defines.h"
-
+uint16_t map(float_t x, float_t in_min, float_t in_max, uint16_t out_min, uint16_t
+out_max)
+{
+    return uint16_t((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+}
 
 //! Constructor
-DiagramComponent::DiagramComponent()
-: m_data({1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-12,
-13,
-14,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-26,
-26,
-26,
-26,
-26,
-26,
-26,
-27,
-27,
-27,
-28,
-28,
-28,
-27,
-27,
-27,
-28,
-28,
-28,
-29,
-29,
-29,
-28,
-28,
-28,
-29,
-29,
-29,
-30,
-30,
-30,
-29,
-29,
-29,
-30,
-30,
-30,
-31,
-31,
-31,
-30,
-30,
-30,
-31,
-31,
-31,
-32,
-32,
-32,
-31,
-31,
-31,
-32,
-32,
-32,
-33,
-33,
-33,
-32,
-32,
-32,
-33,
-33,
-33,
-34,
-34,
-60,
-60,
-60,
-33,
-34,
-34,
-34,
-35,
-35,
-35,
-34,
-34,
-50,
-51,
-52,
-53,
-54,
-55,
-56,
-40,
-40,
-40,
-30,
-30,
-30,
-20,
-20,
-20,
-20})
+DiagramComponent::DiagramComponent(String text, ValueId value, float_t min, float_t max)
+        : m_text(text),
+          m_display_value_id(value),
+          m_data{0},
+          m_cur_pose_index(0),
+          m_last_draw(0),
+          current_value(0.0),
+          current_count(0),
+          min_value(min),
+          max_value(max)
 {
+    model.addListener(this);
 }
 
 //! Destructor
@@ -159,35 +52,100 @@ DiagramComponent::~DiagramComponent() {
 
 //! Y Position on display
 uint8_t DiagramComponent::getHeight() {
-   return 60;
+    return 61;
 }
+
+void DiagramComponent::onValueChanged(uint8_t valueId){
+    if (valueId == m_display_value_id) {
+        current_count++;
+        current_value *= float((current_count - 1)) / current_count;
+        current_value += float(model.getValue(m_display_value_id))/current_count;
+
+        if (millis() > m_last_draw + UPDATE_PERIOD_S) {
+            this->draw(false);
+        }
+    }
+}
+
 
 const uint16_t DIAGRAM_LINE_COLOR = RGB_TO_565(0xBE, 0x82, 0x34);
 const uint16_t DIAGRAM_DATA_COLOR = RGB_TO_565(0x28, 0x2B, 0xDA);
 
 //! Draw the component to the display
-void DiagramComponent::draw() {
-  if (!m_active)
-    return;
-  for (uint8_t i = 0; i <= 60; i += 30) {
-    lcd.drawLine(0, m_y + i, 240, m_y + i, DIAGRAM_LINE_COLOR);
-  }
+void DiagramComponent::draw(bool repaint) {
+    if (!m_active)
+        return;
 
-  for (uint16_t x = 20; x < 240; x += 40) {
-    lcd.drawLine(x, m_y + 1, x, m_y + 58, DIAGRAM_LINE_COLOR);
-  }
+    //reset counts
+    if (millis() > m_last_draw + UPDATE_PERIOD_S) {
+        m_data[++m_cur_pose_index] = map(current_value, min_value, max_value, 0, 1023);
+        m_cur_pose_index %= DATA_LENGTH;
 
-  for (uint8_t i = 0; i < sizeof(m_data) - 1; i++) {
-    uint8_t x = i * 2;
-    uint16_t y1 = m_y + (60 - m_data[i]) - 1;
-    uint16_t y2 = m_y + (60 - m_data[i + 1]) - 1;
-    lcd.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
-    lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
-  }
-  lcd.setTextSize(2);
-  lcd.setTextColor(ILI9341_WHITE);
-  lcd.setCursor(0, m_y+2);
-  lcd.print("Volt");
+        m_last_draw = millis();
+        current_count = 0;
+        current_value = model.getValue(m_display_value_id);
+    }
+    else {
+        return;
+    }
+
+    long max_val = 0;
+
+    for (uint8_t i = 0; i < DATA_LENGTH - 1; i++) {
+        max_val = max(m_data[i], max_val);
+    }
+    long mapped = map(max_val, 0, max_val, 0, 59);
+    lcd.fillRect(0, m_y + 60 - mapped, 240, mapped, ILI9341_BLACK);
+
+    Serial.println(max_val);
+#ifndef AUTOSCALE
+    for (int16_t i = 0; i < DATA_LENGTH -1; i++) {
+        int16_t x = i * 2;
+        int16_t index = (m_cur_pose_index + i + 1) % DATA_LENGTH;
+        int16_t index1 = (m_cur_pose_index + i + 2) % DATA_LENGTH;
+
+
+        uint16_t y1 = m_y + 59 - map((m_data[index]), 0, max_val, 0, 59);
+        uint16_t y2 = m_y + 59 - map((m_data[index1]), 0, max_val, 0, 59);
+
+        //lcd.drawFastVLine(x+1, m_y + 59 - mapped, mapped, ILI9341_BLACK);
+        //lcd.drawFastVLine(x, m_y + 59 - mapped, mapped, ILI9341_BLACK);
+        //lcd.drawFastVLine(x+2, m_y + 59 - mapped, mapped, ILI9341_BLACK);
+
+        lcd.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
+        lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
+    }
+#else
+    uint16_t awColors[60*2];
+
+    for (uint8_t i = 0; i < DATA_LENGTH - 2; ++i) {
+        lcd.readRect(i+1, m_y, 1, 60, awColors);
+        lcd.writeRect(i, m_y, 1, 60, awColors);
+    }
+
+
+    uint8_t index = (m_cur_pose_index-1) % DATA_LENGTH;
+    uint8_t index1 = (m_cur_pose_index) % DATA_LENGTH;
+
+    uint16_t y1 = m_y + 60 - map(long(m_data[index]), 0, 1023, 0, 60);
+    uint16_t y2 = m_y + 60 - map(long(m_data[index1]), 0, 1023, 0, 60);
+
+    lcd.drawLine(240-2, y1, 240-2 + 2, y2, DIAGRAM_DATA_COLOR);
+    lcd.drawLine(240-2, y1 + 1, 240-2 + 2, y2 + 1, DIAGRAM_DATA_COLOR);
+
+#endif
+    for (uint8_t i = 0; i <= 60; i += 30) {
+        lcd.drawLine(0, m_y + i, 240, m_y + i, DIAGRAM_LINE_COLOR);
+    }
+
+    for (uint16_t x = 20; x < 240; x += 40) {
+        lcd.drawLine(x, m_y + 1, x, m_y + 58, DIAGRAM_LINE_COLOR);
+    }
+
+    //lcd.setTextSize(2);
+        //lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+        //lcd.setCursor(0, m_y + 2);
+        //lcd.print(m_text.c_str());
 
 }
 

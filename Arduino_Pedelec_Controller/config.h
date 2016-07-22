@@ -83,8 +83,8 @@ const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always
 //
 // Choose from: SWITCH_THROTTLE, SWITCH_DISPLAY1 and SWITCH_DISPLAY2
 //
-const switch_name MENU_BUTTON_UP = SWITCH_DISPLAY1;
-const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY2;
+const switch_name MENU_BUTTON_UP = SWITCH_DISPLAY2;
+const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 
 // Switch actions: Customizable actions for short and long press
 //
@@ -112,12 +112,12 @@ const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
 const sw_action SW_POTI_SHORT_PRESS = ACTION_NONE;
 const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
 
-//const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_INCREASE_POTI;
-const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
+const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DECREASE_POTI;
+//const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
 const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_ENTER_MENU;
 
-//const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DECREASE_POTI;
-const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
+const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_INCREASE_POTI;
+//const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
 const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.

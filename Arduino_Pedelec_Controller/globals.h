@@ -73,6 +73,13 @@ extern void save_eeprom();
 extern void save_shutdown();
 extern void activate_new_profile();
 
+#ifdef TEENSY_VERSION
+extern float motor_current;
+extern float motor_rpm;
+extern float temperature_vesc;
+extern volatile boolean pedaling;
+#endif
+
 extern RTC_DS1307 rtc;
 extern Time now;
 

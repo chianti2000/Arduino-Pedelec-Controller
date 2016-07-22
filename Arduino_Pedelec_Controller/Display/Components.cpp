@@ -29,16 +29,32 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 Components::Components()
 {
-  m_active_components_ids[0] = COMP_ID_SEP;
-  m_active_components_ids[1] = COMP_ID_ICON;
-  m_active_components_ids[2] = COMP_ID_SEP;
-  m_active_components_ids[3] = COMP_ID_DIAG;
-  m_active_components_ids[4] = COMP_ID_SEP;
-  m_active_components_ids[5] = COMP_ID_BAT_MAH;
-  m_active_components_ids[6] = COMP_ID_ODO_TOTAL;
-  m_active_components_ids[7] = COMP_ID_REMAINING;
-  m_active_components_ids[8] = COMP_ID_MOTOR_CURRENT;
-  m_active_components_ids[9] = COMP_ID_MOTOR_RPM;
+  int8_t i = 0;
+  g_components[i++] = new SeparatorComponent();
+  g_components[i++] = new IconComponent();
+  g_components[i++] = new DiagramComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0, 1023);
+  g_components[i++] = new TextComponent("Batterie mAh", VALUE_ID_BATTERY_MAH_USED, 0);
+  g_components[i++] = new TextComponent("Volt", VALUE_ID_BATTERY_VOLTAGE_CURRENT, 1);
+  g_components[i++] = new TextComponent("Total km", VALUE_ID_ODO_TOTAL, 0);
+  g_components[i++] = new TextComponent("Reichweite", VALUE_ID_REMAINING, 1);
+  g_components[i++] = new TextComponent("Fahrzeit", VALUE_ID_TIME_DRIVEN, 2);
+  g_components[i++] = new TextComponent("VESC Temp C", VALUE_ID_VESC_TEMP, 1);
+  g_components[i++] = new TextComponent("Motor Strom", VALUE_ID_MOTOR_CURRENT, 1);
+  g_components[i++] = new TextComponent("Motor RPM", VALUE_ID_MOTOR_RPM, 0);
+  g_components[i++] = new TextComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0);
+  g_components[i++] = new TextComponent("Support", VALUE_ID_SUPPORT_POTI, 0);
+
+  i = 0;
+  m_active_components_ids[i++] = COMP_ID_SEP;
+  m_active_components_ids[i++] = COMP_ID_ICON;
+  m_active_components_ids[i++] = COMP_ID_SEP;
+  m_active_components_ids[i++] = COMP_ID_DIAG;
+  m_active_components_ids[i++] = COMP_ID_SEP;
+  m_active_components_ids[i++] = COMP_ID_BAT_VOLT;
+  m_active_components_ids[i++] = COMP_ID_THROTTLE_POTI;
+  m_active_components_ids[i++] = COMP_ID_VESC_TEMP;
+  m_active_components_ids[i++] = COMP_ID_SUPPORT_POTI;
+  m_active_components_ids[i++] = COMP_ID_MOTOR_RPM;
   updatePositionAndRemoveInvisible();
 }
 
@@ -63,6 +79,9 @@ void Components::updatePositionAndRemoveInvisible() {
     if (m_active_components_ids[i] == COMP_ID_NONE) {
       continue;
     }
+    m_y_top[i] = y;
+    g_components[m_active_components_ids[i]]->setY(m_y_top[i]);
+    g_components[m_active_components_ids[i]]->setActive(true);
     y += g_components[m_active_components_ids[i]]->getHeight();
     if (y > 320) {
       // Not fully visible, the next will be invisible
@@ -80,8 +99,17 @@ void Components::updatePositionAndRemoveInvisible() {
 
 //! Return the component at position index
 BaseComponent* Components::get(uint8_t index) {
+  if (index >= MAX_COMP_ACTIVE)
+    return NULL;
+  if (m_active_components_ids[index] == COMP_ID_NONE)
+    return NULL;
   return g_components[m_active_components_ids[index]];
 }
+
+uint16_t Components::getY(uint8_t index) {
+  return m_y_top[index];
+}
+
 
 //! remove the element at index, but does not delete it
 void Components::remove(uint8_t index) {
@@ -94,16 +122,13 @@ void Components::remove(uint8_t index) {
 }
 
 //! Draw all components
-void Components::draw() {
-  uint16_t y = 95;
+void Components::draw(bool repaint) {
 
   for (uint8_t i = 0; i < MAX_COMP_ACTIVE; i++) {
     if (m_active_components_ids[i] == COMP_ID_NONE) {
       continue;
     }
-    g_components[m_active_components_ids[i]]->setY(y);
-    y += g_components[m_active_components_ids[i]]->getHeight();
-    y += 2;
-    g_components[m_active_components_ids[i]]->draw();
+    g_components[m_active_components_ids[i]]->setY(m_y_top[i]);
+    g_components[m_active_components_ids[i]]->draw(repaint);
   }
 }

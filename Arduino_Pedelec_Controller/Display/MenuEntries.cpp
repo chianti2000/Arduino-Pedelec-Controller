@@ -20,9 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MenuEntries.h"
-#include "defines.h"
 
-#include <avr/pgmspace.h>
 
 /**
  * Definition for Menu Entry texts
@@ -117,7 +115,7 @@ const char TXT_MENU_COMPONENT_REMOVE[] PROGMEM = "Entfernen";
 const char TXT_MENU_COMPONENT_SELECTION[] PROGMEM = "Komponent w" ae "hlen";
 
 
-const MenuItem PROGMEM Menu[] = {
+const DisplayMenuItem PROGMEM Menu[] = {
   // Root menu
   {.id = MENU_ID_ROOT,            .parentId = MENU_ID_NONE, .text = TXT_MENU_ROOT, .flags = MENU_WITH_SUBMENU},
   {.id = MENU_ID_VIEW,            .parentId = MENU_ID_ROOT, .text = TXT_MENU_VIEW, .flags = MENU_WITH_SUBMENU},
@@ -169,4 +167,4 @@ const MenuItem PROGMEM Menu[] = {
 */
 };
 
-uint8_t Menu_Count = sizeof(Menu) / sizeof(MenuItem);
+uint8_t Menu_Count = sizeof(Menu) / sizeof(DisplayMenuItem);

@@ -20,6 +20,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #pragma once
+#define DATA_LENGTH 120
+#define UPDATE_PERIOD_S 1.0 * 1000
 
 #include "BaseComponent.h"
 
@@ -27,25 +29,36 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * Display a diagram with a history of the value
  */
 
-class DiagramComponent: public BaseComponent {
-  // Constructor / Destructor
+class DiagramComponent: public BaseComponent, public DataListener {
+    // Constructor / Destructor
 public:
-  //! Constructor
-  DiagramComponent();
+    //! Constructor
+    DiagramComponent(String text, ValueId value, float_t min, float_t max);
 
-  //! Destructor
-  virtual ~DiagramComponent();
 
-  // public API
+    //! Destructor
+    virtual ~DiagramComponent();
+
+    // public API
 public:
-  //! Return the height in pixel
-  virtual uint8_t getHeight();
+    //! Return the height in pixel
+    virtual uint8_t getHeight();
 
-  //! Draw the component to the display
-  virtual void draw();
+    //! Draw the component to the display
+    virtual void draw(bool repaint);
 
-  // Member
+    virtual void onValueChanged(uint8_t valueId);
+
+    // Member
 private:
-  //! Diagram data (the display is 240px wide / 2px)
-  uint8_t m_data[120];
+    //! Diagram data (the display is 240px wide / 2px)
+    String m_text;
+    ValueId m_display_value_id;
+    uint16_t m_data[DATA_LENGTH];
+    uint8_t m_cur_pose_index;
+    long m_last_draw;
+    float current_value;
+    uint16_t current_count;
+    float min_value;
+    float max_value;
 };

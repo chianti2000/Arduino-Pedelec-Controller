@@ -18,12 +18,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
-
-#pragma once
+#ifndef DISPLAY_CONTROLLER_H_
+#define DISPLAY_CONTROLLER_H_
 
 #include "Arduino.h"
-#include "Print.h"
-#include "defines.h"
+
 /**
  * Control the whole display Navigation and output
  */
@@ -38,11 +37,8 @@ void updatePosition(int8_t diff);
 
 void updateDisplay();
 
+void updateDataModel(uint8_t value_id, uint16_t value);
 
-//! Execute 1 byte command
-void displayControlerCommand1(uint8_t cmd, uint8_t value);
+void updateIconModel(uint8_t icon_id, boolean value);
 
-//! Execute 2 byte command
-void displayControlerCommand2(uint8_t cmd, uint16_t value);
-
-
+#endif

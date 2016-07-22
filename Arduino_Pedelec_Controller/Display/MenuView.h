@@ -40,7 +40,7 @@ public:
   // public API
 public:
   //! Update full display
-  virtual void updateDisplay();
+  virtual void updateDisplay(bool repaint);
 
   //! UP / DOWN Key
   virtual void movePosition(int8_t diff);
@@ -53,13 +53,13 @@ public:
 
 private:
   //! Read the menu item from const memory (for AVR only)
-  void readMenuItem(const void* p, MenuItem* current);
+  void readMenuItem(const void* p, DisplayMenuItem* current);
 
   //! Draw the menu to the display
-  void drawMenu(bool clearScreen);
+  void drawMenu(bool repaint);
 
   //! Draw a single menuitem
-  void drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, bool clearScreen);
+  void drawMenuItem(DisplayMenuItem* menuItem, uint8_t menuIndex, uint16_t y, bool repaint);
 
   //! if a checkbox is selected
   bool isSelected(uint8_t index);
@@ -85,7 +85,7 @@ private:
   uint8_t m_selectedMenuIndex;
 
   //! Selected menu
-  MenuItem m_selectedMenu;
+  DisplayMenuItem m_selectedMenu;
 
   // Menu index to go back
   uint8_t m_backIndex;

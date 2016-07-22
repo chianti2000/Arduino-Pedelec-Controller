@@ -20,8 +20,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MenuView.h"
-#include "defines.h"
-#include "BaseView.h"
 
 /**
  * Display a single menu
@@ -44,11 +42,11 @@ MenuView::~MenuView() {
 }
 
 //! Read the menu item from const memory (for AVR only)
-void MenuView::readMenuItem(const void* p, MenuItem* current) {
+void MenuView::readMenuItem(const void* p, DisplayMenuItem* current) {
   static char menuString[32];
 
   uint8_t* pTarget = (uint8_t*)current;
-  for (uint8_t i = 0; i < sizeof(MenuItem); i++) {
+  for (uint8_t i = 0; i < sizeof(DisplayMenuItem); i++) {
     *pTarget = pgm_read_byte_near(p + i);
     pTarget++;
   }
@@ -64,20 +62,20 @@ void MenuView::readMenuItem(const void* p, MenuItem* current) {
   current->text = menuString;
 }
 
-//! Draw a single menuitem
-void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, bool clearScreen) {
+//! Draw a single displayMenuItem
+void MenuView::drawMenuItem(DisplayMenuItem* displayMenuItem, uint8_t menuIndex, uint16_t y, bool repaint) {
   bool selected = m_selectedMenuIndex == menuIndex;
   uint16_t textColor;
 
   if (selected) {
     textColor = ILI9341_BLACK;
-    clearScreen = true;
-    m_selectedMenu = *menuItem;
+    repaint = true;
+    m_selectedMenu = *displayMenuItem;
   } else {
     textColor = ILI9341_WHITE;
   }
 
-  if (clearScreen) {
+  if (repaint) {
     if (selected) {
       lcd.fillRect(0, y - 5, 240, 25, ILI9341_YELLOW);
     } else {
@@ -87,12 +85,12 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
 
   lcd.setCursor(25, y);
   lcd.setTextColor(textColor);
-  lcd.print(menuItem->text);
+  lcd.print(displayMenuItem->text);
 
-  if (menuItem->flags & MENU_CHECKBOX) {
+  if (displayMenuItem->flags & MENU_CHECKBOX) {
     lcd.drawRect(2, y, 15, 15, textColor);
 
-    if (isSelected(menuItem->id)) {
+    if (isSelected(displayMenuItem->id)) {
       lcd.drawLine(0, y - 2, 17, y - 2 + 17, textColor);
       lcd.drawLine(1, y - 2, 18, y - 2 + 17, textColor);
       lcd.drawLine(17, y - 2, 0, y - 2 + 17, textColor);
@@ -101,7 +99,7 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
   }
 
 
-  if (menuItem->flags & MENU_WITH_SUBMENU) {
+  if (displayMenuItem->flags & MENU_WITH_SUBMENU) {
     uint8_t offset = 3;
     for (uint8_t i = 1; i <= 6; i++) {
       lcd.drawLine(2, y + offset, 15, y + offset, ILI9341_BLUE);
@@ -112,7 +110,7 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
     }
   }
 
-  if (menuItem->flags & MENU_BACK) {
+  if (displayMenuItem->flags & MENU_BACK) {
     lcd.drawLine(2, y + 6, 7, y + 2, ILI9341_BLUE);
     lcd.drawLine(2, y + 7, 7, y + 3, ILI9341_BLUE);
 
@@ -125,12 +123,12 @@ void MenuView::drawMenuItem(MenuItem* menuItem, uint8_t menuIndex, uint16_t y, b
 }
 
 //! Draw the menu to the display
-void MenuView::drawMenu(bool clearScreen) {
+void MenuView::drawMenu(bool repaint) {
   if (!m_active) {
     return;
   }
 
-  if (clearScreen) {
+  if (repaint) {
     // Clear full screen
     lcd.fillRect(0, 0, 240, 30, RGB_TO_565(150, 150, 255));
     lcd.fillRect(0, 30, 240, 290, ILI9341_BLACK);
@@ -138,7 +136,7 @@ void MenuView::drawMenu(bool clearScreen) {
 
   lcd.setTextSize(2);
 
-  MenuItem current;
+  DisplayMenuItem current;
 
   void* pMenu = (void*)&Menu;
   uint16_t y = 40;
@@ -147,7 +145,7 @@ void MenuView::drawMenu(bool clearScreen) {
   for (uint8_t i = 0; i < Menu_Count; i++) {
     readMenuItem(pMenu, &current);
 
-    if (current.id == m_menu && clearScreen) {
+    if (current.id == m_menu && repaint) {
       lcd.setTextColor(ILI9341_BLACK);
       lcd.setCursor(25, 7);
       lcd.print(current.text);
@@ -155,7 +153,7 @@ void MenuView::drawMenu(bool clearScreen) {
     }
 
     if (current.parentId == m_menu) {
-      if (!clearScreen) {
+      if (!repaint) {
         if (m_lastSelectedMenuIndex == menuIndex) {
           drawMenuItem(&current, menuIndex, y, true);
           m_lastSelectedMenuIndex = -1;
@@ -171,7 +169,7 @@ void MenuView::drawMenu(bool clearScreen) {
       menuIndex++;
     }
 
-    pMenu += sizeof(MenuItem);
+    pMenu += sizeof(DisplayMenuItem);
   }
 
   // save count
@@ -179,8 +177,8 @@ void MenuView::drawMenu(bool clearScreen) {
 }
 
 //! Update full display
-void MenuView::updateDisplay() {
-  drawMenu(true);
+void MenuView::updateDisplay(bool repaint) {
+  drawMenu(repaint);
 }
 
 //! UP / DOWN Key
@@ -245,7 +243,7 @@ ViewResult MenuView::keyPressed() {
     }
     Serial.print(result.value);
     Serial.println("Menu selected");
-    for (int i = 0; i < sizeof(m_selectedCheckboxes); ++i) {
+    for (uint8_t i = 0; i < sizeof(m_selectedCheckboxes); ++i) {
       Serial.print(m_selectedCheckboxes[i]);
       Serial.print(" ");
     }

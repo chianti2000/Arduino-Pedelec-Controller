@@ -42,7 +42,7 @@ BaseView::~BaseView() {
 void BaseView::activate() {
   m_active = true;
 
-  updateDisplay();
+  updateDisplay(true);
 }
 
 //! This view is now disabled and not displayed

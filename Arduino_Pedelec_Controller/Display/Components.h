@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
-
-#pragma once
+#ifndef COMPONENT_H_
+#define COMPONENT_H_
 
 #include "BaseComponent.h"
 #include "TextComponent.h"
@@ -32,10 +32,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
 //! Max. 10 Components on the screen (should be enough, there isn't more space)
-#define COMPONENT_COUNT 20
 #define MAX_COMP_ACTIVE 10
 
-class BaseComponent;
+//class BaseComponent;
 
 
 #define COMP_ID_NONE -1
@@ -49,24 +48,14 @@ enum {
     COMP_ID_ODO_TOTAL,
     COMP_ID_REMAINING,
     COMP_ID_TIME_DRIVEN,
-    COMP_ID_MOTOR_TEMP,
+    COMP_ID_VESC_TEMP,
     COMP_ID_MOTOR_CURRENT,
     COMP_ID_MOTOR_RPM,
+    COMP_ID_THROTTLE_POTI,
+    COMP_ID_SUPPORT_POTI,
+
     COMP_COUNT};
 
-BaseComponent* PROGMEM g_components[] = {
-        new SeparatorComponent(),
-        new IconComponent(),
-        new DiagramComponent(),
-        new TextComponent("Batterie mAh", VALUE_ID_BATTERY_MAH_CURRENT, 0),
-        new TextComponent("Volt", VALUE_ID_BATTERY_VOLTAGE_CURRENT, 2),
-        new TextComponent("Total km", VALUE_ID_ODO_TOTAL, 0),
-        new TextComponent("Reichweite", VALUE_ID_REMAINING, 1),
-        new TextComponent("Fahrzeit", VALUE_ID_TIME_DRIVEN, 2),
-        new TextComponent("Motor Temperatur C", VALUE_ID_MOTOR_TEMP, 1),
-        new TextComponent("Motor Strom", VALUE_ID_MOTOR_CURRENT, 1),
-        new TextComponent("Motor RPM", VALUE_ID_MOTOR_RPM, 0),
-};
 
 class Components {
     // Constructor / Destructor
@@ -80,10 +69,13 @@ public:
     // public API
 public:
     //! Draw all components
-    void draw();
+    void draw(bool repaint);
+
+    BaseComponent* g_components[COMP_COUNT];
 
     //! Return the component at position index
     BaseComponent* get(uint8_t index);
+    uint16_t getY(uint8_t index);
 
     //! remove the element at index, but does not delete it
     void remove(uint8_t index);
@@ -101,4 +93,6 @@ private:
 
 //  BaseComponent* m_components[COMP_COUNT];
     int8_t m_active_components_ids[MAX_COMP_ACTIVE];
+    uint16_t m_y_top[MAX_COMP_ACTIVE];
 };
+#endif //COMPONENT_H

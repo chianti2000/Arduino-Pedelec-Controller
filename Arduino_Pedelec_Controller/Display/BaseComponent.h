@@ -19,7 +19,8 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-#pragma once
+#ifndef BASECOMPONENT_H_
+#define BASECOMPONENT_H_
 
 #include "Arduino.h"
 #include "Print.h"
@@ -32,7 +33,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 // Don't use a member, use this extern declared reference
 // Not a nice coding practice, but saves about 300 Bytes of Flash
-extern DataModel model;
 
 class BaseComponent {
   // Constructor / Destructor
@@ -49,7 +49,7 @@ public:
   virtual uint8_t getHeight() = 0;
 
   //! Draw the component to the display
-  virtual void draw() = 0;
+  virtual void draw(bool repaint) = 0;
 
   //! Y Position on display
   void setY(uint16_t y);
@@ -74,3 +74,5 @@ protected:
 //! Flag if active / not active
   bool m_active;
 };
+
+#endif

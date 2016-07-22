@@ -24,10 +24,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "MainView.h"
 #include "MenuView.h"
 #include "MainViewEdit.h"
-
-
 #include "Components.h"
-#include "BaseView.h"
 
 /**
  * Control the whole display Navigation and output
@@ -44,6 +41,7 @@ DataModel model;
 
 // Setup a RoraryEncoder for pins A2 and A3:
 //RotaryEncoder encoder(KNOB0, KNOB1);
+
 
 //! Customizeable components on the main screen
 Components components;
@@ -127,12 +125,12 @@ void updatePosition(int8_t diff) {
 
 void updateDisplay() {
     if (repaint) {
-        currentView->updateDisplay();
+        currentView->updateDisplay(repaint);
         repaint = false;
     }
     //always draw Diagramm if active TODO add data listener?
-    if (g_components[COMP_ID_DIAG]->is_active())
-        g_components[COMP_ID_DIAG]->draw();
+    if (components.g_components[COMP_ID_DIAG]->is_active())
+        components.g_components[COMP_ID_DIAG]->draw(false);
 }
 
 int keyPressed() {
@@ -151,7 +149,6 @@ int keyPressed() {
     } else if (result.result == VIEW_RESULT_BACK) {
         currentView->deactivate();
         currentView = &mainView;
-        repaint = true;
         currentView->activate();
     } else if (result.result == VIEW_RESULT_SELECTED) {
         currentView->deactivate();
@@ -201,7 +198,16 @@ int keyPressed() {
         }
 
     }
+    repaint = true;
     return response;
+}
+
+void updateDataModel(uint8_t value_id, uint16_t value){
+    model.setValue(value_id, value);
+}
+
+void updateIconModel(uint8_t icon_id, boolean value){
+    model.setIcon(icon_id, value);
 }
 
 /*

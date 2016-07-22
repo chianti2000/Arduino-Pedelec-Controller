@@ -39,7 +39,7 @@ public:
   // public API
 public:
   //! Update full display
-  virtual void updateDisplay();
+  virtual void updateDisplay(bool repaint);
 
   //! UP / DOWN Key
   virtual void movePosition(int8_t diff);

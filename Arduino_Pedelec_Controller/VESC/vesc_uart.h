@@ -45,7 +45,7 @@ bool process_read_package(uint8_t *message, mc_values &values, int len);
 ///Define in a Config.h a SERIAL with the Serial in Arduino Style you want to you
 ///@param: payload as the payload [unit8_t Array] with length of int lenPayload
 ///@return the number of bytes send
-int send_payload(uint8_t* payload, int lenPay);
+int send_payload(uint8_t* payload, uint8_t lenPay);
 
 ///ReceiveUartMessage receives the a message over Serial
 ///Define in a Config.h a SERIAL with the Serial in Arduino Style you want to you

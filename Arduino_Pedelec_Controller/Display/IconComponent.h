@@ -28,40 +28,43 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
 class IconComponent: public BaseComponent, public DataListener {
-  // Constructor / Destructor
+    // Constructor / Destructor
 public:
-  //! Constructor
-  IconComponent();
+    //! Constructor
+    IconComponent();
 
-  //! Destructor
-  virtual ~IconComponent();
+    //! Destructor
+    virtual ~IconComponent();
 
-  // public API
+    // public API
 public:
-  //! Return the height in pixel
-  virtual uint8_t getHeight();
+    //! Return the height in pixel
+    virtual uint8_t getHeight();
 
-  //! Draw the component to the display
-  virtual void draw();
+    //! Draw the component to the display
+    virtual void draw(bool repaint);
 
 private:
-  //! Draw Bluetooth Icon
-  void drawBluetooth(bool clearScreen);
+    //! Draw Bluetooth Icon
+    void drawBluetooth(bool repaint);
 
-  //! Draw Brakes Icon
-  void drawBrakes(bool clearScreen);
+    //! Draw Brakes Icon
+    void drawBrakes(bool repaint);
 
-  //! Draw Light Icon
-  void drawLight(bool clearScreen);
+    //! Draw PAS Icon
+    void drawPAS(bool repaint);
 
     //! Draw Light Icon
-  void drawProfile(bool clearScreen);
+    void drawLight(bool repaint);
+
+    //! Draw Profile Icon
+    void drawProfile(bool repaint);
 
 //! DataListener
 public:
-  //! Icon changed
-  virtual void onIconUpdate(uint8_t iconId);
+    //! Icon changed
+    virtual void onIconUpdate(uint8_t iconId);
 
-  // Member
+    // Member
 private:
 };

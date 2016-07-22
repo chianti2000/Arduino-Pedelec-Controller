@@ -22,6 +22,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #pragma once
 
 #include "BaseView.h"
+#include "ILI9341_t3.h"
+#include "defines.h"
+
 
 /**
  * Main view
@@ -41,7 +44,7 @@ public:
   // public API
 public:
   //! Update full display
-  virtual void updateDisplay();
+  virtual void updateDisplay(bool repaint);
 
   //! This view is now enabled and displayed
   virtual void activate();
@@ -55,9 +58,6 @@ public:
   //! Key (OK) pressed
   virtual ViewResult keyPressed();
 
-  //! Battery percent, 0 ... n
-  void setWattage(uint16_t wattage);
-
     // DataListener
 public:
   //! a value was changed
@@ -65,19 +65,16 @@ public:
 
 private:
   //! Draw speed
-  void drawSpeed(bool clearScreen);
+  void drawSpeed(bool repaint);
 
   //! Draw battery
-  void drawBattery(bool clearScreen);
+  void drawBattery(bool repaint);
 
   //! Draw wattage bar
-  void drawWattage(bool clearScreen);
+  void drawWattage(bool repaint);
 
   // Member
 protected:
-  //! Current motor wattage
-  uint16_t m_wattage;
-
   //! Customizeable components on the screen
   Components* m_components;
 };

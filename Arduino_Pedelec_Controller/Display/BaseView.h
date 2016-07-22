@@ -19,12 +19,12 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-#pragma once
+#ifndef BASE_VIEW_H_
+#define BASE_VIEW_H_
 
 #include "Arduino.h"
 #include "Print.h"
 #include "ILI9341_t3.h"
-
 #include "DataModel.h"
 
 /**
@@ -33,8 +33,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 // Don't use a member, use this extern declared reference
 // Not a nice coding practice, but saves about 300 Bytes of Flash (only for TFT!)
-extern DataModel model;
-
 extern const uint16_t LINE_GRAY;
 
 //! The view is still alive, nothing to do
@@ -78,7 +76,7 @@ public:
   virtual void deactivate();
 
   //! Update full display
-  virtual void updateDisplay() = 0;
+  virtual void updateDisplay(bool repaint) = 0;
 
   //! UP / DOWN Key
   virtual void movePosition(int8_t diff) = 0;
@@ -91,3 +89,5 @@ protected:
   //! Flag if active / not active
   bool m_active;
 };
+
+#endif

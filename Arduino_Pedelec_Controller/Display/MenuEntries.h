@@ -22,17 +22,17 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #pragma once
 
 #include "Arduino.h"
-
+#include "defines.h"
 /**
  * Definition for Menu Entry texts
  */
 
-typedef struct _MenuItem {
+typedef struct _DisplayMenuItem {
   uint8_t id;
   uint8_t parentId;
   const char* text;
   uint8_t flags;
-} MenuItem;
+} DisplayMenuItem;
 
 #define MENU_DEFAULT 0
 #define MENU_CHECKBOX 1
@@ -77,6 +77,6 @@ enum {
    
 };
 
-extern const MenuItem PROGMEM Menu[];
+extern const DisplayMenuItem PROGMEM Menu[];
 
 extern uint8_t Menu_Count;

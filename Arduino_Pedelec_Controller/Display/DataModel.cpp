@@ -31,26 +31,31 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 DataModel::DataModel()
          : m_iconState(0),
            m_listener({0}),
-           m_values({0})
+           m_values{0}
 {
+}
+
+void DataModel::setIcon(uint8_t icon, boolean value) {
+  boolean old_val = m_iconState & icon;
+  if (old_val != value) {
+    if (value) {
+      m_iconState |= icon;
+    }
+    else {
+      m_iconState &= ~icon;
+    }
+    fireIconUpdate(icon);
+  }
 }
 
 //! Clear an icon
 void DataModel::clearIcon(uint8_t icon) {
-  uint8_t oldValue = m_iconState;
-  m_iconState &= ~icon;
-  uint8_t diff = m_iconState ^ oldValue;
-
-  fireIconUpdate(diff);
+  setIcon(icon, false);
 }
 
 //! Show an icon
 void DataModel::showIcon(uint8_t icon) {
-  uint8_t oldValue = m_iconState;
-  m_iconState |= icon;
-  uint8_t diff = m_iconState ^ oldValue;
-
-  fireIconUpdate(diff);
+  setIcon(icon, true);
 }
 
 //! Set the value

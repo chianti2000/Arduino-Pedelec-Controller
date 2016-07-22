@@ -1317,13 +1317,19 @@ void display_update()
             menu_activity_expire = millis() + menu_idle_timeout_secs * 1000;
         }
     }
+    updateIconModel(ICON_ID_BRAKE, !brake_stat);
+    updateIconModel(ICON_ID_PAS, pedaling);
 
-    power;
-    battery_percent_fromcapacity;
-    battery_percent_fromvoltage;
-    spd;
-    voltage_display;
-
+    updateDataModel(VALUE_ID_POWER, power);
+    updateDataModel(VALUE_ID_SUPPORT_POTI, poti_stat/1023.0 * curr_power_poti_max);
+    updateDataModel(VALUE_ID_THROTTLE_POTI, throttle_stat);
+    updateDataModel(VALUE_ID_SPEED, spd * 10); //precision 1
+    updateDataModel(VALUE_ID_BATTERY_PERC_CURRENT, battery_percent_fromcapacity);
+    updateDataModel(VALUE_ID_BATTERY_MAH_USED, mah);
+    updateDataModel(VALUE_ID_BATTERY_VOLTAGE_CURRENT, voltage_display * 10);
+    updateDataModel(VALUE_ID_MOTOR_CURRENT, motor_current * 10);
+    updateDataModel(VALUE_ID_MOTOR_RPM, motor_rpm * 10);
+    updateDataModel(VALUE_ID_VESC_TEMP, temperature_vesc*10);
     updateDisplay();
 
 #endif

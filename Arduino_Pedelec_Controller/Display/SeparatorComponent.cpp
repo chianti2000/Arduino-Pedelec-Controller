@@ -42,8 +42,9 @@ uint8_t SeparatorComponent::getHeight() {
 }
 
 //! Draw the component to the display
-void SeparatorComponent::draw() {
-  for (uint8_t i = 1; i <= 2; i++) {
-    lcd.drawLine(0, m_y + i, 240, m_y + i, SEPARATOR_COLOR);
-  }
+void SeparatorComponent::draw(bool repaint) {
+    if (repaint)
+        for (uint8_t i = 1; i <= 2; i++) {
+            lcd.drawLine(0, m_y + i, 240, m_y + i, SEPARATOR_COLOR);
+        }
 }

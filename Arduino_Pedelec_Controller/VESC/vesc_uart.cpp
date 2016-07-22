@@ -25,7 +25,7 @@ int process_received_msg(uint8_t *payloadReceived) {
     //Messages <= 255 start with 2. 2nd byte is length
     //Messages >255 start with 3. 2nd and 3rd byte is length combined with 1st >>8 and then &0xFF
 
-    int counter = 0;
+    uint8_t counter = 0;
     int endMessage = 256;
     bool messageRead = false;
     uint8_t messageReceived[256];
@@ -112,9 +112,9 @@ bool unpack_payload(uint8_t *message, int lenMes, uint8_t *payload, int lenPay) 
     }
 }
 
-int send_payload(uint8_t* payload, int lenPay) {
+int send_payload(uint8_t* payload, uint8_t lenPay) {
     uint16_t crcPayload = crc16(payload, lenPay);
-    int count = 0;
+    size_t count = 0;
     uint8_t messageSend[256];
 
     if (lenPay <= 256)
@@ -134,7 +134,7 @@ int send_payload(uint8_t* payload, int lenPay) {
     messageSend[count++] = (uint8_t)(crcPayload >> 8);
     messageSend[count++] = (uint8_t)(crcPayload & 0xFF);
     messageSend[count++] = 3;
-    messageSend[count] = NULL;
+    messageSend[count] = 0;
     //Sending package
     SERIALIO.write(messageSend, count);
 #ifdef DEBUG

@@ -20,10 +20,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
 #include "MainViewEdit.h"
-#include "TextComponent.h"
-#include "Components.h"
 #include "MenuEntries.h"
-#include "defines.h"
+#include "Components.h"
+
 
 /**
  * Custmize main view
@@ -51,14 +50,13 @@ void MainViewEdit::movePosition(int8_t diff) {
     m_selectedId = 0;
   }
 
-  if (m_selectedId -1 >= COMPONENT_COUNT) {
-    m_selectedId = COMPONENT_COUNT - 1;
+  if (m_selectedId - 1 >= MAX_COMP_ACTIVE) {
+    m_selectedId = MAX_COMP_ACTIVE - 1;
   }
-  
+
   while (m_components->get(m_selectedId) == NULL && m_selectedId > 0) {
     m_selectedId--;
   }
-
   drawSelection();
 }
 
@@ -71,8 +69,9 @@ void MainViewEdit::drawSelection() {
   if (m_lastSelectedId != -1) {
     BaseComponent* component = m_components->get(m_lastSelectedId);
     if (component != NULL) {
-      lcd.fillRect(0, component->getY() - 1, 240, component->getHeight() + 2, ILI9341_BLACK);
-      component->draw();
+      lcd.fillRect(0, m_components->getY(m_lastSelectedId) - 1, 240, component->getHeight() + 2, ILI9341_BLACK);
+      component->setY(m_components->getY(m_lastSelectedId));
+      component->draw(true);
     }
   }
   m_lastSelectedId = -1;
@@ -83,17 +82,17 @@ void MainViewEdit::drawSelection() {
   }
 
   for (uint8_t i = 0; i <= 1; i++) {
-    lcd.drawRect(i, component->getY() + i, 240 - 2 * i, component->getHeight() + 1 - 2 * i, ILI9341_MAGENTA);
+    lcd.drawRect(i, m_components->getY(m_selectedId) + i, 240 - 2 * i, component->getHeight() + 1 - 2 * i, ILI9341_MAGENTA);
   }
 }
 
 //! Update full display
-void MainViewEdit::updateDisplay() {
+void MainViewEdit::updateDisplay(bool repaint) {
   if (!m_active) {
     return;
   }
 
-  MainView::updateDisplay();
+  MainView::updateDisplay(repaint);
 
   drawSelection();
 }
@@ -101,7 +100,7 @@ void MainViewEdit::updateDisplay() {
 //! remove the selected component
 void MainViewEdit::removeSelected() {
   m_components->remove(m_selectedId);
-  updateDisplay();
+  updateDisplay(true);
 }
 
 //! Key (OK) pressed

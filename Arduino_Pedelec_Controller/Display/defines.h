@@ -22,8 +22,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 /**
  * Defines, e.g. for Umlauts
  */
-
-#pragma once
+#ifndef DEFINES_H_
+#define DEFINES_H_
 
 #include "ILI9341_t3.h"
 
@@ -37,8 +37,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #define RGB_TO_565(r, g, b) ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
 
-
-
 #define TFT_MOSI 11
 #define TFT_CLK 13
 #define TFT_MISO 12
@@ -51,6 +49,41 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 extern ILI9341_t3 lcd;
 extern boolean repaint;
 
+class DataModel;
+extern DataModel model;
+
+enum IconId {
+    ICON_ID_BLUETOOTH = (1 << 0),
+    ICON_ID_BRAKE     = (1 << 1),
+    ICON_ID_LIGHT     = (1 << 2),
+    ICON_ID_PROFILE   = (1 << 3),
+    ICON_ID_PAS       = (1 << 4),
+    ICON_ID_HEART     = (1 << 5)
+};
+
+enum ValueId {
+    //! the speed in 0.1 km/h and update display if needed
+    VALUE_ID_SPEED = 0,
+    //power in W;
+    VALUE_ID_POWER,
+
+    //! Current voltage
+    VALUE_ID_BATTERY_VOLTAGE_CURRENT,
+    //Cuurent bat perc
+    VALUE_ID_BATTERY_PERC_CURRENT,
+    //Current Bat mah
+    VALUE_ID_BATTERY_MAH_USED,
+    VALUE_ID_BATTERY_CURRENT,
+    VALUE_ID_THROTTLE_POTI,
+    VALUE_ID_SUPPORT_POTI,
+    VALUE_ID_ODO_TOTAL,
+    VALUE_ID_REMAINING,
+    VALUE_ID_TIME_DRIVEN,
+    VALUE_ID_VESC_TEMP,
+    VALUE_ID_MOTOR_CURRENT,
+    VALUE_ID_MOTOR_RPM,
+    VALUE_COUNT
+};
 
 enum {
     DISPLAY_ACTION_NONE = 0,
@@ -67,3 +100,5 @@ enum {
     DISPLAY_ACTION_DISABLE_BRAKE,
     DISPLAY_ACTION_DISABLE_PAS
 };
+
+#endif
