@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+#include <Display/defines.h>
 #include "config.h"
 #include "switches.h"
 #include "display.h"
@@ -45,6 +46,8 @@ enum button_state { BUTTON_ON=0, BUTTON_OFF=1 };
 // Forward declarations
 static enum switch_result _read_switch(switch_state *state, boolean switch_current);
 static void _handle_menu_switch(const enum switch_name sw, const enum switch_result res);
+static void action_set_profile(const boolean new_profile);
+
 
 void init_switches()
 {
@@ -182,11 +185,75 @@ static void action_enable_backlight_long()
 #endif
 }
 
+
+
 static void action_toggle_bluetooth()
 {
     // Toggle bluetooth
 #if HARDWARE_REV >=2
     digitalWrite(bluetooth_pin, !digitalRead(bluetooth_pin));   //not available in 1.1
+#endif
+}
+
+static void handle_display_return(int result)
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+{
+    switch (result)
+    {
+        case DISPLAY_ACTION_MENU_DISABLED:
+            menu_active = false;
+            break;
+        case DISPLAY_ACTION_TOGGLE_LIGHT_OFF:
+            digitalWrite(lights_pin, LOW);
+            break;
+        case DISPLAY_ACTION_TOGGLE_LIGHT_ON:
+            digitalWrite(lights_pin, HIGH);
+        case DISPLAY_ACTION_ACTIVE_PROFILE_1:
+            action_set_profile(0);
+            break;
+        case DISPLAY_ACTION_ACTIVE_PROFILE_2:
+            action_set_profile(1);
+            break;
+        case DISPLAY_ACTION_DISABLE_BRAKE:
+            first_aid_ignore_break=true;
+            break;
+        case DISPLAY_ACTION_DISABLE_PAS:
+            first_aid_ignore_pas=true;
+            break;
+        case DISPLAY_ACTION_DISABLE_WHEEL:
+            first_aid_ignore_speed=true;
+            break;
+        case DISPLAY_ACTION_DISABLE_POTI:
+            first_aid_ignore_poti=true;
+            break;
+        case DISPLAY_ACTION_DISABLE_THROTTLE:
+            first_aid_ignore_throttle=true;
+            break;
+        case DISPLAY_ACTION_ENABLE_BRAKE:
+            first_aid_ignore_break=false;
+            break;
+        case DISPLAY_ACTION_ENABLE_PAS:
+            first_aid_ignore_pas=false;
+            break;
+        case DISPLAY_ACTION_ENABLE_WHEEL:
+            first_aid_ignore_speed=false;
+            break;
+        case DISPLAY_ACTION_ENABLE_POTI:
+            first_aid_ignore_poti=false;
+            break;
+        case DISPLAY_ACTION_ENABLE_THROTTLE:
+            first_aid_ignore_throttle=false;
+            break;
+        case DISPLAY_ACTION_POTI_UP:
+            action_increase_poti();
+            break;
+        case DISPLAY_ACTION_POTI_DOWN:
+            action_decrease_poti();
+            break;
+
+        default:
+            break;
+    }
 #endif
 }
 
@@ -207,7 +274,9 @@ static void action_enter_menu()
     // Reset to top level menu
     while (menu_system.back());
 #else
-    keyPressed();
+    int res = keyPressed();
+    handle_display_return(res);
+
 #endif
 }
 
@@ -430,7 +499,7 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
 #ifdef SUPPORT_DISPLAY_BACKLIGHT
     enable_custom_backlight(15 * 1000);  //switch backlight on for fifteen seconds
 #endif
-
+    int res_key = DISPLAY_ACTION_NONE;
     switch(res)
     {
         case PRESSED_SHORT:
@@ -451,7 +520,8 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
             break;
         case PRESSED_LONG:
 #if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
-            keyPressed();
+           res_key=keyPressed();
+            handle_display_return(res_key);
 #else
             menu_system.select();
 #endif

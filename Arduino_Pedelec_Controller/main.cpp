@@ -1202,9 +1202,9 @@ void pas_change_2()
 
 void pas_change_dual(boolean signal) {
     if (signal)
-        pedaling = digitalRead(pas_in);
+        pedaling = digitalReadFast(pas_in);
     else {
-        pedaling = !digitalRead(option_pin);
+        pedaling = !digitalReadFast(option_pin);
 #ifdef SUPPORT_XCELL_RT
         cad=7500/(millis()-last_pas_event); //8 pulses per revolution
 #else

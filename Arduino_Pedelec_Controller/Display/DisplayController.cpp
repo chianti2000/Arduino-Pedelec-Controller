@@ -25,6 +25,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "MenuView.h"
 #include "MainViewEdit.h"
 #include "Components.h"
+#include "BaseView.h"
 
 /**
  * Control the whole display Navigation and output
@@ -135,11 +136,11 @@ void updateDisplay() {
 
 int keyPressed() {
     ViewResult result = currentView->keyPressed();
-    Serial.println("KEY Result: ");
-    Serial.print(result.result);
-    Serial.print(result.value);
-    Serial.println();
-    int response = 0;
+    //Serial.println("KEY Result: ");
+    //Serial.print(result.result);
+    //Serial.print(result.value);
+    //Serial.println();
+    int response = DISPLAY_ACTION_NONE;
 
     if (result.result == VIEW_RESULT_MENU) {
         currentView->deactivate();
@@ -150,37 +151,54 @@ int keyPressed() {
         currentView->deactivate();
         currentView = &mainView;
         currentView->activate();
+        response = DISPLAY_ACTION_MENU_DISABLED;
     } else if (result.result == VIEW_RESULT_SELECTED) {
         currentView->deactivate();
 
         if (MENU_ID_VIEW_EDIT == result.value) {
             currentView = &mainViewEdit;
-        } else if (MENU_ID_COMPONENT_REMOVE == result.value) {
+        }
+        else if (MENU_ID_COMPONENT_REMOVE == result.value) {
             mainViewEdit.removeSelected();
             currentView = &mainViewEdit;
-        } else {
-            currentView = &mainView;
+        }
+        else if(result.value == MENU_ID_ADD_POTI_CB) {
+            response = DISPLAY_ACTION_POTI_UP;
+        }
+        else if(result.value == MENU_ID_DEC_POTI_CB) {
+            response = DISPLAY_ACTION_POTI_DOWN;
+        }
+        else {
+           // currentView = &mainView;
         }
 
         currentView->activate();
     } else if (result.result == VIEW_RESULT_CHECKBOX_CHECKED) {
-
-
-
         if (result.value == MENU_ID_LIGHT_CB) {
             model.showIcon(ICON_ID_LIGHT);
             response = DISPLAY_ACTION_TOGGLE_LIGHT_ON;
-
         }
         else if (result.value == MENU_ID_BLUETOOTH_CB) {
             model.showIcon(ICON_ID_BLUETOOTH);
             response = DISPLAY_ACTION_TOGGLE_BLUETOOTH_ON;
         }
-
         else if (result.value == MENU_ID_PROFIL_CB) {
             model.showIcon(ICON_ID_PROFILE);
             response = DISPLAY_ACTION_ACTIVE_PROFILE_1;
         }
+        else if (result.value == MENU_ID_EM_BRAKE_CB) {
+            response = DISPLAY_ACTION_DISABLE_BRAKE;
+        }
+        else if (result.value == MENU_ID_EM_PEDAL_CB) {
+            response = DISPLAY_ACTION_DISABLE_PAS;
+        }
+        else if (result.value == MENU_ID_EM_SPEED_CB) {
+            response = DISPLAY_ACTION_DISABLE_WHEEL;
+        }
+        else if (result.value == MENU_ID_EM_SPEEDCTRL_CB) {
+            response = DISPLAY_ACTION_DISABLE_THROTTLE;
+        }
+
 
         //! Checkbox toggled
     } else if (result.result == VIEW_RESULT_CHECKBOX_UNCHECKED) {
@@ -195,6 +213,18 @@ int keyPressed() {
         else if (result.value == MENU_ID_PROFIL_CB) {
             model.clearIcon(ICON_ID_PROFILE);
             response = DISPLAY_ACTION_ACTIVE_PROFILE_2;
+        }
+        else if (result.value == MENU_ID_EM_BRAKE_CB) {
+            response = DISPLAY_ACTION_ENABLE_BRAKE;
+        }
+        else if (result.value == MENU_ID_EM_PEDAL_CB) {
+            response = DISPLAY_ACTION_ENABLE_PAS;
+        }
+        else if (result.value == MENU_ID_EM_SPEED_CB) {
+            response = DISPLAY_ACTION_ENABLE_WHEEL;
+        }
+        else if (result.value == MENU_ID_EM_SPEEDCTRL_CB) {
+            response = DISPLAY_ACTION_ENABLE_THROTTLE;
         }
 
     }

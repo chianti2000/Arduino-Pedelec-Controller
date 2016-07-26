@@ -241,13 +241,6 @@ ViewResult MenuView::keyPressed() {
       selectCheckbox(m_selectedMenu.id);
       result.result = VIEW_RESULT_CHECKBOX_CHECKED;
     }
-    Serial.print(result.value);
-    Serial.println("Menu selected");
-    for (uint8_t i = 0; i < sizeof(m_selectedCheckboxes); ++i) {
-      Serial.print(m_selectedCheckboxes[i]);
-      Serial.print(" ");
-    }
-    Serial.println();
     drawMenu(false);
     return result;
   }
