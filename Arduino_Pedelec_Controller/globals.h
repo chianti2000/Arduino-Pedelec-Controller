@@ -78,6 +78,7 @@ extern float motor_current;
 extern float motor_rpm;
 extern float temperature_vesc;
 extern volatile boolean pedaling;
+extern int throttle_write;
 #endif
 
 extern RTC_DS1307 rtc;

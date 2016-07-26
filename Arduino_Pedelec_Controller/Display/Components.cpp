@@ -29,29 +29,29 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 Components::Components()
 {
-  int8_t i = 0;
-  g_components[i++] = new SeparatorComponent();
-  g_components[i++] = new IconComponent();
-  g_components[i++] = new DiagramComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0, 1023);
-  g_components[i++] = new TextComponent("Batterie mAh", VALUE_ID_BATTERY_MAH_USED, 0);
-  g_components[i++] = new TextComponent("Volt", VALUE_ID_BATTERY_VOLTAGE_CURRENT, 1);
-  g_components[i++] = new TextComponent("Total km", VALUE_ID_ODO_TOTAL, 0);
-  g_components[i++] = new TextComponent("Reichweite", VALUE_ID_REMAINING, 1);
-  g_components[i++] = new TextComponent("Fahrzeit", VALUE_ID_TIME_DRIVEN, 2);
-  g_components[i++] = new TextComponent("VESC Temp C", VALUE_ID_VESC_TEMP, 1);
-  g_components[i++] = new TextComponent("Motor Strom", VALUE_ID_MOTOR_CURRENT, 1);
-  g_components[i++] = new TextComponent("Motor RPM", VALUE_ID_MOTOR_RPM, 0);
-  g_components[i++] = new TextComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0);
-  g_components[i++] = new TextComponent("Support", VALUE_ID_SUPPORT_POTI, 0);
+  g_components[COMP_ID_SEP] = new SeparatorComponent();
+  g_components[COMP_ID_ICON] = new IconComponent();
+  g_components[COMP_ID_DIAG] = new DiagramComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0, 1023);
+  g_components[COMP_ID_BAT_MAH] = new TextComponent("Batterie mAh", VALUE_ID_BATTERY_MAH_USED, 0);
+  g_components[COMP_ID_BAT_VOLT] = new TextComponent("Volt", VALUE_ID_BATTERY_VOLTAGE_CURRENT, 1);
+  g_components[COMP_ID_ODO_TOTAL] = new TextComponent("Total km", VALUE_ID_ODO_TOTAL, 0);
+  g_components[COMP_ID_REMAINING] = new TextComponent("Reichweite", VALUE_ID_REMAINING, 1);
+  g_components[COMP_ID_TIME_DRIVEN] = new TextComponent("Fahrzeit", VALUE_ID_TIME_DRIVEN, 2);
+  g_components[COMP_ID_VESC_TEMP] = new TextComponent("VESC Temp C", VALUE_ID_VESC_TEMP, 1);
+  g_components[COMP_ID_MOTOR_CURRENT] = new TextComponent("Motor Strom", VALUE_ID_MOTOR_CURRENT, 1);
+  g_components[COMP_ID_MOTOR_RPM] = new TextComponent("Motor RPM", VALUE_ID_MOTOR_RPM, 0);
+  g_components[COMP_ID_THROTTLE_POTI] = new TextComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0);
+  g_components[COMP_ID_THROTTLE_WRITE] = new TextComponent("Throttle out", VALUE_ID_THROTTLE_WRITE, 1);
+  g_components[COMP_ID_SUPPORT_POTI] = new TextComponent("Support W", VALUE_ID_SUPPORT_POTI, 0);
 
-  i = 0;
+  int8_t i = 0;
   m_active_components_ids[i++] = COMP_ID_SEP;
   m_active_components_ids[i++] = COMP_ID_ICON;
   m_active_components_ids[i++] = COMP_ID_SEP;
   m_active_components_ids[i++] = COMP_ID_DIAG;
   m_active_components_ids[i++] = COMP_ID_SEP;
   m_active_components_ids[i++] = COMP_ID_BAT_VOLT;
-  m_active_components_ids[i++] = COMP_ID_THROTTLE_POTI;
+  m_active_components_ids[i++] = COMP_ID_THROTTLE_WRITE;
   m_active_components_ids[i++] = COMP_ID_VESC_TEMP;
   m_active_components_ids[i++] = COMP_ID_SUPPORT_POTI;
   m_active_components_ids[i++] = COMP_ID_MOTOR_RPM;

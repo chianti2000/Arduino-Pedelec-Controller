@@ -584,8 +584,8 @@ digitalWrite(option_pin,HIGH);
     #endif
 #else
     attachInterrupt(wheel_in, speed_change, RISING);
-    attachInterrupt(pas_in, pas_change_1, CHANGE);
-    attachInterrupt(option_pin, pas_change_2, CHANGE);
+    attachInterrupt(pas_in, pas_change_1, RISING);
+    attachInterrupt(option_pin, pas_change_2, RISING);
 
 #endif
     myPID.SetMode(AUTOMATIC);             //initialize pid
@@ -992,6 +992,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     analogWrite(throttle_out,throttle_write);
 #endif
 #else
+    //send throttle value
     set_motor_current(float(throttle_write/ 10.));
 #endif
 

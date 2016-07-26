@@ -1321,6 +1321,7 @@ void display_update()
     updateIconModel(ICON_ID_PAS, pedaling);
 
     updateDataModel(VALUE_ID_POWER, power);
+    updateDataModel(VALUE_ID_THROTTLE_WRITE, throttle_write);
     updateDataModel(VALUE_ID_SUPPORT_POTI, poti_stat/1023.0 * curr_power_poti_max);
     updateDataModel(VALUE_ID_THROTTLE_POTI, throttle_stat);
     updateDataModel(VALUE_ID_SPEED, spd * 10); //precision 1
