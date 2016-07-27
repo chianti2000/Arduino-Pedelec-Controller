@@ -83,6 +83,7 @@ enum ValueId {
     VALUE_ID_VESC_TEMP,
     VALUE_ID_MOTOR_CURRENT,
     VALUE_ID_MOTOR_RPM,
+    VALUE_ID_ENC,
     VALUE_COUNT
 };
 

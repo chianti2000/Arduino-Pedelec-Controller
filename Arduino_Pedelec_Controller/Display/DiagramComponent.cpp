@@ -142,10 +142,10 @@ void DiagramComponent::draw(bool repaint) {
         lcd.drawLine(x, m_y + 1, x, m_y + 58, DIAGRAM_LINE_COLOR);
     }
 
-    //lcd.setTextSize(2);
-        //lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
-        //lcd.setCursor(0, m_y + 2);
-        //lcd.print(m_text.c_str());
+    lcd.setTextSize(2);
+    lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
+    lcd.setCursor(0, m_y + 2);
+    lcd.print(m_text.c_str());
 
 }
 

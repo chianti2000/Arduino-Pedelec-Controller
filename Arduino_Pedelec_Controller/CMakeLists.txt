@@ -97,6 +97,7 @@ set(${FIRMWARE_NAME}_SRCS
     #Display/RotaryEncoder.cpp
     Display/SeparatorComponent.cpp
     Display/TextComponent.cpp
+        Encoder/Encoder.cpp
     )
 
 add_teensy_executable(${FIRMWARE_NAME} "${${FIRMWARE_NAME}_SRCS}")

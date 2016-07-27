@@ -105,11 +105,10 @@ void MainView::drawBattery(bool repaint) {
   if (repaint) {
     lcd.drawRect(0, 9, 29, 7*9, ILI9341_WHITE);
     lcd.fillRect(10, 0, 9, 9, ILI9341_WHITE);
-    lcd.setTextColor(ILI9341_WHITE);
   } else {
-    lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
-  }
 
+  }
+  lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   uint16_t batterPercent = model.getValue(VALUE_ID_BATTERY_PERC_CURRENT);
 
   uint16_t batteryColor = RGB_TO_565(0, 255, 0);
@@ -158,11 +157,10 @@ void MainView::drawWattage(bool repaint) {
   const uint8_t wattageBarHeight = 68;
   if (repaint) {
     lcd.drawRect(211, 2, 29, wattageBarHeight + 2, ILI9341_WHITE);
-    lcd.setTextColor(ILI9341_WHITE);
-  } else {
-    lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   }
-
+  else {
+  }
+  lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   uint16_t wattage = model.getValue(VALUE_ID_POWER);
 
   if (wattage > 500) {
@@ -244,10 +242,10 @@ void MainView::onValueChanged(uint8_t valueId) {
       drawSpeed(false);
           break;
     case VALUE_ID_BATTERY_VOLTAGE_CURRENT:
-      drawBattery(true);
+      drawBattery(false);
           break;
     case VALUE_ID_POWER:
-      drawWattage(true);
+      drawWattage(false);
           break;
     default:
       break;

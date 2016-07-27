@@ -43,6 +43,7 @@ Components::Components()
   g_components[COMP_ID_THROTTLE_POTI] = new TextComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0);
   g_components[COMP_ID_THROTTLE_WRITE] = new TextComponent("Throttle out", VALUE_ID_THROTTLE_WRITE, 1);
   g_components[COMP_ID_SUPPORT_POTI] = new TextComponent("Support W", VALUE_ID_SUPPORT_POTI, 0);
+  g_components[COMP_ID_ENC] = new TextComponent("Encoder", VALUE_ID_ENC, 0);
 
   int8_t i = 0;
   m_active_components_ids[i++] = COMP_ID_SEP;
@@ -52,7 +53,7 @@ Components::Components()
   m_active_components_ids[i++] = COMP_ID_SEP;
   m_active_components_ids[i++] = COMP_ID_BAT_VOLT;
   m_active_components_ids[i++] = COMP_ID_THROTTLE_WRITE;
-  m_active_components_ids[i++] = COMP_ID_VESC_TEMP;
+  m_active_components_ids[i++] = COMP_ID_BAT_MAH;
   m_active_components_ids[i++] = COMP_ID_SUPPORT_POTI;
   m_active_components_ids[i++] = COMP_ID_MOTOR_RPM;
   updatePositionAndRemoveInvisible();

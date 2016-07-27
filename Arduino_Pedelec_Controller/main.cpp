@@ -43,9 +43,13 @@ Features:
 
 #ifdef TEENSY_VERSION
 #include "VESC/datatypes.h"
-#include <VESC/config.h>
-#include <VESC/datatypes.h>
+#include "VESC/config.h"
+#include "Display/DisplayController.h"
+#include "Display/defines.h"
 #include "VESC/vesc_uart.h"
+#define ENCODER_OPTIMIZE_INTERRUPTS
+#define ENCODER_USE_INTERRUPTS
+#include "Encoder/Encoder.h"
 mc_values vesc_values;
 #endif
 
@@ -249,6 +253,8 @@ const int buzzer = 17;           //buzzer switch
 //temp reading
 float temperature_vesc = 0.0;       //temperature
 float motor_rpm = 0;
+
+Encoder enc(pas_in, option_pin);
 #endif
 
 
@@ -403,14 +409,14 @@ void setup()
 #ifdef TEENSY_VERSION
     DEBUGSERIAL.begin(115200);     //bluetooth-module requires 115200
     SERIALIO.begin(115200);
-    pinMode(pas_in, INPUT);
-    pinMode(option_pin, INPUT);
+    //pinMode(pas_in, INPUT);
+    //pinMode(option_pin, INPUT);
     pinMode(wheel_in, INPUT);
     pinMode(switch_thr, INPUT);
     pinMode(switch_disp, INPUT);
     pinMode(switch_disp_2, INPUT);
     pinMode(brake_in, INPUT);
-    pinMode(option_pin, INPUT);
+
 #endif
 
 #if HARDWARE_REV >= 2
@@ -513,7 +519,7 @@ void setup()
 #if HARDWARE_REV < 20
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
 #endif
-    digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
+    //digitalWrite(pas_in, HIGH);           // turn on pullup resistors on pas-sensor
 
 #if defined(SUPPORT_DISPLAY_BACKLIGHT) && !(DISPLAY_TYPE & DISPLAY_TYPE_16X2_SERIAL)
 #if HARDWARE_REV >= 20
@@ -533,7 +539,7 @@ void setup()
 
 #ifdef SUPPORT_BBS
 //pinMode(option_pin,OUTPUT); //make torque pin on Thun connector to 5V source for BBS PAS sensor
-digitalWrite(option_pin,HIGH);
+//digitalWrite(option_pin,HIGH);
 #endif
 
 #ifdef SUPPORT_GEAR_SHIFT
@@ -584,8 +590,8 @@ digitalWrite(option_pin,HIGH);
     #endif
 #else
     attachInterrupt(wheel_in, speed_change, RISING);
-    attachInterrupt(pas_in, pas_change_1, RISING);
-    attachInterrupt(option_pin, pas_change_2, RISING);
+    //attachInterrupt(pas_in, pas_change_1, RISING);
+    //attachInterrupt(option_pin, pas_change_2, RISING);
 
 #endif
     myPID.SetMode(AUTOMATIC);             //initialize pid
@@ -835,6 +841,25 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 
 //Are we pedaling?---------------------------------------------------------------------------------------------------------
 #ifdef SUPPORT_PAS
+#ifdef TEENSY_VERSION
+    long new_pos = enc.read();
+    //updateDataModel(VALUE_ID_ENC, new_pos);
+    if (new_pos != 0)
+    {
+        cad = (60000/96) / (millis() - last_pas_event) * new_pos;
+        last_pas_event = millis();
+        if (new_pos>0) {
+            pedaling = false;
+            pedalingbackwards = true;
+        }
+        else {
+            pedaling = true;
+            pedalingbackwards = false;
+        }
+        enc.write(0);
+    }
+
+#endif
     if (((millis()-last_pas_event)>pas_timeout)||(pas_failtime>pas_tolerance)) //we are not pedaling anymore, if pas did not change for > 0,5 s
     {
       pedaling = false;         
