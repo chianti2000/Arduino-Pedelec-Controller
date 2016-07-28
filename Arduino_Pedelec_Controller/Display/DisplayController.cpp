@@ -50,6 +50,15 @@ MenuView menuView;
 BaseView *currentView;
 
 //! DISPLAY
+#define TFT_MOSI 11
+#define TFT_CLK 13
+#define TFT_MISO 12
+
+#define TFT_DC  9
+#define TFT_CS 10
+#define TFT_RST 10
+
+// Use Hardware SPI
 ILI9341_t3 lcd = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST);
 
 boolean repaint = true;
@@ -72,7 +81,7 @@ void updateDisplay() {
         currentView->updateDisplay(repaint);
         repaint = false;
     }
-    //always draw Diagramm if active TODO add data listener?
+    //always draw Diagramm if active
     if (components.g_components[COMP_ID_DIAG]->is_active())
         components.g_components[COMP_ID_DIAG]->draw(false);
 }
@@ -123,6 +132,9 @@ int keyPressed() {
         }
         else if(result.value == MENU_ID_RESET_WH) {
             response = DISPLAY_ACTION_RESET_MAH;
+        }
+        else if(result.value == MENU_ID_TURN_OFF) {
+            response = DISPLAY_ACTION_SHUTDOWN;
         }
 
         else {

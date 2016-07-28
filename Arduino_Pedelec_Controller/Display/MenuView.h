@@ -82,13 +82,13 @@ private:
   int8_t m_itemCount;
 
   //! Selected menu index, 0 for first menu
-  uint8_t m_selectedMenuIndex;
+  int8_t m_selectedMenuIndex;
 
   //! Selected menu
   DisplayMenuItem m_selectedMenu;
 
   // Menu index to go back
-  uint8_t m_backIndex;
+  int8_t m_backIndex;
 
   //! Selected checkboxes indexes, 0 is an empty field
   uint8_t m_selectedCheckboxes[30];

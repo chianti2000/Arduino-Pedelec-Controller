@@ -37,15 +37,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #define RGB_TO_565(r, g, b) ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
 
-#define TFT_MOSI 11
-#define TFT_CLK 13
-#define TFT_MISO 12
-
-#define TFT_DC  9
-#define TFT_CS 10
-#define TFT_RST 10
-
-// Use Hardware SPI
 extern ILI9341_t3 lcd;
 extern boolean repaint;
 
@@ -91,6 +82,7 @@ enum ValueId {
 
 enum {
     DISPLAY_ACTION_NONE = 0,
+    DISPLAY_ACTION_SHUTDOWN,
     DISPLAY_ACTION_MENU_DISABLED,
     DISPLAY_ACTION_RESET_ODO,
     DISPLAY_ACTION_RESET_MAH,

@@ -105,6 +105,9 @@ Components::~Components() {
 
 
 void Components::activateView(uint8_t num) {
+    for (uint8_t i = 0; i < COMP_COUNT; i++) {
+        g_components[i]->setActive(false);
+    }
     for (uint8_t i = 0; i < MAX_COMP_ACTIVE; i++) {
         m_active_components_ids[i] = views[num].active_components_ids[i];
     }

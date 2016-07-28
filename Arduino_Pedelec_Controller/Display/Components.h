@@ -39,8 +39,8 @@ typedef struct _View {
     int8_t active_components_ids[MAX_COMP_ACTIVE];
     String diagram_string;
     ValueId diagram_val;
-    int16_t diagram_min;
-    int16_t diagram_max;
+    float_t diagram_min;
+    float_t diagram_max;
 } View;
 
 
@@ -102,7 +102,7 @@ private:
 //  BaseComponent* m_components[COMP_COUNT];
     int8_t m_active_components_ids[MAX_COMP_ACTIVE];
     uint16_t m_y_top[MAX_COMP_ACTIVE];
-    uint8_t m_cur_view;
+    int8_t m_cur_view;
     DiagramComponent* diagramComponent;
 };
 #endif //COMPONENT_H

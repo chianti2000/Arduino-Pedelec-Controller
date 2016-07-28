@@ -250,7 +250,9 @@ static void handle_display_return(int result)
         case DISPLAY_ACTION_POTI_DOWN:
             action_decrease_poti();
             break;
-
+        case DISPLAY_ACTION_SHUTDOWN:
+            action_shutdown_system();
+            break;
         default:
             break;
     }

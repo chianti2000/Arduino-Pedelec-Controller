@@ -183,12 +183,12 @@ void MenuView::updateDisplay(bool repaint) {
 
 //! UP / DOWN Key
 void MenuView::movePosition(int8_t diff) {
-  if (m_selectedMenuIndex == 0 && diff < 0) {
-    return;
-  }
-  if (m_selectedMenuIndex == m_itemCount - 1 && diff > 0) {
-    return;
-  }
+  //if (m_selectedMenuIndex == 0 && diff < 0) {
+  //  return;
+  // }
+  //if (m_selectedMenuIndex == m_itemCount - 1 && diff > 0) {
+  //  return;
+  //}
 
   m_lastSelectedMenuIndex = m_selectedMenuIndex;
 

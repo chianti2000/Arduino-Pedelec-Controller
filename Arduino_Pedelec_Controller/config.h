@@ -104,7 +104,7 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 // The file "switches_action.h" contains a list with descriptions.
 //
 const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;
-const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
+const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_ENTER_MENU;
 
 // #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin.
                                                    //FC 1.x: Use external 10k pullup resistor or it will not work!
@@ -114,11 +114,11 @@ const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
 
 const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DECREASE_POTI;
 //const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
-const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_ENTER_MENU;
+const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_DISPLAY_NEXT_VIEW;
 
 const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_INCREASE_POTI;
 //const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
-const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_ENTER_MENU;
+const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_DISPLAY_PREV_VIEW;
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.
                                      // Normally the backlight is always on. If you enable this option,
