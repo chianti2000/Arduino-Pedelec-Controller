@@ -195,11 +195,11 @@ void MenuView::movePosition(int8_t diff) {
   int16_t tmp = m_selectedMenuIndex + diff;
 
   if (tmp < 0) {
-    tmp = 0;
+    tmp =  m_itemCount - 1;
   }
 
   if (tmp >= m_itemCount) {
-    tmp = m_itemCount - 1;
+    tmp = 0;
   }
 
   m_selectedMenuIndex = tmp;

@@ -94,7 +94,6 @@ set(${FIRMWARE_NAME}_SRCS
     Display/MainViewEdit.cpp
     Display/MenuEntries.cpp
     Display/MenuView.cpp
-    #Display/RotaryEncoder.cpp
     Display/SeparatorComponent.cpp
     Display/TextComponent.cpp
         Encoder/Encoder.cpp

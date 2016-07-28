@@ -254,7 +254,7 @@ const int buzzer = 17;           //buzzer switch
 float temperature_vesc = 0.0;       //temperature
 float motor_rpm = 0;
 
-Encoder enc(pas_in, option_pin);
+Encoder enc(option_pin, pas_in);  //encoder for PAS (quadrature encoder) 96 ticks per revolution...
 #endif
 
 
@@ -769,6 +769,9 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     }
    
 #endif
+    if (voltage_display == 0)
+        voltage_display = voltage;
+
     voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
     current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
     power=current*voltage;
@@ -848,15 +851,18 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     {
         cad = (60000/96) / (millis() - last_pas_event) * new_pos;
         last_pas_event = millis();
-        if (new_pos>0) {
+        if (new_pos<0) {
             pedaling = false;
             pedalingbackwards = true;
+            enc.write(0);
         }
-        else {
-            pedaling = true;
-            pedalingbackwards = false;
+        else if (pedaling || (new_pos > pas_start_count))
+        {
+                pedaling = true;
+                pedalingbackwards = false;
+                enc.write(0);
         }
-        enc.write(0);
+
     }
 
 #endif
@@ -1758,7 +1764,6 @@ void read_eeprom()
 
 void save_shutdown()
 {
-  Serial.println("stop");
   digitalWrite(throttle_out,0); //turn motor off
   //power saving stuff. This is critical if battery is disconnected.
 #ifndef TEENSY_VERSION

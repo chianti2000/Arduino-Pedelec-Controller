@@ -33,11 +33,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 //! Max. 10 Components on the screen (should be enough, there isn't more space)
 #define MAX_COMP_ACTIVE 10
-
-//class BaseComponent;
-
-
 #define COMP_ID_NONE -1
+
+typedef struct _View {
+    int8_t active_components_ids[MAX_COMP_ACTIVE];
+    String diagram_string;
+    ValueId diagram_val;
+    int16_t diagram_min;
+    int16_t diagram_max;
+} View;
+
 
 enum {
     COMP_ID_SEP = 0,
@@ -82,13 +87,14 @@ public:
     //! remove the element at index, but does not delete it
     void remove(uint8_t index);
 
+    void changeView(int8_t diff);
     //! Activate / Deactivate children
     void deActivateChilren(bool enabled);
 
 private:
     //! Update the Y position of all elements, and remove invisible elements from the list
     void updatePositionAndRemoveInvisible();
-
+    void activateView(uint8_t num);
     // Member
 private:
     //! List with the components
@@ -96,5 +102,7 @@ private:
 //  BaseComponent* m_components[COMP_COUNT];
     int8_t m_active_components_ids[MAX_COMP_ACTIVE];
     uint16_t m_y_top[MAX_COMP_ACTIVE];
+    uint8_t m_cur_view;
+    DiagramComponent* diagramComponent;
 };
 #endif //COMPONENT_H

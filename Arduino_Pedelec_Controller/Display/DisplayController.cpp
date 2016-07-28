@@ -31,18 +31,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * Control the whole display Navigation and output
  */
 
-// Model with all data
+//! Model with all data
 DataModel model;
-
-#define KEY A0
-
-// If you change it, also change the interrupt initialisation!
-#define KNOB0 A1
-#define KNOB1 A2
-
-// Setup a RoraryEncoder for pins A2 and A3:
-//RotaryEncoder encoder(KNOB0, KNOB1);
-
 
 //! Customizeable components on the main screen
 Components components;
@@ -59,8 +49,7 @@ MenuView menuView;
 //! Current active view
 BaseView *currentView;
 
-//! Key pressed flag
-//volatile bool g_keyPressed = false;
+//! DISPLAY
 ILI9341_t3 lcd = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST);
 
 boolean repaint = true;
@@ -71,55 +60,9 @@ void displayControllerSetup() {
     repaint = true;
     currentView = &mainView;
     currentView->activate();
-
-    // Button
-    //pinMode(KEY, INPUT);
-    //pinMode(KNOB0, INPUT);
-    //pinMode(KNOB1, INPUT);
-
-    // enable pullup
-    //digitalWrite(KEY, HIGH);
-    //digitalWrite(KNOB0, HIGH);
-    //digitalWrite(KNOB1, HIGH);
-
-    // You may have to modify the next 2 lines if using other pins than A1 and A2
-    // This enables Pin Change Interrupt 1 that covers the Analog input pins or Port C.
-    // PCICR |= (1 << PCIE1);
-
-    // This enables the interrupt for pin 1 and 2 of Port C.
-    //PCMSK1 |= (1 << PCINT9) | (1 << PCINT10);
-
-    // Run timer2 interrupt every 15 ms
-//  TCCR2A = 0;
-    // TCCR2B = 1 << CS22 | 1 << CS21 | 1 << CS20;
-
-    // Timer2 Overflow Interrupt Enable
-    // TIMSK2 |= 1 << TOIE2;
 }
 
-//! Timer 2 interrupt, for button debouncing
-/*SIGNAL(TIMER2_OVF_vect) {
-  static bool lastState = 1;
-  bool currentState = digitalRead(KEY);
 
-  if (currentState == lastState) {
-    return;
-  }
-
-  if (currentState == 0) {
-    g_keyPressed = true;
-  }
-
-  lastState = currentState;
-}
-
-// Pin Change Interrupt for Rotation encoder, A1 and A2
-ISR(PCINT1_vect) {
-
-  // Handle rotary interrupts
-  encoder.tick();
-}
-*/
 void updatePosition(int8_t diff) {
     currentView->movePosition(diff);
 }
@@ -132,6 +75,13 @@ void updateDisplay() {
     //always draw Diagramm if active TODO add data listener?
     if (components.g_components[COMP_ID_DIAG]->is_active())
         components.g_components[COMP_ID_DIAG]->draw(false);
+}
+
+void exitMenu(){
+    currentView->deactivate();
+    currentView = &mainView;
+    currentView->activate();
+    repaint = true;
 }
 
 int keyPressed() {
@@ -168,6 +118,13 @@ int keyPressed() {
         else if(result.value == MENU_ID_DEC_POTI_CB) {
             response = DISPLAY_ACTION_POTI_DOWN;
         }
+        else if(result.value == MENU_ID_RESET_KM) {
+            response = DISPLAY_ACTION_RESET_ODO;
+        }
+        else if(result.value == MENU_ID_RESET_WH) {
+            response = DISPLAY_ACTION_RESET_MAH;
+        }
+
         else {
            // currentView = &mainView;
         }

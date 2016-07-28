@@ -33,6 +33,8 @@ void displayControllerSetup();
 //! Call in the main loop
 int keyPressed();
 
+void exitMenu();
+
 void updatePosition(int8_t diff);
 
 void updateDisplay();

@@ -39,8 +39,6 @@ public:
     //! Destructor
     virtual ~DiagramComponent();
 
-    // public API
-public:
     //! Return the height in pixel
     virtual uint8_t getHeight();
 
@@ -49,10 +47,17 @@ public:
 
     virtual void onValueChanged(uint8_t valueId);
 
+    void set_text(const String &m_text);
+    void set_display_value_id(ValueId m_display_value_id);
+    void set_min_max(float_t min, float_t max);
+
     // Member
 private:
     //! Diagram data (the display is 240px wide / 2px)
     String m_text;
+
+
+private:
     ValueId m_display_value_id;
     uint16_t m_data[DATA_LENGTH];
     uint8_t m_cur_pose_index;

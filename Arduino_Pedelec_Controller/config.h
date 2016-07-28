@@ -223,15 +223,19 @@ const double capacity = 355.2;           //battery capacity in watthours for ran
 const double pas_factor_min=1.2;         //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const double pas_factor_max=3;           //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const int pas_magnets=12;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
-const double cfg_pid_p=0.0;              //pid p-value, default: 0.0
-const double cfg_pid_i=2.0;              //pid i-value, default: 2.0
-const double cfg_pid_p_throttle=0.05;    //pid p-value for throttle mode
-const double cfg_pid_i_throttle=2.5;     //pid i-value for throttle mode
+
+const int pas_start_count=12;            //number of ticks before the PAS activates
+
+const double cfg_pid_p=0.05;              //pid p-value, default: 0.0
+const double cfg_pid_i=2.5;              //pid i-value, default: 2.0
+const double cfg_pid_p_throttle=0.1;    //pid p-value for throttle mode, default: 0.05
+const double cfg_pid_i_throttle=3.0;     //pid i-value for throttle mode, default: 2.5
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
 const int pas_timeout=500;               //time in ms after which pedaling is set to false
 const int torque_throttle_min=5;         //minimum torque in Nm to trigger starting aid
 const int torque_throttle_full=20;       //torque to give full throttle
+
 //Config Options for profile 2-----------------------------------------------------------------------------------------------------
 const int startingaid_speed_2 = 6;
 const int spd_max1_2=50;                   //speed cutoff start in Km/h
@@ -259,7 +263,7 @@ const int external_voltage_in = A7;            //For HW Rev. 2.1: use Pin  A7
 const char msg_welcome[] PROGMEM = "Welcome";
 const char msg_shutdown[] PROGMEM = "Live long and prosper.";
 
-const char msg_battery_charged[] PROGMEM = "Batt. charged! Resetting counters";
+const char msg_battery_charged[] PROGMEM = "Battery charged! Resetting counters";
 const char msg_idle_shutdown[] PROGMEM = "Idle shutdown. Good night.";
 const char msg_emergency_shutdown[] PROGMEM = "Battery undervoltage detected. Emergency shutdown.";
 

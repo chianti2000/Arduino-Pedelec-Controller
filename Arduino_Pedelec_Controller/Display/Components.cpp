@@ -27,11 +27,62 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 //! Constructor
 
-Components::Components()
+#define NUM_VIEWS 3
+
+View views[NUM_VIEWS] = {
+        {.active_components_ids = {
+                COMP_ID_SEP,
+                COMP_ID_ICON,
+                COMP_ID_SEP,
+                COMP_ID_DIAG,
+                COMP_ID_SEP,
+                COMP_ID_ODO_TOTAL,
+                COMP_ID_TIME_DRIVEN,
+                COMP_ID_REMAINING,
+                COMP_ID_SUPPORT_POTI,
+                COMP_ID_NONE
+        }, .diagram_string="Speed", .diagram_val=VALUE_ID_SPEED,
+                .diagram_min=0.0, .diagram_max=40.0},
+        {.active_components_ids = {
+                COMP_ID_SEP,
+                COMP_ID_ICON,
+                COMP_ID_SEP,
+                COMP_ID_DIAG,
+                COMP_ID_SEP,
+                COMP_ID_BAT_VOLT,
+                COMP_ID_BAT_MAH,
+                COMP_ID_MOTOR_CURRENT,
+                COMP_ID_VESC_TEMP,
+                COMP_ID_NONE
+        }, .diagram_string="Power", .diagram_val=VALUE_ID_POWER,
+                .diagram_min=0.0, .diagram_max=1000.0},
+        {.active_components_ids = {
+                COMP_ID_SEP,
+                COMP_ID_ICON,
+                COMP_ID_SEP,
+                //COMP_ID_DIAG,
+                //COMP_ID_SEP,
+                COMP_ID_THROTTLE_POTI,
+                COMP_ID_THROTTLE_WRITE,
+                COMP_ID_MOTOR_RPM,
+                COMP_ID_VESC_TEMP,
+                COMP_ID_BAT_VOLT,
+                COMP_ID_BAT_MAH,
+                COMP_ID_MOTOR_CURRENT
+
+        }, .diagram_string="", .diagram_val=VALUE_ID_NONE,
+                .diagram_min=0.0, .diagram_max=1000.0},
+};
+
+
+
+Components::Components():
+        m_cur_view(0)
 {
+    diagramComponent = new DiagramComponent("", VALUE_ID_NONE, 0, 1023);
   g_components[COMP_ID_SEP] = new SeparatorComponent();
   g_components[COMP_ID_ICON] = new IconComponent();
-  g_components[COMP_ID_DIAG] = new DiagramComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0, 1023);
+  g_components[COMP_ID_DIAG] = diagramComponent;
   g_components[COMP_ID_BAT_MAH] = new TextComponent("Batterie mAh", VALUE_ID_BATTERY_MAH_USED, 0);
   g_components[COMP_ID_BAT_VOLT] = new TextComponent("Volt", VALUE_ID_BATTERY_VOLTAGE_CURRENT, 1);
   g_components[COMP_ID_ODO_TOTAL] = new TextComponent("Total km", VALUE_ID_ODO_TOTAL, 0);
@@ -45,22 +96,33 @@ Components::Components()
   g_components[COMP_ID_SUPPORT_POTI] = new TextComponent("Support W", VALUE_ID_SUPPORT_POTI, 0);
   g_components[COMP_ID_ENC] = new TextComponent("Encoder", VALUE_ID_ENC, 0);
 
-  int8_t i = 0;
-  m_active_components_ids[i++] = COMP_ID_SEP;
-  m_active_components_ids[i++] = COMP_ID_ICON;
-  m_active_components_ids[i++] = COMP_ID_SEP;
-  m_active_components_ids[i++] = COMP_ID_DIAG;
-  m_active_components_ids[i++] = COMP_ID_SEP;
-  m_active_components_ids[i++] = COMP_ID_BAT_VOLT;
-  m_active_components_ids[i++] = COMP_ID_THROTTLE_WRITE;
-  m_active_components_ids[i++] = COMP_ID_BAT_MAH;
-  m_active_components_ids[i++] = COMP_ID_SUPPORT_POTI;
-  m_active_components_ids[i++] = COMP_ID_MOTOR_RPM;
-  updatePositionAndRemoveInvisible();
+  activateView(m_cur_view);
 }
 
 //! Destructor
 Components::~Components() {
+}
+
+
+void Components::activateView(uint8_t num) {
+    for (uint8_t i = 0; i < MAX_COMP_ACTIVE; i++) {
+        m_active_components_ids[i] = views[num].active_components_ids[i];
+    }
+    diagramComponent->set_display_value_id(views[num].diagram_val);
+    diagramComponent->set_text(views[num].diagram_string);
+    diagramComponent->set_min_max(views[num].diagram_min, views[num].diagram_max);
+    updatePositionAndRemoveInvisible();
+}
+
+void Components::changeView(int8_t diff) {
+    m_cur_view += diff;
+    if (m_cur_view < 0)
+        m_cur_view = NUM_VIEWS - 1;
+    if (m_cur_view >= NUM_VIEWS)
+        m_cur_view = 0;
+
+    activateView(m_cur_view);
+
 }
 
 //! Activate / Deactivate children

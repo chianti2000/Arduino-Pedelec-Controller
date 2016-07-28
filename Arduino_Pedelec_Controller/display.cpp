@@ -1308,7 +1308,8 @@ void display_update()
 // Check if user has been idle for too long
         if (menu_activity_expire && millis() > menu_activity_expire)
         {
-            menu_active = false; //TODO jump out of menu in controller
+            menu_active = false;
+            exitMenu();
             repaint=true;
             return;
         }
@@ -1321,6 +1322,8 @@ void display_update()
     updateIconModel(ICON_ID_PAS, pedaling);
 
     updateDataModel(VALUE_ID_POWER, power);
+    updateDataModel(VALUE_ID_ODO_CURRENT, km * 10);
+    updateDataModel(VALUE_ID_ODO_TOTAL, (odo * wheel_circumference/1000));
     updateDataModel(VALUE_ID_THROTTLE_WRITE, throttle_write);
     updateDataModel(VALUE_ID_SUPPORT_POTI, poti_stat/1023.0 * curr_power_poti_max);
     updateDataModel(VALUE_ID_THROTTLE_POTI, throttle_stat);

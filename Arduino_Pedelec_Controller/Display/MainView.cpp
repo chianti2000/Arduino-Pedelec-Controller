@@ -211,7 +211,19 @@ void MainView::updateDisplay(bool repaint) {
   lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   lcd.setTextSize(2);
   lcd.setCursor(60, 75);
-  lcd.print("12345 km");
+  uint16_t odo = model.getValue(VALUE_ID_ODO_CURRENT);
+
+  String strOdo = "";
+
+  strOdo += (odo/10);
+  strOdo += ".";
+  strOdo += (odo - (odo/10)*10);
+  strOdo += " km";
+
+  while (strOdo.length() < 5) {
+    strOdo = " " + strOdo;
+  }
+  lcd.print(strOdo);
 
   drawBattery(repaint);
   drawWattage(repaint);
@@ -221,7 +233,7 @@ void MainView::updateDisplay(bool repaint) {
 
 //! UP / DOWN Key
 void MainView::movePosition(int8_t diff) {
-
+  m_components->changeView(diff);
 }
 
 //! Key (OK) pressed

@@ -97,7 +97,6 @@ void DiagramComponent::draw(bool repaint) {
     long mapped = map(max_val, 0, max_val, 0, 59);
     lcd.fillRect(0, m_y + 60 - mapped, 240, mapped, ILI9341_BLACK);
 
-    Serial.println(max_val);
 #ifndef AUTOSCALE
     for (int16_t i = 0; i < DATA_LENGTH -1; i++) {
         int16_t x = i * 2;
@@ -107,10 +106,6 @@ void DiagramComponent::draw(bool repaint) {
 
         uint16_t y1 = m_y + 59 - map((m_data[index]), 0, max_val, 0, 59);
         uint16_t y2 = m_y + 59 - map((m_data[index1]), 0, max_val, 0, 59);
-
-        //lcd.drawFastVLine(x+1, m_y + 59 - mapped, mapped, ILI9341_BLACK);
-        //lcd.drawFastVLine(x, m_y + 59 - mapped, mapped, ILI9341_BLACK);
-        //lcd.drawFastVLine(x+2, m_y + 59 - mapped, mapped, ILI9341_BLACK);
 
         lcd.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
         lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
@@ -147,5 +142,18 @@ void DiagramComponent::draw(bool repaint) {
     lcd.setCursor(0, m_y + 2);
     lcd.print(m_text.c_str());
 
+}
+
+void DiagramComponent::set_text(const String &m_text) {
+    DiagramComponent::m_text = m_text;
+}
+
+void DiagramComponent::set_display_value_id(ValueId m_display_value_id) {
+    DiagramComponent::m_display_value_id = m_display_value_id;
+}
+
+void DiagramComponent::set_min_max(float_t min, float_t max) {
+    min_value = min;
+    max_value = max;
 }
 

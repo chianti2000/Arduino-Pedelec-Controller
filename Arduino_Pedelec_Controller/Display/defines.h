@@ -62,8 +62,9 @@ enum IconId {
 };
 
 enum ValueId {
+    VALUE_ID_NONE = 0,
     //! the speed in 0.1 km/h and update display if needed
-    VALUE_ID_SPEED = 0,
+    VALUE_ID_SPEED,
     //power in W;
     VALUE_ID_POWER,
 
@@ -78,6 +79,7 @@ enum ValueId {
     VALUE_ID_THROTTLE_WRITE,
     VALUE_ID_SUPPORT_POTI,
     VALUE_ID_ODO_TOTAL,
+    VALUE_ID_ODO_CURRENT,
     VALUE_ID_REMAINING,
     VALUE_ID_TIME_DRIVEN,
     VALUE_ID_VESC_TEMP,
@@ -90,6 +92,8 @@ enum ValueId {
 enum {
     DISPLAY_ACTION_NONE = 0,
     DISPLAY_ACTION_MENU_DISABLED,
+    DISPLAY_ACTION_RESET_ODO,
+    DISPLAY_ACTION_RESET_MAH,
     DISPLAY_ACTION_TOGGLE_LIGHT_ON,
     DISPLAY_ACTION_TOGGLE_LIGHT_OFF,
     DISPLAY_ACTION_TOGGLE_BLUETOOTH_ON,
