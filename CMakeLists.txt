@@ -9,6 +9,7 @@
 
 
 cmake_minimum_required(VERSION 2.8)
+
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/teensy-arm.toolchain.cmake")
 
 project(Pedelec_Controller C CXX)
@@ -35,38 +36,38 @@ option(DOCUMENTATION "Generate API documentation with Doxygen" OFF)
 find_package(Doxygen)
 if(DOCUMENTATION AND DOXYGEN_FOUND)
 
-   # Set variables
-   set(top_srcdir ${CMAKE_SOURCE_DIR})
+    # Set variables
+    set(top_srcdir ${CMAKE_SOURCE_DIR})
 
-   # Find doxy config
-   message(STATUS "Doxygen found.")
-   set(DOXY_DIR "${CMAKE_SOURCE_DIR}/docs")
-   set(DOXY_CONFIG "${DOXY_DIR}/Doxyfile.in")
+    # Find doxy config
+    message(STATUS "Doxygen found.")
+    set(DOXY_DIR "${CMAKE_SOURCE_DIR}/docs")
+    set(DOXY_CONFIG "${DOXY_DIR}/Doxyfile.in")
 
-   # Copy doxy.config.in
-   configure_file("${DOXY_CONFIG}" "${CMAKE_BINARY_DIR}/doxy.config")
+    # Copy doxy.config.in
+    configure_file("${DOXY_CONFIG}" "${CMAKE_BINARY_DIR}/doxy.config")
 
-   # Create doc directory
-   add_custom_command(
-   OUTPUT ${CMAKE_BINARY_DIR}/doc
-   COMMAND rm -rf ${CMAKE_BINARY_DIR}/doc/{html,man}
-   COMMAND mkdir -p ${CMAKE_BINARY_DIR}/doc
-   DEPENDS pcontroller
-   )
+    # Create doc directory
+    add_custom_command(
+            OUTPUT ${CMAKE_BINARY_DIR}/doc
+            COMMAND rm -rf ${CMAKE_BINARY_DIR}/doc/{html,man}
+            COMMAND mkdir -p ${CMAKE_BINARY_DIR}/doc
+            DEPENDS pcontroller
+    )
 
-   # Run doxygen
-   add_custom_command(
-   OUTPUT ${CMAKE_BINARY_DIR}/doc/html/index.html
-   COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_BINARY_DIR}/doxy.config"
-   DEPENDS "${CMAKE_BINARY_DIR}/doxy.config" "${CMAKE_BINARY_DIR}/doc"
-   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
-   )
+    # Run doxygen
+    add_custom_command(
+            OUTPUT ${CMAKE_BINARY_DIR}/doc/html/index.html
+            COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_BINARY_DIR}/doxy.config"
+            DEPENDS "${CMAKE_BINARY_DIR}/doxy.config" "${CMAKE_BINARY_DIR}/doc"
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+    )
 
-   add_custom_target(docs ALL DEPENDS ${CMAKE_BINARY_DIR}/doc/html/index.html)
+    add_custom_target(docs ALL DEPENDS ${CMAKE_BINARY_DIR}/doc/html/index.html)
 
-   message(STATUS "Generating API documentation with Doxygen")
+    message(STATUS "Generating API documentation with Doxygen")
 else(DOCUMENTATION AND DOXYGEN_FOUND)
-   message(STATUS "Not generating API documentation")
+    message(STATUS "Not generating API documentation")
 endif(DOCUMENTATION AND DOXYGEN_FOUND)
 
 # add libraries to project

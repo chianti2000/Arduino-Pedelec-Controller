@@ -21,7 +21,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(TY_EXECUTABLE "/Applications/TyQt.app/Contents/MacOS/tyc" CACHE FILEPATH "Path to the 'ty' executable that can upload programs to the Teensy")
+
+#Linux or apple
+
+
+if(APPLE)
+    set(TY_EXECUTABLE "/Applications/TyQt.app/Contents/MacOS/tyc" CACHE FILEPATH "Path to the 'ty' executable that can upload programs to the Teensy")
+else()
+    set(TY_EXECUTABLE "/usr/local/bin/tyc" CACHE FILEPATH "Path to the 'ty' executable that can upload programs to the Teensy")
+endif()
+
 
 set(TEENSY_C_CORE_FILES
     ${TEENSY_ROOT}/math_helper.c
@@ -150,7 +159,6 @@ macro(add_teensy_executable TARGET_NAME SOURCES)
     add_custom_target(${TARGET_NAME}_Firmware ALL
                       DEPENDS ${TARGET_ELF}.eep ${TARGET_ELF}.hex)
     add_dependencies(${TARGET_NAME}_Firmware ${TARGET_NAME})
-    
     if(EXISTS "${TY_EXECUTABLE}")
         add_custom_target(${TARGET_NAME}_Upload
                           DEPENDS ${TY_EXECUTABLE} ${TARGET_ELF}.hex
