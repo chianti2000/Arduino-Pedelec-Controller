@@ -39,6 +39,7 @@ typedef struct _View {
     int8_t active_components_ids[MAX_COMP_ACTIVE];
     String diagram_string;
     ValueId diagram_val;
+    uint8_t diagram_precision;
     float_t diagram_min;
     float_t diagram_max;
 } View;
@@ -59,7 +60,6 @@ enum {
     COMP_ID_THROTTLE_POTI,
     COMP_ID_THROTTLE_WRITE,
     COMP_ID_SUPPORT_POTI,
-    COMP_ID_ENC,
 
     COMP_COUNT};
 

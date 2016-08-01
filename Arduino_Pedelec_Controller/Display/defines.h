@@ -58,6 +58,7 @@ enum ValueId {
     VALUE_ID_SPEED,
     //power in W;
     VALUE_ID_POWER,
+    VALUE_ID_MAX_POWER,
 
     //! Current voltage
     VALUE_ID_BATTERY_VOLTAGE_CURRENT,

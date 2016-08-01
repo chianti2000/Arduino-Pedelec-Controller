@@ -33,48 +33,50 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 class Components;
 
 class MainView : public BaseView, public DataListener {
-  // Constructor / Destructor
+    // Constructor / Destructor
 public:
-  //! Constructor
-  MainView(Components* components);
+    //! Constructor
+    MainView(Components* components);
 
-  //! Destructor
-  virtual ~MainView();
+    //! Destructor
+    virtual ~MainView();
 
-  // public API
+    // public API
 public:
-  //! Update full display
-  virtual void updateDisplay(bool repaint);
+    //! Update full display
+    virtual void updateDisplay(bool repaint);
 
-  //! This view is now enabled and displayed
-  virtual void activate();
+    //! This view is now enabled and displayed
+    virtual void activate();
 
-  //! This view is now disabled and not displayed
-  virtual void deactivate();
+    //! This view is now disabled and not displayed
+    virtual void deactivate();
 
-  //! UP / DOWN Key
-  virtual void movePosition(int8_t diff);
+    //! UP / DOWN Key
+    virtual void movePosition(int8_t diff);
 
-  //! Key (OK) pressed
-  virtual ViewResult keyPressed();
+    //! Key (OK) pressed
+    virtual ViewResult keyPressed();
 
     // DataListener
 public:
-  //! a value was changed
-  virtual void onValueChanged(uint8_t valueId);
+    //! a value was changed
+    virtual void onValueChanged(uint8_t valueId);
 
 private:
-  //! Draw speed
-  void drawSpeed(bool repaint);
+    //! Draw speed
+    void drawSpeed(bool repaint);
 
-  //! Draw battery
-  void drawBattery(bool repaint);
+    //! Draw battery
+    void drawBattery(bool repaint);
 
-  //! Draw wattage bar
-  void drawWattage(bool repaint);
+    //! Draw wattage bar
+    void drawWattage(bool repaint);
 
-  // Member
+    void drawKM(bool repaint);
+
+    // Member
 protected:
-  //! Customizeable components on the screen
-  Components* m_components;
+    //! Customizeable components on the screen
+    Components* m_components;
 };

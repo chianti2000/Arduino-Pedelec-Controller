@@ -50,6 +50,7 @@ public:
     void set_text(const String &m_text);
     void set_display_value_id(ValueId m_display_value_id);
     void set_min_max(float_t min, float_t max);
+    void set_precision(uint8_t precision);
 
     // Member
 private:
@@ -61,6 +62,7 @@ private:
     ValueId m_display_value_id;
     uint16_t m_data[DATA_LENGTH];
     uint8_t m_cur_pose_index;
+    uint8_t m_precision;
     long m_last_draw;
     float current_value;
     uint16_t current_count;

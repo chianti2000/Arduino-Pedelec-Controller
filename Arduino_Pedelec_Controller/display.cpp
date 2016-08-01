@@ -1322,6 +1322,7 @@ void display_update()
     updateIconModel(ICON_ID_PAS, pedaling);
 
     updateDataModel(VALUE_ID_POWER, power);
+    updateDataModel(VALUE_ID_MAX_POWER, power_max);
     updateDataModel(VALUE_ID_ODO_CURRENT, km * 10);
     updateDataModel(VALUE_ID_ODO_TOTAL, (odo * wheel_circumference/1000));
     updateDataModel(VALUE_ID_THROTTLE_WRITE, throttle_write);
@@ -1334,6 +1335,7 @@ void display_update()
     updateDataModel(VALUE_ID_MOTOR_CURRENT, motor_current * 10);
     updateDataModel(VALUE_ID_MOTOR_RPM, motor_rpm * 10);
     updateDataModel(VALUE_ID_VESC_TEMP, temperature_vesc*10);
+
     updateDisplay();
 
 #endif

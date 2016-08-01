@@ -163,24 +163,30 @@ void MainView::drawWattage(bool repaint) {
   lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   uint16_t wattage = model.getValue(VALUE_ID_POWER);
 
-  if (wattage > 500) {
-    wattage = 500;
-  }
+  uint16_t max_wattage = model.getValue(VALUE_ID_MAX_POWER);
+
+  //if (wattage > 500) {
+  //  wattage = 500;
+ // }
 
   uint8_t h;
   if (wattage == 0) {
     h = 0;
   } else {
-    h = (wattageBarHeight * (wattage / 10)) / 50;
+    h = (wattageBarHeight * (wattage / 10)) / (max_wattage /  10);
   }
   uint8_t y = wattageBarHeight - h;
 
   lcd.fillRect(213, 3, 25, y, ILI9341_BLACK);
 
   uint16_t  barColor = ILI9341_WHITE;
-  if (wattage > 500) {
+  if (wattage > 0.33 * max_wattage) {
+    barColor = ILI9341_YELLOW;
+  }
+  if (wattage > 0.66 * max_wattage) {
     barColor = ILI9341_RED;
   }
+
   lcd.fillRect(213, 3 + y, 25, h, barColor);
 
   String strWattage = "";
@@ -195,19 +201,8 @@ void MainView::drawWattage(bool repaint) {
   lcd.print(strWattage);
 }
 
-//! Update full display
-void MainView::updateDisplay(bool repaint) {
-  if (!m_active) {
-    return;
-  }
-
-  // Clear full screen
-  if (repaint)
-    lcd.fillRect(0, 0, 240, 320, ILI9341_BLACK);
-
-  drawSpeed(repaint);
-
-  // Gesamt KM
+void MainView::drawKM(bool repaint) {
+    // odo KM
   lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   lcd.setTextSize(2);
   lcd.setCursor(72, 75);
@@ -224,7 +219,21 @@ void MainView::updateDisplay(bool repaint) {
     strOdo = " " + strOdo;
   }
   lcd.print(strOdo);
+}
 
+
+//! Update full display
+void MainView::updateDisplay(bool repaint) {
+  if (!m_active) {
+    return;
+  }
+
+  // Clear full screen
+  if (repaint)
+    lcd.fillRect(0, 0, 240, 320, ILI9341_BLACK);
+
+  drawSpeed(repaint);
+  drawKM(repaint);
   drawBattery(repaint);
   drawWattage(repaint);
 
@@ -260,6 +269,8 @@ void MainView::onValueChanged(uint8_t valueId) {
     case VALUE_ID_POWER:
       drawWattage(false);
           break;
+    case VALUE_ID_ODO_CURRENT:
+      drawKM(false);
     default:
       break;
   }

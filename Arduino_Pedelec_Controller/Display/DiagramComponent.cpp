@@ -31,12 +31,18 @@ out_max)
     return uint16_t((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
 }
 
+float_t map_float(uint16_t x, uint16_t in_min, uint16_t in_max, float_t out_min, float_t out_max)
+{
+    return uint16_t((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+}
+
 //! Constructor
 DiagramComponent::DiagramComponent(String text, ValueId value, float_t min, float_t max)
         : m_text(text),
           m_display_value_id(value),
           m_data{0},
           m_cur_pose_index(0),
+          m_precision(1),
           m_last_draw(0),
           current_value(0.0),
           current_count(0),
@@ -139,8 +145,10 @@ void DiagramComponent::draw(bool repaint) {
 
     lcd.setTextSize(2);
     lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
-    lcd.setCursor(0, m_y + 2);
+    lcd.setCursor(0, m_y + 2 + 47);
     lcd.print(m_text.c_str());
+    lcd.setCursor(0, m_y + 2);
+    lcd.print(map_float(max_val, 0, 1023, min_value, max_value)/m_precision, 1);
 
 }
 
@@ -150,10 +158,20 @@ void DiagramComponent::set_text(const String &m_text) {
 
 void DiagramComponent::set_display_value_id(ValueId m_display_value_id) {
     DiagramComponent::m_display_value_id = m_display_value_id;
+    for (int i = 0; i < DATA_LENGTH - 1; ++i) {
+        m_data[i] = 0;
+    }
+    m_cur_pose_index = 0;
+    current_count = 0;
+    current_value = 0.0;
 }
 
 void DiagramComponent::set_min_max(float_t min, float_t max) {
     min_value = min;
     max_value = max;
+}
+
+void DiagramComponent::set_precision(uint8_t precision) {
+    m_precision = precision;
 }
 

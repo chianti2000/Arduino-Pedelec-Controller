@@ -234,7 +234,7 @@ const int voltage_in = 255;
 const int current_in = 255;
 
 //plugs top left, wheel last pin from VESC
-const int wheel_in = 2;              //Speed read-Pin
+const int wheel_in = 5;              //Speed read-Pin
 const int pas_in = 3; //PAS_in 1
 const int option_pin = 4; //PAS_in 2
 

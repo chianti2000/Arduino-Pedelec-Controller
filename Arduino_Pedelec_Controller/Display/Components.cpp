@@ -41,7 +41,7 @@ View views[NUM_VIEWS] = {
                 COMP_ID_REMAINING,
                 COMP_ID_SUPPORT_POTI,
                 COMP_ID_NONE
-        }, .diagram_string="Speed", .diagram_val=VALUE_ID_SPEED,
+        }, .diagram_string="Speed", .diagram_val=VALUE_ID_SPEED, .diagram_precision=10,
                 .diagram_min=0.0, .diagram_max=40.0},
         {.active_components_ids = {
                 COMP_ID_SEP,
@@ -54,7 +54,7 @@ View views[NUM_VIEWS] = {
                 COMP_ID_MOTOR_CURRENT,
                 COMP_ID_VESC_TEMP,
                 COMP_ID_NONE
-        }, .diagram_string="Power", .diagram_val=VALUE_ID_POWER,
+        }, .diagram_string="Power", .diagram_val=VALUE_ID_POWER, .diagram_precision=1,
                 .diagram_min=0.0, .diagram_max=1000.0},
         {.active_components_ids = {
                 COMP_ID_SEP,
@@ -70,7 +70,7 @@ View views[NUM_VIEWS] = {
                 COMP_ID_BAT_MAH,
                 COMP_ID_MOTOR_CURRENT
 
-        }, .diagram_string="", .diagram_val=VALUE_ID_NONE,
+        }, .diagram_string="", .diagram_val=VALUE_ID_NONE, .diagram_precision=1,
                 .diagram_min=0.0, .diagram_max=1000.0},
 };
 
@@ -94,9 +94,8 @@ Components::Components():
   g_components[COMP_ID_THROTTLE_POTI] = new TextComponent("Throttle", VALUE_ID_THROTTLE_POTI, 0);
   g_components[COMP_ID_THROTTLE_WRITE] = new TextComponent("Throttle out", VALUE_ID_THROTTLE_WRITE, 1);
   g_components[COMP_ID_SUPPORT_POTI] = new TextComponent("Support W", VALUE_ID_SUPPORT_POTI, 0);
-  g_components[COMP_ID_ENC] = new TextComponent("Encoder", VALUE_ID_ENC, 0);
 
-  activateView(m_cur_view);
+  activateView((uint8_t) m_cur_view);
 }
 
 //! Destructor
@@ -114,6 +113,7 @@ void Components::activateView(uint8_t num) {
     diagramComponent->set_display_value_id(views[num].diagram_val);
     diagramComponent->set_text(views[num].diagram_string);
     diagramComponent->set_min_max(views[num].diagram_min, views[num].diagram_max);
+    diagramComponent->set_precision(views[num].diagram_precision);
     updatePositionAndRemoveInvisible();
 }
 
@@ -124,7 +124,7 @@ void Components::changeView(int8_t diff) {
     if (m_cur_view >= NUM_VIEWS)
         m_cur_view = 0;
 
-    activateView(m_cur_view);
+    activateView((uint8_t) m_cur_view);
 
 }
 
