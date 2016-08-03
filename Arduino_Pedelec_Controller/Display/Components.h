@@ -23,6 +23,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "BaseComponent.h"
 #include "TextComponent.h"
+#include "TimeComponent.h"
 #include "DiagramComponent.h"
 #include "IconComponent.h"
 #include "SeparatorComponent.h"
@@ -52,7 +53,7 @@ enum {
     COMP_ID_BAT_MAH,
     COMP_ID_BAT_VOLT,
     COMP_ID_ODO_TOTAL,
-    COMP_ID_REMAINING,
+    COMP_ID_REMAINING_KM,
     COMP_ID_TIME_DRIVEN,
     COMP_ID_VESC_TEMP,
     COMP_ID_MOTOR_CURRENT,
@@ -60,7 +61,7 @@ enum {
     COMP_ID_THROTTLE_POTI,
     COMP_ID_THROTTLE_WRITE,
     COMP_ID_SUPPORT_POTI,
-
+    COMP_ID_CADENCE,
     COMP_COUNT};
 
 

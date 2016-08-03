@@ -25,15 +25,15 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "DiagramComponent.h"
 
-uint16_t map(float_t x, float_t in_min, float_t in_max, uint16_t out_min, uint16_t
+uint16_t map_to_uint(float_t x, float_t in_min, float_t in_max, uint16_t out_min, uint16_t
 out_max)
 {
     return uint16_t((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
 }
 
-float_t map_float(uint16_t x, uint16_t in_min, uint16_t in_max, float_t out_min, float_t out_max)
+float_t map_to_float(long x, uint16_t in_min, uint16_t in_max, float_t out_min, float_t out_max)
 {
-    return uint16_t((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 //! Constructor
@@ -84,7 +84,7 @@ void DiagramComponent::draw(bool repaint) {
 
     //reset counts
     if (millis() > m_last_draw + UPDATE_PERIOD_S) {
-        m_data[++m_cur_pose_index] = map(current_value, min_value, max_value, 0, 1023);
+        m_data[++m_cur_pose_index] = map_to_uint(current_value, min_value, max_value, 0, 1023);
         m_cur_pose_index %= DATA_LENGTH;
 
         m_last_draw = millis();
@@ -103,20 +103,20 @@ void DiagramComponent::draw(bool repaint) {
     long mapped = map(max_val, 0, max_val, 0, 59);
     lcd.fillRect(0, m_y + 60 - mapped, 240, mapped, ILI9341_BLACK);
 
-#ifndef AUTOSCALE
-    for (int16_t i = 0; i < DATA_LENGTH -1; i++) {
-        int16_t x = i * 2;
-        int16_t index = (m_cur_pose_index + i + 1) % DATA_LENGTH;
-        int16_t index1 = (m_cur_pose_index + i + 2) % DATA_LENGTH;
+#ifndef BUFFER_SHIFT
+    for (uint16_t i = 0; i < DATA_LENGTH -1; i++) {
+        uint16_t x = i * 2;
+        uint16_t index = (m_cur_pose_index + i + 1) % DATA_LENGTH;
+        uint16_t index1 = (m_cur_pose_index + i + 2) % DATA_LENGTH;
 
 
-        uint16_t y1 = m_y + 59 - map((m_data[index]), 0, max_val, 0, 59);
-        uint16_t y2 = m_y + 59 - map((m_data[index1]), 0, max_val, 0, 59);
+        uint16_t y1 = m_y + 59 - map_to_uint((m_data[index]), 0, max_val, 0, 59);
+        uint16_t y2 = m_y + 59 - map_to_uint((m_data[index1]), 0, max_val, 0, 59);
 
         lcd.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
         lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
     }
-#else
+#else //NOT WORKING WITHOUT MISO, never tested
     uint16_t awColors[60*2];
 
     for (uint8_t i = 0; i < DATA_LENGTH - 2; ++i) {
@@ -145,10 +145,11 @@ void DiagramComponent::draw(bool repaint) {
 
     lcd.setTextSize(2);
     lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
-    lcd.setCursor(0, m_y + 2 + 47);
+    lcd.setCursor(0, m_y + 2 + 45);
     lcd.print(m_text.c_str());
+    // print current max value
     lcd.setCursor(0, m_y + 2);
-    lcd.print(map_float(max_val, 0, 1023, min_value, max_value)/m_precision, 1);
+    lcd.print(map_to_float(max_val, 0, 1023, min_value, max_value)/m_precision, 1);
 
 }
 
@@ -164,6 +165,7 @@ void DiagramComponent::set_display_value_id(ValueId m_display_value_id) {
     m_cur_pose_index = 0;
     current_count = 0;
     current_value = 0.0;
+    m_last_draw = millis();
 }
 
 void DiagramComponent::set_min_max(float_t min, float_t max) {

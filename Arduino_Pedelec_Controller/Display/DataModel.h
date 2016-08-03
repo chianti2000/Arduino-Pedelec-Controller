@@ -86,7 +86,7 @@ private:
     uint8_t m_iconState;
 
     //! Listener list
-    DataListener* m_listener[32];
+    DataListener* m_listener[VALUE_COUNT * 2]; //maximum two listeners per value
 
     //! Values
     uint16_t m_values[VALUE_COUNT];

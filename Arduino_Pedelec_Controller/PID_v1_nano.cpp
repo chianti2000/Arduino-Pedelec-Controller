@@ -195,6 +195,9 @@ double PID::GetKd() { return  dispKd;}
 int PID::GetMode() { return  inAuto ? AUTOMATIC : MANUAL;}
 int PID::GetDirection() { return controllerDirection;}
 
+double PID::GetI() { return  ITerm;}
+void PID::SetI(double new_Iterm) { ITerm = new_Iterm;}
+
 /* Reset ITerm*************************************************
  * Reset integral part
  ******************************************************************************/

@@ -30,7 +30,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 //! Constructor
 DataModel::DataModel()
          : m_iconState(0),
-           m_listener({0}),
+           m_listener{0},
            m_values{0}
 {
 }

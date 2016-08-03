@@ -322,6 +322,13 @@ volatile boolean pedalingbackwards = false;  //pedalingn in backward direction
 boolean firstrun = true;  //first run of loop?
 boolean brake_stat = true; //brake activated?
 PID myPID(&power, &pid_out,&pid_set,pid_p,pid_i,0, DIRECT);
+
+#define THROTTLE_PID 1
+#define NORMAL_PID 0
+
+double last_i = 0.0;
+byte last_active_pid = NORMAL_PID;
+
 unsigned int idle_shutdown_count = 0;
 unsigned long idle_shutdown_last_wheel_time = millis();
 byte pulse_human=0;          //cyclist's heart rate
@@ -814,7 +821,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
 #endif
 
 //Check if Battery was charged since last power down-----------------------------------------------------------------------
-    if (firstrun==true)
+    if (firstrun==true && voltage > vcutoff)
     {
         bool force_eeprom_load = false;
 #ifndef SUPPORT_BATTERY_CHARGE_DETECTION
@@ -878,7 +885,6 @@ if (loadcell.is_ready())     //new conversion result from load cell available
         pedaling = true;
 
     cad=cad*pedaling;
-//pedaling=true;// FIXME TODO TAKE OUT
 #ifdef SUPPORT_BBS
     if (pedalingbackwards) //gear change pause requested
       bbs_pausestart=millis();
@@ -948,11 +954,27 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     {
         myPID.SetTunings(pid_p_throttle,pid_i_throttle,0);   //THEN throttle mode: throttle sets power with "agressive" p and i parameters        power_set=throttle_stat/1023.0*power_max;
         power_set = power_throttle;
+        if (last_active_pid == NORMAL_PID) {  // we switched
+            double tmp_last_i = myPID.GetI(); //save previous I term for reset to normal
+            if (last_i > 0){
+                myPID.SetI(last_i);  //reset to previous Throttle Iterm
+            }
+            last_i = tmp_last_i;
+        }
+        last_active_pid = THROTTLE_PID;
     }
     else                                                     //ELSE poti mode: poti sets power with "soft" p and i parameters
     {
         myPID.SetTunings(pid_p,pid_i,0);
         power_set = power_poti;
+        if (last_active_pid == THROTTLE_PID) {  // we switched
+            double tmp_last_i = myPID.GetI();  //save previous I term for reset to Throttle
+            if (last_i > 0) {
+                myPID.SetI(last_i);  // reset to previous normal ITerm
+            }
+            last_i = tmp_last_i;
+        }
+        last_active_pid = NORMAL_PID;
     }
 
 //Speed cutoff-------------------------------------------------------------------------------------------------------------
@@ -997,7 +1019,7 @@ if (loadcell.is_ready())     //new conversion result from load cell available
     throttle_write=map(pid_out*brake_stat*factor_volt,0,1023,motor_offset,motor_max);
 #endif
 #ifdef SUPPORT_PAS
-    if ((pedaling==false)&&(power_throttle<10)||power_set<=0||spd>curr_spd_max2)
+    if (((pedaling==false))&&(power_throttle<10)||power_set<=0||spd>curr_spd_max2)
 #else
     if (power_throttle<10||spd>curr_spd_max2)
 #endif

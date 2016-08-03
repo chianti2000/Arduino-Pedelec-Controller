@@ -209,9 +209,11 @@ static void handle_display_return(int result)
         case DISPLAY_ACTION_TOGGLE_LIGHT_ON:
             digitalWrite(lights_pin, HIGH);
         case DISPLAY_ACTION_ACTIVE_PROFILE_1:
+            display_show_important_info("Activated Profile 1", 0);
             action_set_profile(0);
             break;
         case DISPLAY_ACTION_ACTIVE_PROFILE_2:
+            display_show_important_info("Activated Profile 2", 0);
             action_set_profile(1);
             break;
         case DISPLAY_ACTION_DISABLE_BRAKE:
@@ -252,6 +254,15 @@ static void handle_display_return(int result)
             break;
         case DISPLAY_ACTION_SHUTDOWN:
             action_shutdown_system();
+            break;
+        case DISPLAY_ACTION_RESET_MAH:
+            display_show_important_info("Battery reset", 0);
+            mah = 0.0;
+            wh = 0.0;
+            break;
+        case DISPLAY_ACTION_RESET_ODO:
+            display_show_important_info("KM reset", 0);
+            km = 0.0;
             break;
         default:
             break;
@@ -517,7 +528,12 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
 #else
                 menu_system.prev(true);
 #endif
-
+#if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
+            else if (sw == MENU_BUTTON_SELECT) {
+                res_key=keyPressed();
+                handle_display_return(res_key);
+            }
+#endif
             menu_changed = true;
             break;
         case PRESSED_LONG:

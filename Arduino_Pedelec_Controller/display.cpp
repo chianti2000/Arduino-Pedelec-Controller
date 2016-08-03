@@ -1321,9 +1321,14 @@ void display_update()
     updateIconModel(ICON_ID_BRAKE, !brake_stat);
     updateIconModel(ICON_ID_PAS, pedaling);
 
+    // todo: proper trip time
+    updateDataModel(VALUE_ID_TIME_DRIVEN, millis()/1000);
+
+    updateDataModel(VALUE_ID_REMAINING_KM, range * 10);
+    updateDataModel(VALUE_ID_CADENCE, cad);
     updateDataModel(VALUE_ID_POWER, power);
     updateDataModel(VALUE_ID_MAX_POWER, power_max);
-    updateDataModel(VALUE_ID_ODO_CURRENT, km * 10);
+    updateDataModel(VALUE_ID_ODO_CURRENT, km * 100);
     updateDataModel(VALUE_ID_ODO_TOTAL, (odo * wheel_circumference/1000));
     updateDataModel(VALUE_ID_THROTTLE_WRITE, throttle_write);
     updateDataModel(VALUE_ID_SUPPORT_POTI, poti_stat/1023.0 * curr_power_poti_max);

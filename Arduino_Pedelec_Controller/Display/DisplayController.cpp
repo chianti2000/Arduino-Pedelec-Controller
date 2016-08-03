@@ -153,7 +153,7 @@ int keyPressed() {
         }
         else if (result.value == MENU_ID_PROFIL_CB) {
             model.showIcon(ICON_ID_PROFILE);
-            response = DISPLAY_ACTION_ACTIVE_PROFILE_1;
+            response = DISPLAY_ACTION_ACTIVE_PROFILE_2;
         }
         else if (result.value == MENU_ID_EM_BRAKE_CB) {
             response = DISPLAY_ACTION_DISABLE_BRAKE;
@@ -181,7 +181,7 @@ int keyPressed() {
         }
         else if (result.value == MENU_ID_PROFIL_CB) {
             model.clearIcon(ICON_ID_PROFILE);
-            response = DISPLAY_ACTION_ACTIVE_PROFILE_2;
+            response = DISPLAY_ACTION_ACTIVE_PROFILE_1;
         }
         else if (result.value == MENU_ID_EM_BRAKE_CB) {
             response = DISPLAY_ACTION_ENABLE_BRAKE;

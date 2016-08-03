@@ -44,16 +44,14 @@ public:
   virtual void draw(bool repaint);
 
   // Member
-private:
+protected:
   //! Text to display
   String m_text;
     ValueId m_display_value_id;
     int m_precision;
     //! DataListener
 public:
-  //! Icon changed
+    //! Data changed
     virtual void onValueChanged(uint8_t valueId);
 
-  // Member
-private:
 };

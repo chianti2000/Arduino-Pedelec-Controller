@@ -210,9 +210,11 @@ void MainView::drawKM(bool repaint) {
 
   String strOdo = "";
 
-  strOdo += (odo/10);
+  uint16_t precision = 100;
+
+  strOdo += (odo/precision);
   strOdo += ".";
-  strOdo += (odo - (odo/10)*10);
+  strOdo += (odo - (odo/precision)*precision);
   strOdo += " km";
 
   while (strOdo.length() < 8) {

@@ -86,6 +86,8 @@ const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always
 const switch_name MENU_BUTTON_UP = SWITCH_DISPLAY2;
 const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 
+const switch_name MENU_BUTTON_SELECT = SWITCH_THROTTLE;
+
 // Switch actions: Customizable actions for short and long press
 //
 // Choose from: ACTION_NONE, ACTION_SET_SOFT_POTI, ACTION_SHUTDOWN_SYSTEM
@@ -103,8 +105,8 @@ const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
 //
 // The file "switches_action.h" contains a list with descriptions.
 //
-const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_SET_SOFT_POTI;
-const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_ENTER_MENU;
+const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_ENTER_MENU;
+const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
 
 // #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin.
                                                    //FC 1.x: Use external 10k pullup resistor or it will not work!
@@ -201,35 +203,35 @@ const int throttle_max=900;              //Offset voltage of throttle control wh
 const int poti_offset=0;                 //Offset voltage of poti when in "0" position (0..1023 = 0..5V)
 const int poti_max=1023;                 //Offset voltage of poti when in "MAX" position (0..1023 = 0..5V)
 const int motor_offset=0;                //Offset for throttle output where Motor starts to spin (0..255 = 0..5V). Default: 50. In Servo mode this value is about 1000
-const int motor_max=200;                 //Maximum input value for motor driver (0..255 = 0..5V). Default: 200. In Servo mode this value is about 2000
+const int motor_max=250;                 //Maximum input value for motor driver (0..255 = 0..5V). Default: 200. In Servo mode this value is about 2000
 const int spd_idle=70;                   //idle speed of motor in km/h - may be much higher than real idle speed (depending on controller)
 const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
 const float vmax=4.2*NUM_CELLS;                   //Battery voltage when fully charged
-const float vcutoff=3.6*NUM_CELLS;              //cutoff voltage in V;
-const float vemergency_shutdown = 3.5*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
+const float vcutoff=3.7*NUM_CELLS;              //cutoff voltage in V;
+const float vemergency_shutdown = 3.6*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
 const byte wheel_magnets=1;              //configure your number of wheel magnets here
 const int spd_max1=45;                   //speed cutoff start in Km/h
 const int spd_max2=50;                   //speed cutoff stop (0W) in Km/h
-const int power_max=1000;                 //Maximum power in W (throttle mode)
-const int power_poti_max=1000;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
-const int thermal_limit=250;             //Maximum continuous thermal load motor can withstand
+const int power_max=750;                 //Maximum power in W (throttle mode)
+const int power_poti_max=750;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
+const int thermal_limit=500;             //Maximum continuous thermal load motor can withstand
 const int thermal_safe_speed=10;         //Speed above which motor is thermally safe at maximum current, see EPACSim
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
 const unsigned int idle_shutdown_secs = 300 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
-const unsigned int menu_idle_timeout_secs = 10;            // Menu inactivity timeout in seconds.
-const double capacity = 355.2;           //battery capacity in watthours for range calculation
+const unsigned int menu_idle_timeout_secs = 5;            // Menu inactivity timeout in seconds.
+const double capacity = 8000 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
 const double pas_factor_min=1.2;         //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const double pas_factor_max=3;           //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const int pas_magnets=12;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
 
 const int pas_start_count=12;            //number of ticks before the PAS activates
 
-const double cfg_pid_p=0.05;              //pid p-value, default: 0.0
+const double cfg_pid_p=0.1;              //pid p-value, default: 0.0
 const double cfg_pid_i=2.5;              //pid i-value, default: 2.0
-const double cfg_pid_p_throttle=0.1;    //pid p-value for throttle mode, default: 0.05
-const double cfg_pid_i_throttle=3.0;     //pid i-value for throttle mode, default: 2.5
+const double cfg_pid_p_throttle=0.2;    //pid p-value for throttle mode, default: 0.05
+const double cfg_pid_i_throttle=5.0;     //pid i-value for throttle mode, default: 2.5
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
 const int pas_timeout=500;               //time in ms after which pedaling is set to false
@@ -240,9 +242,9 @@ const int torque_throttle_full=20;       //torque to give full throttle
 const int startingaid_speed_2 = 6;
 const int spd_max1_2=25;                   //speed cutoff start in Km/h
 const int spd_max2_2=28;                   //speed cutoff stop (0W) in Km/h
-const int power_max_2=1000;                 //Maximum power in W (throttle mode)
-const int power_poti_max_2=1000;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
-const double capacity_2 = 355.0;           //battery capacity in watthours for range calculation
+const int power_max_2=750;                 //Maximum power in W (throttle mode)
+const int power_poti_max_2=750;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
+const double capacity_2 = 8000 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
 
 // voltage and current calibration
 const float voltage_amplitude = 0.0587;       // set this value according to your own voltage-calibration. Default: 0.0587

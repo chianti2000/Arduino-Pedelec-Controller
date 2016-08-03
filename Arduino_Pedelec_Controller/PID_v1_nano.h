@@ -52,6 +52,8 @@ public:
     double GetKi();                       //  they were created mainly for the pid front-end,
     double GetKd();                       // where it's important to know what is actually
     int GetMode();                        //  inside the PID.
+    double GetI();                       // Get current I
+    void SetI(double);                   // Set current I
     int GetDirection();                   //
 
 private:
