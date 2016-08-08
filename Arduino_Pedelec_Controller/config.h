@@ -242,8 +242,8 @@ const int torque_throttle_full=20;       //torque to give full throttle
 const int startingaid_speed_2 = 6;
 const int spd_max1_2=25;                   //speed cutoff start in Km/h
 const int spd_max2_2=28;                   //speed cutoff stop (0W) in Km/h
-const int power_max_2=750;                 //Maximum power in W (throttle mode)
-const int power_poti_max_2=750;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
+const int power_max_2=500;                 //Maximum power in W (throttle mode)
+const int power_poti_max_2=500;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
 const double capacity_2 = 8000 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
 
 // voltage and current calibration
