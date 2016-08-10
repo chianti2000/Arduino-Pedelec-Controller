@@ -25,13 +25,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "DiagramComponent.h"
 
-uint16_t map_to_uint(float_t x, float_t in_min, float_t in_max, uint16_t out_min, uint16_t
+uint16_t map_to_uint(float_t x, float_t in_min, float_t in_max, int16_t out_min, int16_t
 out_max)
 {
     return uint16_t((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
 }
 
-float_t map_to_float(long x, uint16_t in_min, uint16_t in_max, float_t out_min, float_t out_max)
+float_t map_to_float(long x, int16_t in_min, int16_t in_max, float_t out_min, float_t out_max)
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
@@ -110,8 +110,8 @@ void DiagramComponent::draw(bool repaint) {
         uint16_t index1 = (m_cur_pose_index + i + 2) % DATA_LENGTH;
 
 
-        uint16_t y1 = m_y + 59 - map_to_uint((m_data[index]), 0, max_val, 0, 59);
-        uint16_t y2 = m_y + 59 - map_to_uint((m_data[index1]), 0, max_val, 0, 59);
+        uint16_t y1 = m_y + 59 - constrain(map_to_uint((m_data[index]), 0, max_val, 0, 59), 0, 59);
+        uint16_t y2 = m_y + 59 - constrain(map_to_uint((m_data[index1]), 0, max_val, 0, 59), 0, 59);
 
         lcd.drawLine(x, y1, x + 2, y2, DIAGRAM_DATA_COLOR);
         lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, DIAGRAM_DATA_COLOR);
@@ -149,7 +149,7 @@ void DiagramComponent::draw(bool repaint) {
     lcd.print(m_text.c_str());
     // print current max value
     lcd.setCursor(0, m_y + 2);
-    lcd.print(map_to_float(max_val, 0, 1023, min_value, max_value)/m_precision, 1);
+    lcd.print(constrain(map_to_float(max_val, 0, 1023, min_value, max_value), min_value, max_value)/m_precision, 1);
 
 }
 
@@ -158,14 +158,16 @@ void DiagramComponent::set_text(const String &m_text) {
 }
 
 void DiagramComponent::set_display_value_id(ValueId m_display_value_id) {
-    DiagramComponent::m_display_value_id = m_display_value_id;
-    for (int i = 0; i < DATA_LENGTH - 1; ++i) {
-        m_data[i] = 0;
-    }
     m_cur_pose_index = 0;
     current_count = 0;
     current_value = 0.0;
     m_last_draw = millis();
+
+    DiagramComponent::m_display_value_id = m_display_value_id;
+    for (int i = 0; i < DATA_LENGTH - 1; ++i) {
+        m_data[i] = 0;
+    }
+
 }
 
 void DiagramComponent::set_min_max(float_t min, float_t max) {

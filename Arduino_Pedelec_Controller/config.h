@@ -198,7 +198,7 @@ const double hx711_scale=78514.375;         //this is the scale to apply.
 #define NUM_CELLS 12
 //Config Options-----------------------------------------------------------------------------------------------------
 const int pas_tolerance=1;               //0... increase to make pas sensor slower but more tolerant against speed changes
-const int throttle_offset=196;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)
+const int throttle_offset=210;           //Offset voltage of throttle control when in "0" position (0..1023 = 0..5V)
 const int throttle_max=900;              //Offset voltage of throttle control when in "MAX" position (0..1023 = 0..5V)
 const int poti_offset=0;                 //Offset voltage of poti when in "0" position (0..1023 = 0..5V)
 const int poti_max=1023;                 //Offset voltage of poti when in "MAX" position (0..1023 = 0..5V)
@@ -209,7 +209,7 @@ const boolean startingaidenable = true;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
 const float vmax=4.2*NUM_CELLS;                   //Battery voltage when fully charged
 const float vcutoff=3.7*NUM_CELLS;              //cutoff voltage in V;
-const float vemergency_shutdown = 3.6*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
+const float vemergency_shutdown = 3.5*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
 const byte wheel_magnets=1;              //configure your number of wheel magnets here
 const int spd_max1=45;                   //speed cutoff start in Km/h
@@ -221,7 +221,7 @@ const int thermal_safe_speed=10;         //Speed above which motor is thermally 
 const int whkm_max=30;                   //Maximum wh/km consumption in CONTROL_MODE_LIMIT_WH_PER_KM (controls poti-range)
 const unsigned int idle_shutdown_secs = 300 * 60;           // Idle shutdown in seconds. Max is ~1080 minutes or 18 hours
 const unsigned int menu_idle_timeout_secs = 5;            // Menu inactivity timeout in seconds.
-const double capacity = 8000 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
+const double capacity = 8 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
 const double pas_factor_min=1.2;         //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const double pas_factor_max=3;           //Use pas_factor from hardware-test here with some tolerances. Both values have to be eihter larger or smaller than 1.0 and not 0.0!
 const int pas_magnets=12;                 //number of magnets in your PAS sensor. When using a Thun X-Cell RT set this to 8
@@ -244,7 +244,7 @@ const int spd_max1_2=25;                   //speed cutoff start in Km/h
 const int spd_max2_2=28;                   //speed cutoff stop (0W) in Km/h
 const int power_max_2=500;                 //Maximum power in W (throttle mode)
 const int power_poti_max_2=500;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
-const double capacity_2 = 8000 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
+const double capacity_2 = 8 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
 
 // voltage and current calibration
 const float voltage_amplitude = 0.0587;       // set this value according to your own voltage-calibration. Default: 0.0587

@@ -111,10 +111,10 @@ void Components::activateView(uint8_t num) {
     for (uint8_t i = 0; i < MAX_COMP_ACTIVE; i++) {
         m_active_components_ids[i] = views[num].active_components_ids[i];
     }
-    diagramComponent->set_display_value_id(views[num].diagram_val);
-    diagramComponent->set_text(views[num].diagram_string);
     diagramComponent->set_min_max(views[num].diagram_min, views[num].diagram_max);
     diagramComponent->set_precision(views[num].diagram_precision);
+    diagramComponent->set_display_value_id(views[num].diagram_val);
+    diagramComponent->set_text(views[num].diagram_string);
     updatePositionAndRemoveInvisible();
 }
 
