@@ -41,7 +41,7 @@ View views[NUM_VIEWS] = {
                 COMP_ID_REMAINING_KM,
                 COMP_ID_SUPPORT_POTI,
                 COMP_ID_NONE
-        }, .diagram_string="Speed", .diagram_val=VALUE_ID_SPEED, .diagram_precision=10,
+        }, .diagram_string="Speed", .diagram_val=VALUE_ID_SPEED, .diagram_precision=1,
                 .diagram_min=0.0, .diagram_max=40.0},
         {.active_components_ids = {
                 COMP_ID_SEP,
@@ -54,7 +54,7 @@ View views[NUM_VIEWS] = {
                 COMP_ID_SEP,
                 COMP_ID_DIAG,
                 COMP_ID_NONE
-        }, .diagram_string="Power", .diagram_val=VALUE_ID_POWER, .diagram_precision=1,
+        }, .diagram_string="Power", .diagram_val=VALUE_ID_POWER, .diagram_precision=0,
                 .diagram_min=0.0, .diagram_max=1000.0},
         {.active_components_ids = {
                 COMP_ID_SEP,
@@ -70,7 +70,7 @@ View views[NUM_VIEWS] = {
                 COMP_ID_BAT_MAH,
                 COMP_ID_MOTOR_CURRENT
 
-        }, .diagram_string="", .diagram_val=VALUE_ID_NONE, .diagram_precision=1,
+        }, .diagram_string="", .diagram_val=VALUE_ID_NONE, .diagram_precision=0,
                 .diagram_min=0.0, .diagram_max=1000.0},
 };
 

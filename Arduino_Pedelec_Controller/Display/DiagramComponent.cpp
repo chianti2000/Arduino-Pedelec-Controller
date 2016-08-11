@@ -67,9 +67,9 @@ void DiagramComponent::onValueChanged(uint8_t valueId){
         current_value *= float((current_count - 1)) / current_count;
         current_value += float(model.getValue(m_display_value_id))/current_count;
 
-        if (millis() > m_last_draw + UPDATE_PERIOD_S) {
-            this->draw(false);
-        }
+        //if (millis() > m_last_draw + UPDATE_PERIOD_S) {
+        //    this->draw(false);
+        //}
     }
 }
 
@@ -84,7 +84,7 @@ void DiagramComponent::draw(bool repaint) {
 
     //reset counts
     if (millis() > m_last_draw + UPDATE_PERIOD_S) {
-        m_data[++m_cur_pose_index] = map_to_uint(current_value, min_value, max_value, 0, 1023);
+        m_data[++m_cur_pose_index] = current_value; //map_to_uint(current_value, min_value, max_value, 0, 1023);
         m_cur_pose_index %= DATA_LENGTH;
 
         m_last_draw = millis();
@@ -95,12 +95,14 @@ void DiagramComponent::draw(bool repaint) {
         return;
     }
 
-    long max_val = 0;
+    //long max_val = 0;
+    float_t max_val = 0;
 
     for (uint8_t i = 0; i < DATA_LENGTH - 1; i++) {
         max_val = max(m_data[i], max_val);
     }
-    long mapped = map(max_val, 0, max_val, 0, 59);
+    //long mapped = map(max_val, 0, max_val, 0, 59);
+    uint16_t mapped = map_to_uint(max_val, 0, max_val, 0, 59);
     lcd.fillRect(0, m_y + 60 - mapped, 240, mapped, ILI9341_BLACK);
 
 #ifndef BUFFER_SHIFT
@@ -149,8 +151,14 @@ void DiagramComponent::draw(bool repaint) {
     lcd.print(m_text.c_str());
     // print current max value
     lcd.setCursor(0, m_y + 2);
-    lcd.print(constrain(map_to_float(max_val, 0, 1023, min_value, max_value), min_value, max_value)/m_precision, 1);
-
+    //lcd.print(constrain(map_to_float(max_val, 0, 1023, min_value, max_value), min_value, max_value)/m_precision, 1);
+    if (m_precision > 0) {
+        int factor = (int)pow(10, m_precision);
+        lcd.print(max_val/factor, m_precision);
+    }
+    else {
+      lcd.print(max_val);
+    }
 }
 
 void DiagramComponent::set_text(const String &m_text) {
@@ -175,7 +183,7 @@ void DiagramComponent::set_min_max(float_t min, float_t max) {
     max_value = max;
 }
 
-void DiagramComponent::set_precision(uint8_t precision) {
+void DiagramComponent::set_precision(int16_t precision) {
     m_precision = precision;
 }
 
