@@ -265,7 +265,7 @@ void MainView::onValueChanged(uint8_t valueId) {
     case VALUE_ID_SPEED:
       drawSpeed(false);
           break;
-    case VALUE_ID_BATTERY_VOLTAGE_CURRENT:
+    case VALUE_ID_BATTERY_PERC_CURRENT:
       drawBattery(false);
           break;
     case VALUE_ID_POWER:

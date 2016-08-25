@@ -96,7 +96,7 @@ void DiagramComponent::draw(bool repaint) {
     }
 
     //long max_val = 0;
-    float_t max_val = 0;
+    float_t max_val = 0.;
 
     for (uint8_t i = 0; i < DATA_LENGTH - 1; i++) {
         max_val = max(m_data[i], max_val);
@@ -154,10 +154,10 @@ void DiagramComponent::draw(bool repaint) {
     //lcd.print(constrain(map_to_float(max_val, 0, 1023, min_value, max_value), min_value, max_value)/m_precision, 1);
     if (m_precision > 0) {
         int factor = (int)pow(10, m_precision);
-        lcd.print(max_val/factor, m_precision);
+        lcd.printf("%.*f", m_precision, float(max_val/factor));
     }
     else {
-      lcd.print(max_val);
+      lcd.printf("%d", (int)max_val);
     }
 }
 
