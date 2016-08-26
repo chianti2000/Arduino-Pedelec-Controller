@@ -88,7 +88,7 @@ void DiagramComponent::draw(bool repaint) {
         m_cur_pose_index %= DATA_LENGTH;
 
         m_last_draw = millis();
-        current_count = 0;
+        current_count = 1;
         current_value = model.getValue(m_display_value_id);
     }
     else {
