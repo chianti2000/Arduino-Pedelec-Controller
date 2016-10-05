@@ -27,9 +27,11 @@ set(TRIPLE "arm-none-eabi")
 if(UNIX)
     if (APPLE)
         set(ARDUINO_ROOT "/Applications/Arduino.app/Contents/Java" CACHE PATH "Path to the Arduino application")
+        set(TY_EXECUTABLE "/Applications/TyQt.app/Contents/MacOS/tyc" CACHE FILEPATH "Path to the 'ty' executable that can upload programs to the Teensy")
     else()
         ## Linux
         set(ARDUINO_ROOT "/home/daniel/arduino-1.6.10"  CACHE PATH "Path to the Arduino application")
+        set(TY_EXECUTABLE "/usr/local/bin/tyc" CACHE FILEPATH "Path to the 'ty' executable that can upload programs to the Teensy")
     endif()
 endif()
 

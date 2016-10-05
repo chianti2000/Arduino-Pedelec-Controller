@@ -956,9 +956,9 @@ void loop()
         power_set = power_throttle;
         if (last_active_pid == NORMAL_PID) {  // we switched
             double tmp_last_i = myPID.GetI(); //save previous I term for reset to normal
-            if (last_i > 0){
-                myPID.SetI(last_i);  //reset to previous Throttle Iterm
-            }
+            //if (last_i > 0){
+            //    myPID.SetI(last_i);  //reset to previous Throttle Iterm
+            //}
             last_i = tmp_last_i;
         }
         last_active_pid = THROTTLE_PID;
@@ -968,11 +968,11 @@ void loop()
         myPID.SetTunings(pid_p,pid_i,0);
         power_set = power_poti;
         if (last_active_pid == THROTTLE_PID) {  // we switched
-            double tmp_last_i = myPID.GetI();  //save previous I term for reset to Throttle
+            //double tmp_last_i = myPID.GetI();  //save previous I term for reset to Throttle
             if (last_i > 0) {
                 myPID.SetI(last_i);  // reset to previous normal ITerm
             }
-            last_i = tmp_last_i;
+            //last_i = tmp_last_i;
         }
         last_active_pid = NORMAL_PID;
     }

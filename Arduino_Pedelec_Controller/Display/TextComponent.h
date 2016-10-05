@@ -48,7 +48,7 @@ protected:
   //! Text to display
   String m_text;
     ValueId m_display_value_id;
-    int m_precision;
+    int16_t m_precision;
     //! DataListener
 public:
     //! Data changed

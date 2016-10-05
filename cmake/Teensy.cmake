@@ -22,16 +22,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#Linux or apple
-
-
-if(APPLE)
-    set(TY_EXECUTABLE "/Applications/TyQt.app/Contents/MacOS/tyc" CACHE FILEPATH "Path to the 'ty' executable that can upload programs to the Teensy")
-else()
-    set(TY_EXECUTABLE "/usr/local/bin/tyc" CACHE FILEPATH "Path to the 'ty' executable that can upload programs to the Teensy")
-endif()
-
-
 set(TEENSY_C_CORE_FILES
     ${TEENSY_ROOT}/math_helper.c
     ${TEENSY_ROOT}/analog.c

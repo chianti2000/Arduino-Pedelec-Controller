@@ -106,7 +106,7 @@ const switch_name MENU_BUTTON_SELECT = SWITCH_THROTTLE;
 // The file "switches_action.h" contains a list with descriptions.
 //
 const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_ENTER_MENU;
-const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_SHUTDOWN_SYSTEM;
+const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_FIXED_THROTTLE_VALUE;
 
 // #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin.
                                                    //FC 1.x: Use external 10k pullup resistor or it will not work!
@@ -143,7 +143,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 const int poti_value_on_startup_in_watts = 100;    //poti startup value in watts
 const int poti_level_step_size_in_watts = 50;    //number of watts to increase / decrease poti value by switch press
 const int poti_fixed_value_via_switch = 250;     //fixed number of watts for the soft poti when ACTION_SET_FIXED_POTI_VALUE is triggered
-const int fixed_throttle_in_watts = 250;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
+const int fixed_throttle_in_watts = 500;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
 
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
@@ -228,9 +228,9 @@ const int pas_magnets=12;                 //number of magnets in your PAS sensor
 
 const int pas_start_count=12;            //number of ticks before the PAS activates
 
-const double cfg_pid_p=0.1;              //pid p-value, default: 0.0
-const double cfg_pid_i=2.5;              //pid i-value, default: 2.0
-const double cfg_pid_p_throttle=0.2;    //pid p-value for throttle mode, default: 0.05
+const double cfg_pid_p=0.2;              //pid p-value, default: 0.0
+const double cfg_pid_i=3.5;              //pid i-value, default: 2.0
+const double cfg_pid_p_throttle=0.3;    //pid p-value for throttle mode, default: 0.05
 const double cfg_pid_i_throttle=5.0;     //pid i-value for throttle mode, default: 2.5
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
@@ -263,7 +263,7 @@ const int external_current_in = A6;            //For HW Rev. 2.1: use Pin  A6
 const int external_voltage_in = A7;            //For HW Rev. 2.1: use Pin  A7
 
 const char msg_welcome[] PROGMEM = "Welcome";
-const char msg_shutdown[] PROGMEM = "Live long and prosper.";
+const char msg_shutdown[] PROGMEM = "Bye bye!";
 
 const char msg_battery_charged[] PROGMEM = "Battery charged! Resetting counters";
 const char msg_idle_shutdown[] PROGMEM = "Idle shutdown. Good night.";
