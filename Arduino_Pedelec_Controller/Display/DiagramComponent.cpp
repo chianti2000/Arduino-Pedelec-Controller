@@ -84,7 +84,7 @@ void DiagramComponent::draw(bool repaint) {
 
     //reset counts
     if (millis() > m_last_draw + UPDATE_PERIOD_S) {
-        m_cur_pose_index =+ 1;
+        m_cur_pose_index += 1;
         m_cur_pose_index %= DATA_LENGTH;
 
         m_data[m_cur_pose_index] = current_value; //map_to_uint(current_value, min_value, max_value, 0, 1023);
