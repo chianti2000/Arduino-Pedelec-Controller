@@ -83,10 +83,10 @@ const int serial_display_16x2_second_unused_pin = 16;       // SoftSerial always
 //
 // Choose from: SWITCH_THROTTLE, SWITCH_DISPLAY1 and SWITCH_DISPLAY2
 //
-const switch_name MENU_BUTTON_UP = SWITCH_DISPLAY2;
-const switch_name MENU_BUTTON_DOWN = SWITCH_DISPLAY1;
+const switch_name MENU_BUTTON_UP = SWITCH_UP;
+const switch_name MENU_BUTTON_DOWN = SWITCH_DOWN;
 
-const switch_name MENU_BUTTON_SELECT = SWITCH_THROTTLE;
+const switch_name MENU_BUTTON_SELECT = SWITCH_CENTER;
 
 // Switch actions: Customizable actions for short and long press
 //
@@ -105,8 +105,8 @@ const switch_name MENU_BUTTON_SELECT = SWITCH_THROTTLE;
 //
 // The file "switches_action.h" contains a list with descriptions.
 //
-const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_ENTER_MENU;
-const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_FIXED_THROTTLE_VALUE;
+const sw_action SW_THROTTLE_SHORT_PRESS = ACTION_FIXED_THROTTLE_VALUE;
+const sw_action SW_THROTTLE_LONG_PRESS = ACTION_FIXED_THROTTLE_VALUE;
 
 // #define SUPPORT_SWITCH_ON_POTI_PIN              //uncomment if you have an additional switch on the poti pin.
                                                    //FC 1.x: Use external 10k pullup resistor or it will not work!
@@ -114,13 +114,23 @@ const sw_action SW_THROTTLE_LONG_PRESS  = ACTION_FIXED_THROTTLE_VALUE;
 const sw_action SW_POTI_SHORT_PRESS = ACTION_NONE;
 const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
 
-const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DECREASE_POTI;
+const sw_action SW_UP_SHORT_PRESS = ACTION_INCREASE_POTI;
 //const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
-const sw_action SW_DISPLAY1_LONG_PRESS  = ACTION_DISPLAY_NEXT_VIEW;
+const sw_action SW_UP_LONG_PRESS  = ACTION_NONE;
 
-const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_INCREASE_POTI;
+const sw_action SW_DOWN_SHORT_PRESS = ACTION_DECREASE_POTI;
 //const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
-const sw_action SW_DISPLAY2_LONG_PRESS  = ACTION_DISPLAY_PREV_VIEW;
+const sw_action SW_DOWN_LONG_PRESS  = ACTION_NONE;
+
+const sw_action SW_LEFT_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
+const sw_action SW_LEFT_LONG_PRESS = ACTION_NONE;
+
+const sw_action SW_RIGHT_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
+const sw_action SW_RIGHT_LONG_PRESS = ACTION_NONE;
+
+const sw_action SW_CENTER_SHORT_PRESS = ACTION_ENTER_MENU;
+const sw_action SW_CENTER_LONG_PRESS = ACTION_SHUTDOWN_SYSTEM;
+
 
 // #define SUPPORT_DISPLAY_BACKLIGHT // uncomment for dynamic LCD display backlight support.
                                      // Normally the backlight is always on. If you enable this option,
@@ -174,7 +184,7 @@ const int fixed_throttle_in_watts = 500;         //number of watts to set as thr
 //#define SUPPORT_MOTOR_SERVO      //RC Motor controller with PWM input is used. Do not forget to remove capacitor from the low pass filter of the output to the motor controller.
 //#define SUPPORT_MOTOR_GUESS   //enable guess of motor drive depending on current speed. Usefull for motor controllers with speed-throttle to optimize response behaviour
 #define SUPPORT_BATTERY_CHARGE_DETECTION //support detection if the battery was charged -> reset wh / trip km / mah counters if detected.
-const byte battery_charged_min_voltage = 20;  //minimum battery voltage to consider it charged. Useful to prevent "false positives".
+const byte battery_charged_min_voltage = 48;  //minimum battery voltage to consider it charged. Useful to prevent "false positives".
 //#define SUPPORT_BATTERY_CHARGE_COUNTER //support charge counter for battery cycles. is increased every time a regarge is detected.
 
 //#define SUPPORT_GEAR_SHIFT                 //support shifting gears on the "double speed" motor

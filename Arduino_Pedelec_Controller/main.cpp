@@ -234,21 +234,22 @@ const int voltage_in = 255;
 const int current_in = 255;
 
 //plugs top left, wheel last pin from VESC
-const int wheel_in = 5;              //Speed read-Pin
+const int wheel_in = 18;              //Speed read-Pin
 const int pas_in = 3; //PAS_in 1
 const int option_pin = 4; //PAS_in 2
 
 //plug top right
-const int throttle_in = A9;          //Throttle read-Pin
-const int brake_in = 22;
-const int switch_thr = 21;           //thr switch
-const int switch_disp = 20;           //Display switch
-const int switch_disp_2 = 19;           //Display switch2
+const int buttons_in = A1;          //Buttons read-Pin
+const int throttle_in = 255;
+const int brake_in = 8;
+const int switch_thr = 255;           //thr switch
+const int switch_disp = 255;           //Display switch
+const int switch_disp_2 = 255;           //Display switch2
 
 //3pin header
-const int fet_out = 15;
-const int lights_pin = 16;           //lights switch
-const int buzzer = 17;           //buzzer switch
+const int fet_out = 255;
+const int lights_pin = 20;           //lights switch
+const int buzzer = 255;           //buzzer switch
 
 //temp reading
 float temperature_vesc = 0.0;       //temperature
@@ -521,6 +522,8 @@ void setup()
     digitalWrite(switch_disp, HIGH);      // turn on pullup resistors on display-switch
 #ifdef TEENSY_VERSION
     digitalWrite(switch_disp_2, HIGH);    // turn on pullup resistors on display-switch 2
+    pinMode(buttons_in, INPUT_PULLUP);
+    //digitalWrite(throttle_in, HIGH);    // turn on pullup resistors on display-switch 2
 #endif
 #if HARDWARE_REV < 20
     digitalWrite(wheel_in, HIGH);         // turn on pullup resistors on wheel-sensor
@@ -705,6 +708,7 @@ void loop()
 
 #ifdef SUPPORT_THROTTLE
     throttle_stat = constrain(map(analogRead_noISR(throttle_in),throttle_offset,throttle_max,0,1023),0,1023);   // 0...1023
+    //throttle_stat = analogRead(throttle_in);
     if (throttle_stat<5 || first_aid_ignore_throttle) //avoid noisy throttle readout
     {
         throttle_stat=0;
@@ -778,8 +782,8 @@ void loop()
     if (voltage_display == 0)
         voltage_display = voltage;
 
-    voltage_display = 0.99*voltage_display + 0.01*voltage; //averaged voltage for display
-    current_display = 0.99*current_display + 0.01*current; //averaged voltage for display
+    voltage_display = 0.8*voltage_display + 0.2*voltage; //averaged voltage for display
+    current_display = 0.8*current_display + 0.2*current; //averaged voltage for display
     power=current*voltage;
 
 #ifdef SUPPORT_XCELL_RT
@@ -802,10 +806,16 @@ void loop()
 #endif
 
 //handle switches----------------------------------------------------------------------------------------------------------
-    handle_switch(SWITCH_THROTTLE, digitalRead(switch_thr));
-    handle_switch(SWITCH_DISPLAY1, digitalRead(switch_disp));
+    //handle_switch(SWITCH_THROTTLE, digitalRead(switch_thr));
+    //handle_switch(SWITCH_DISPLAY1, digitalRead(switch_disp));
 #ifdef TEENSY_VERSION
-    handle_switch(SWITCH_DISPLAY2, digitalRead(switch_disp_2));
+    switch_name switch_selected = get_switch(analogRead(buttons_in));
+    handle_switch(switch_selected, 0); //BUTTON_ON = 0
+    for (int i =0; i<_SWITCHES_COUNT; ++i) {
+        if (i != switch_selected)
+            handle_switch(static_cast<switch_name >(i), 1); //BUTTON OFF = 1
+    }
+    //updateDataModel(VALUE_ID_MOTOR_RPM, switch_selected);
 #endif
 #if (DISPLAY_TYPE & (DISPLAY_TYPE_NOKIA_4PIN|DISPLAY_TYPE_16X2_SERIAL))
     #if HARDWARE_REV >= 20
@@ -856,7 +866,7 @@ void loop()
     //updateDataModel(VALUE_ID_ENC, new_pos);
     if (new_pos != 0)
     {
-        cad = (60000./96.) / (millis() - last_pas_event) * new_pos;
+        cad = cad * 0.5 + (60000./96.) / (millis() - last_pas_event) * new_pos * 0.5;
         last_pas_event = millis();
         if (new_pos<0) {
             pedaling = false;
@@ -1288,6 +1298,10 @@ void read_current_torque() //this reads the current torque value
     readtorque=true;
 }
 #endif
+
+
+
+
 
 #ifdef SUPPORT_PAS
 void pas_change()       //Are we pedaling? PAS Sensor Change------------------------------------------------------------------------------------------------------------------

@@ -117,8 +117,8 @@ void DiagramComponent::draw(bool repaint) {
         uint16_t y1 = m_y + 59 - constrain(map_to_uint((m_data[index]), 0, max_val, 0, 59), 0, 59);
         uint16_t y2 = m_y + 59 - constrain(map_to_uint((m_data[index1]), 0, max_val, 0, 59), 0, 59);
 
-        lcd.drawLine(x, y1, x + 2, y2, ILI9341_YELLOW);
-        lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, ILI9341_YELLOW);
+        lcd.drawLine(x, y1, x + 2, y2, ILI9341_GREEN);
+        lcd.drawLine(x, y1 + 1, x + 2, y2 + 1, ILI9341_GREEN);
     }
 #else //NOT WORKING WITHOUT MISO, never tested
     uint16_t awColors[60*2];

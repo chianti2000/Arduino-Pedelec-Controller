@@ -29,6 +29,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Display/DisplayController.h"
 #endif
 
+int switch_analog_values[_SWITCHES_COUNT] = {11, 31, 21, 16, 93, 53};
+int switches_range = 2;
+
 
 struct switch_state
 {
@@ -49,6 +52,15 @@ static void _handle_menu_switch(const enum switch_name sw, const enum switch_res
 static void action_set_profile(const boolean new_profile);
 
 
+switch_name get_switch(int value){
+    switch_name result = _SWITCHES_COUNT;
+    for (int i=0; i<_SWITCHES_COUNT; ++i) {
+        if (value >= switch_analog_values[i] - switches_range && value <= switch_analog_values[i] + switches_range)
+            return static_cast<switch_name>(i);
+    }
+    return result;
+}
+
 void init_switches()
 {
     memset(&switch_states, 0, sizeof(struct switch_state) * _SWITCHES_COUNT);
@@ -57,11 +69,21 @@ void init_switches()
     switch_states[SWITCH_THROTTLE].action_short_press = SW_THROTTLE_SHORT_PRESS;
     switch_states[SWITCH_THROTTLE].action_long_press = SW_THROTTLE_LONG_PRESS;
 
-    switch_states[SWITCH_DISPLAY1].action_short_press = SW_DISPLAY1_SHORT_PRESS;
-    switch_states[SWITCH_DISPLAY1].action_long_press = SW_DISPLAY1_LONG_PRESS;
+    switch_states[SWITCH_UP].action_short_press = SW_UP_SHORT_PRESS;
+    switch_states[SWITCH_UP].action_long_press = SW_UP_LONG_PRESS;
 
-    switch_states[SWITCH_DISPLAY2].action_short_press = SW_DISPLAY2_SHORT_PRESS;
-    switch_states[SWITCH_DISPLAY2].action_long_press = SW_DISPLAY2_LONG_PRESS;
+    switch_states[SWITCH_DOWN].action_short_press = SW_DOWN_SHORT_PRESS;
+    switch_states[SWITCH_DOWN].action_long_press = SW_DOWN_LONG_PRESS;
+
+    switch_states[SWITCH_LEFT].action_short_press = SW_LEFT_SHORT_PRESS;
+    switch_states[SWITCH_LEFT].action_long_press = SW_LEFT_LONG_PRESS;
+
+    switch_states[SWITCH_RIGHT].action_short_press = SW_RIGHT_SHORT_PRESS;
+    switch_states[SWITCH_RIGHT].action_long_press = SW_RIGHT_LONG_PRESS;
+
+    switch_states[SWITCH_CENTER].action_short_press = SW_CENTER_SHORT_PRESS;
+    switch_states[SWITCH_CENTER].action_long_press = SW_CENTER_LONG_PRESS;
+
 
 #ifdef SUPPORT_SWITCH_ON_POTI_PIN
     switch_states[SWITCH_POTI].action_short_press = SW_POTI_SHORT_PRESS;
@@ -486,6 +508,13 @@ static enum switch_result _read_switch(switch_state *state, boolean switch_curre
             // first press
             state->first_press_time=now;
         }
+        //No delay for boost button
+        else if ((now - state->first_press_time)>10 && (state->trigger_every_time))
+        {
+            state->action_enabled = false;
+            res = PRESSED_SHORT;
+        }
+
         else if ((now - state->first_press_time)>1000 &&
                  (state->action_enabled || state->trigger_every_time))
         {

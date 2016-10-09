@@ -1338,7 +1338,7 @@ void display_update()
     updateDataModel(VALUE_ID_BATTERY_MAH_USED, mah);
     updateDataModel(VALUE_ID_BATTERY_VOLTAGE_CURRENT, voltage_display * 10);
     updateDataModel(VALUE_ID_MOTOR_CURRENT, motor_current * 10);
-    updateDataModel(VALUE_ID_MOTOR_RPM, motor_rpm * 10);
+    updateDataModel(VALUE_ID_MOTOR_RPM, motor_rpm);
     updateDataModel(VALUE_ID_VESC_TEMP, temperature_vesc*10);
 
     updateDisplay();
