@@ -29,8 +29,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 #include "Display/DisplayController.h"
 #endif
 
-int switch_analog_values[_SWITCHES_COUNT] = {11, 31, 21, 16, 93, 53};
-int switches_range = 2;
+int switch_analog_values[_SWITCHES_COUNT] = {33, 230, 567, 780, 381, 880};
+int switches_range = 40;
 
 
 struct switch_state
