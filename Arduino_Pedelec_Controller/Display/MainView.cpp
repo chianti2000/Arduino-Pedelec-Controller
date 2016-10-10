@@ -203,6 +203,9 @@ void MainView::drawWattage(bool repaint) {
 
 void MainView::drawKM(bool repaint) {
     // odo KM
+  if (!m_active) {
+    return;
+  }
   lcd.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   lcd.setTextSize(2);
   lcd.setCursor(72, 75);
@@ -261,6 +264,9 @@ ViewResult MainView::keyPressed() {
 
 //! a value was changed
 void MainView::onValueChanged(uint8_t valueId) {
+  if (!m_active) {
+    return;
+  }
   switch (valueId) {
     case VALUE_ID_SPEED:
       drawSpeed(false);

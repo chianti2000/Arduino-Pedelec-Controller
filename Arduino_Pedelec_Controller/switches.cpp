@@ -227,11 +227,12 @@ static void handle_display_return(int result)
             break;
         case DISPLAY_ACTION_TOGGLE_LIGHT_OFF:
             display_show_important_info("Disabled Lights", 0);
-            digitalWrite(lights_pin, LOW);
+            digitalWrite(lights_pin, HIGH);
             break;
         case DISPLAY_ACTION_TOGGLE_LIGHT_ON:
             display_show_important_info("Enabled Lights", 0);
-            digitalWrite(lights_pin, HIGH);
+            digitalWrite(lights_pin, LOW);
+            break;
         case DISPLAY_ACTION_ACTIVE_PROFILE_1:
             display_show_important_info("Activated Profile 1", 0);
             action_set_profile(0);
