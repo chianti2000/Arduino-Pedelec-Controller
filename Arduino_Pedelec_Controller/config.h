@@ -150,7 +150,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 
 
 #define SUPPORT_POTI_SWITCHES     //uncomment to increase/decrease the poti via switch action ACTION_INCREASE_POTI / ACTION_DECREASE_POTI
-const int poti_value_on_startup_in_watts = 100;    //poti startup value in watts
+const int poti_value_on_startup_in_watts = 200;    //poti startup value in watts
 const int poti_level_step_size_in_watts = 50;    //number of watts to increase / decrease poti value by switch press
 const int poti_fixed_value_via_switch = 250;     //fixed number of watts for the soft poti when ACTION_SET_FIXED_POTI_VALUE is triggered
 const int fixed_throttle_in_watts = 500;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
@@ -215,11 +215,11 @@ const int poti_max=1023;                 //Offset voltage of poti when in "MAX" 
 const int motor_offset=0;                //Offset for throttle output where Motor starts to spin (0..255 = 0..5V). Default: 50. In Servo mode this value is about 1000
 const int motor_max=250;                 //Maximum input value for motor driver (0..255 = 0..5V). Default: 200. In Servo mode this value is about 2000
 const int spd_idle=70;                   //idle speed of motor in km/h - may be much higher than real idle speed (depending on controller)
-const boolean startingaidenable = true;  //enable starting aid?
+const boolean startingaidenable = false;  //enable starting aid?
 const int startingaid_speed = 6;         //starting aid up to this speed. 6km/h is the limit for legal operation of a Pedelec by EU-wide laws
 const float vmax=4.2*NUM_CELLS;                   //Battery voltage when fully charged
-const float vcutoff=3.7*NUM_CELLS;              //cutoff voltage in V;
-const float vemergency_shutdown = 3.5*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
+const float vcutoff=3.5*NUM_CELLS;              //cutoff voltage in V;
+const float vemergency_shutdown = 3.3*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
 const byte wheel_magnets=1;              //configure your number of wheel magnets here
 const int spd_max1=45;                   //speed cutoff start in Km/h
@@ -244,7 +244,7 @@ const double cfg_pid_p_throttle=0.3;    //pid p-value for throttle mode, default
 const double cfg_pid_i_throttle=5.0;     //pid i-value for throttle mode, default: 2.5
 const byte pulse_min=150;                //lowest value of desired pulse range in bpm
 const byte pulse_range=20;               //width of desired pulse range in bpm
-const int pas_timeout=500;               //time in ms after which pedaling is set to false
+const int pas_timeout=200;               //time in ms after which pedaling is set to false
 const int torque_throttle_min=5;         //minimum torque in Nm to trigger starting aid
 const int torque_throttle_full=20;       //torque to give full throttle
 

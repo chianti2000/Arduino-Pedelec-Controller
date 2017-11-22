@@ -28,9 +28,9 @@ void TimeComponent::draw(bool repaint) {
     }
     lcd.setCursor(240 - num_chars*12, m_y + 2);
     //hours
-    lcd.printf("%02d", value/(24*60));
+    lcd.printf("%02d", value/(60*60));
     lcd.print(":");
-    value-= value/(24*60) * 24 * 60;
+    value-= value/(60*60) * 60 * 60;
 
     //minutes
     lcd.printf("%02d", value/(60));
