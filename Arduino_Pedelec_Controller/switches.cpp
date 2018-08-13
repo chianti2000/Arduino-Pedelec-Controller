@@ -217,6 +217,23 @@ static void action_toggle_bluetooth()
 #endif
 }
 
+
+static void action_set_profile(const boolean new_profile)
+{
+    current_profile = new_profile;
+
+    activate_new_profile();
+}
+
+#ifdef SUPPORT_LIGHTS_SWITCH
+static void action_toggle_lights()
+{
+    lights_enabled = !lights_enabled;
+    digitalWrite(lights_pin, !digitalRead(lights_pin));
+}
+#endif
+
+
 static void handle_display_return(int result)
 #if (DISPLAY_TYPE & DISPLAY_TYPE_ILI22)
 {
@@ -225,21 +242,13 @@ static void handle_display_return(int result)
         case DISPLAY_ACTION_MENU_DISABLED:
             menu_active = false;
             break;
-        case DISPLAY_ACTION_TOGGLE_LIGHT_OFF:
-            display_show_important_info("Disabled Lights", 0);
-            digitalWrite(lights_pin, HIGH);
+        case DISPLAY_ACTION_TOGGLE_LIGHTS:
+            display_show_important_info("Toggled Lights", 0);
+            action_toggle_lights();
             break;
-        case DISPLAY_ACTION_TOGGLE_LIGHT_ON:
-            display_show_important_info("Enabled Lights", 0);
-            digitalWrite(lights_pin, LOW);
-            break;
-        case DISPLAY_ACTION_ACTIVE_PROFILE_1:
-            display_show_important_info("Activated Profile 1", 0);
-            action_set_profile(0);
-            break;
-        case DISPLAY_ACTION_ACTIVE_PROFILE_2:
-            display_show_important_info("Activated Profile 2", 0);
-            action_set_profile(1);
+        case DISPLAY_ACTION_TOGGLE_ACTIVE_PROFILE:
+            display_show_important_info("Toggled Profile", 0);
+            action_set_profile(!current_profile);
             break;
         case DISPLAY_ACTION_DISABLE_BRAKE:
             first_aid_ignore_break=true;
@@ -317,20 +326,6 @@ static void action_enter_menu()
 
 #endif
 }
-
-static void action_set_profile(const boolean new_profile)
-{
-    current_profile = new_profile;
-
-    activate_new_profile();
-}
-
-#ifdef SUPPORT_LIGHTS_SWITCH
-static void action_toggle_lights()
-{
-    digitalWrite(lights_pin, !digitalRead(lights_pin));
-}
-#endif
 
 #ifdef SUPPORT_GEAR_SHIFT
 enum gear_shift { GEAR_LOW=0, GEAR_HIGH, GEAR_AUTO, _GEAR_END };

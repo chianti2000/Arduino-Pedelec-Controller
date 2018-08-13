@@ -127,6 +127,15 @@ int keyPressed() {
         else if(result.value == MENU_ID_DEC_POTI_CB) {
             response = DISPLAY_ACTION_POTI_DOWN;
         }
+        else if(result.value == MENU_ID_LIGHT_CB) {
+            response = DISPLAY_ACTION_TOGGLE_LIGHTS;
+        }
+        else if(result.value == MENU_ID_BLUETOOTH_CB) {
+            response = DISPLAY_ACTION_TOGGLE_BLUETOOTH;
+        }
+        else if(result.value == MENU_ID_PROFIL_CB) {
+            response = DISPLAY_ACTION_TOGGLE_ACTIVE_PROFILE;
+        }
         else if(result.value == MENU_ID_RESET_KM) {
             response = DISPLAY_ACTION_RESET_ODO;
         }
@@ -143,19 +152,7 @@ int keyPressed() {
 
         currentView->activate();
     } else if (result.result == VIEW_RESULT_CHECKBOX_CHECKED) {
-        if (result.value == MENU_ID_LIGHT_CB) {
-            model.showIcon(ICON_ID_LIGHT);
-            response = DISPLAY_ACTION_TOGGLE_LIGHT_ON;
-        }
-        else if (result.value == MENU_ID_BLUETOOTH_CB) {
-            model.showIcon(ICON_ID_BLUETOOTH);
-            response = DISPLAY_ACTION_TOGGLE_BLUETOOTH_ON;
-        }
-        else if (result.value == MENU_ID_PROFIL_CB) {
-            model.showIcon(ICON_ID_PROFILE);
-            response = DISPLAY_ACTION_ACTIVE_PROFILE_2;
-        }
-        else if (result.value == MENU_ID_EM_BRAKE_CB) {
+        if (result.value == MENU_ID_EM_BRAKE_CB) {
             response = DISPLAY_ACTION_DISABLE_BRAKE;
         }
         else if (result.value == MENU_ID_EM_PEDAL_CB) {
@@ -171,19 +168,8 @@ int keyPressed() {
 
         //! Checkbox toggled
     } else if (result.result == VIEW_RESULT_CHECKBOX_UNCHECKED) {
-        if (result.value == MENU_ID_LIGHT_CB) {
-            model.clearIcon(ICON_ID_LIGHT);
-            response = DISPLAY_ACTION_TOGGLE_LIGHT_OFF;
-        }
-        else if (result.value == MENU_ID_BLUETOOTH_CB) {
-            model.clearIcon(ICON_ID_BLUETOOTH);
-            response = DISPLAY_ACTION_TOGGLE_BLUETOOTH_OFF;
-        }
-        else if (result.value == MENU_ID_PROFIL_CB) {
-            model.clearIcon(ICON_ID_PROFILE);
-            response = DISPLAY_ACTION_ACTIVE_PROFILE_1;
-        }
-        else if (result.value == MENU_ID_EM_BRAKE_CB) {
+
+        if (result.value == MENU_ID_EM_BRAKE_CB) {
             response = DISPLAY_ACTION_ENABLE_BRAKE;
         }
         else if (result.value == MENU_ID_EM_PEDAL_CB) {

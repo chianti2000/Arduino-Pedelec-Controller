@@ -1320,6 +1320,8 @@ void display_update()
     }
     updateIconModel(ICON_ID_BRAKE, !brake_stat);
     updateIconModel(ICON_ID_PAS, pedaling);
+    updateIconModel(ICON_ID_PROFILE, current_profile);
+    updateIconModel(ICON_ID_LIGHT, lights_enabled);
 
     // todo: proper trip time
     updateDataModel(VALUE_ID_TIME_DRIVEN, millis()/1000);

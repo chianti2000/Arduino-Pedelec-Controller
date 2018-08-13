@@ -116,17 +116,17 @@ const sw_action SW_POTI_LONG_PRESS = ACTION_NONE;
 
 const sw_action SW_UP_SHORT_PRESS = ACTION_INCREASE_POTI;
 //const sw_action SW_DISPLAY1_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
-const sw_action SW_UP_LONG_PRESS  = ACTION_NONE;
+const sw_action SW_UP_LONG_PRESS  = ACTION_PROFILE;
 
 const sw_action SW_DOWN_SHORT_PRESS = ACTION_DECREASE_POTI;
 //const sw_action SW_DISPLAY2_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
-const sw_action SW_DOWN_LONG_PRESS  = ACTION_NONE;
+const sw_action SW_DOWN_LONG_PRESS  = ACTION_PROFILE;
 
 const sw_action SW_LEFT_SHORT_PRESS = ACTION_DISPLAY_NEXT_VIEW;
-const sw_action SW_LEFT_LONG_PRESS = ACTION_NONE;
+const sw_action SW_LEFT_LONG_PRESS = ACTION_TOGGLE_LIGHTS;
 
 const sw_action SW_RIGHT_SHORT_PRESS = ACTION_DISPLAY_PREV_VIEW;
-const sw_action SW_RIGHT_LONG_PRESS = ACTION_NONE;
+const sw_action SW_RIGHT_LONG_PRESS = ACTION_TOGGLE_LIGHTS;
 
 const sw_action SW_CENTER_SHORT_PRESS = ACTION_ENTER_MENU;
 const sw_action SW_CENTER_LONG_PRESS = ACTION_SHUTDOWN_SYSTEM;
@@ -153,7 +153,7 @@ const int display_backlight_pin = 12;   // LCD backlight. Use a free pin here, f
 const int poti_value_on_startup_in_watts = 200;    //poti startup value in watts
 const int poti_level_step_size_in_watts = 50;    //number of watts to increase / decrease poti value by switch press
 const int poti_fixed_value_via_switch = 250;     //fixed number of watts for the soft poti when ACTION_SET_FIXED_POTI_VALUE is triggered
-const int fixed_throttle_in_watts = 500;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
+const int fixed_throttle_in_watts = 700;         //number of watts to set as throttle value if ACTION_FIXED_THROTTLE_VALUE is hold down (=starting aid via switch)
 
 #define SUPPORT_THROTTLE    //uncomment if Throttle connected
 #define SUPPORT_PAS         //uncomment if PAS-sensor connected
@@ -222,8 +222,8 @@ const float vcutoff=3.5*NUM_CELLS;              //cutoff voltage in V;
 const float vemergency_shutdown = 3.3*NUM_CELLS;  //emergency power off situation to save the battery from undervoltage
 const float wheel_circumference = 2.202; //wheel circumference in m
 const byte wheel_magnets=1;              //configure your number of wheel magnets here
-const int spd_max1=45;                   //speed cutoff start in Km/h
-const int spd_max2=50;                   //speed cutoff stop (0W) in Km/h
+const int spd_max1=25;                   //speed cutoff start in Km/h
+const int spd_max2=28;                   //speed cutoff stop (0W) in Km/h
 const int power_max=750;                 //Maximum power in W (throttle mode)
 const int power_poti_max=750;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
 const int thermal_limit=500;             //Maximum continuous thermal load motor can withstand
@@ -250,10 +250,10 @@ const int torque_throttle_full=20;       //torque to give full throttle
 
 //Config Options for profile 2-----------------------------------------------------------------------------------------------------
 const int startingaid_speed_2 = 6;
-const int spd_max1_2=25;                   //speed cutoff start in Km/h
-const int spd_max2_2=28;                   //speed cutoff stop (0W) in Km/h
-const int power_max_2=500;                 //Maximum power in W (throttle mode)
-const int power_poti_max_2=500;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
+const int spd_max1_2=45;                   //speed cutoff start in Km/h
+const int spd_max2_2=50;                   //speed cutoff stop (0W) in Km/h
+const int power_max_2=750;                 //Maximum power in W (throttle mode)
+const int power_poti_max_2=750;            //Maximum power in W (poti mode) or maximum percentage of human power drawn by motor (torque mode)
 const double capacity_2 = 8 * NUM_CELLS * 3.7;           //battery capacity in watthours for range calculation
 
 // voltage and current calibration

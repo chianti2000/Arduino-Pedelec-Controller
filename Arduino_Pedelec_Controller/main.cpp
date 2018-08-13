@@ -234,14 +234,14 @@ const int voltage_in = 255;
 const int current_in = 255;
 
 //plugs top left, wheel last pin from VESC
-const int wheel_in = 18;              //Speed read-Pin
-const int pas_in = 2; //PAS_in 1
-const int option_pin = 3; //PAS_in 2
+const int wheel_in = 23;              //Speed read-Pin
+const int pas_in = 5; //PAS_in 1
+const int option_pin = 6; //PAS_in 2
 
 //plug top right
-const int buttons_in = A1;          //Buttons read-Pin
+const int buttons_in = A0;          //Buttons read-Pin
 const int throttle_in = 255;
-const int brake_in = 8;
+const int brake_in = 15;
 const int switch_thr = 255;           //thr switch
 const int switch_disp = 255;           //Display switch
 const int switch_disp_2 = 255;           //Display switch2
@@ -374,7 +374,7 @@ int curr_power_max=power_max;
 int curr_power_poti_max=power_poti_max;
 double curr_capacity=capacity;
 boolean current_profile=0; //0: blue profile, 1: red profile
-
+boolean lights_enabled=0;
 // On-the-go duct tape to get you home with broken wiring.
 boolean first_aid_ignore_break = false;
 boolean first_aid_ignore_pas = false;
